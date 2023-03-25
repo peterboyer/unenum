@@ -1,0 +1,10 @@
+{
+	"extends": "@tsconfig/node-lts-strictest",
+	"include": ["src"],
+	"exclude": ["dist", "src/**/*.spec.ts"],
+	"compilerOptions": {
+		"outDir": "dist",
+		"declaration": true,
+		"noEmitOnError": true
+	}
+}

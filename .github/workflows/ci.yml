@@ -1,0 +1,94 @@
+name: main
+
+on:
+  push:
+    branches:
+      - v*
+    paths-ignore:
+      - CHANGELOG.md
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy? (y/sha/N)"
+        required: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bahmutov/npm-install@v1
+      - run: yarn install --frozen-lockfile
+
+      - run: |
+          yarn concurrently \
+            --names "lint,lint:ts,test,build,docs" \
+            "yarn lint" \
+            "yarn lint:ts" \
+            "yarn test" \
+            "yarn build" \
+            "yarn docs"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: docs
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy == 'y' || github.event.inputs.deploy == 'sha' }}
+    concurrency:
+      group: deploy
+      cancel-in-progress: true
+    env:
+      # workaround https://github.com/JS-DevTools/npm-publish/issues/15
+      INPUT_TOKEN: ""
+      PUBLISH_CHANNEL: ${{ github.event.inputs.deploy == 'y' && 'latest' || 'sha' }}
+    steps:
+      - uses: actions/checkout@v2
+        with: { fetch-depth: 0 }
+      - uses: bahmutov/npm-install@v1
+      - run: yarn install --frozen-lockfile
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - if: ${{ env.PUBLISH_CHANNEL == 'latest' }}
+        run: oTAG= yarn build:version
+
+      - if: ${{ env.PUBLISH_CHANNEL == 'sha' }}
+        run: oTAG= oSHA= yarn build:version
+
+      - run: echo ${{ env.PUBLISH_CHANNEL }}
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: ./dist/package.json
+          access: public
+          tag: ${{ env.PUBLISH_CHANNEL }}
+
+      - uses: ad-m/github-push-action@master
+        with:
+          tags: true
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: docs
+          path: docs
+
+      - if: ${{ env.PUBLISH_CHANNEL == 'latest' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

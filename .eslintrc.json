@@ -1,0 +1,15 @@
+{
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:prettier/recommended"
+	],
+	"rules": {
+		"@typescript-eslint/no-namespace": 0,
+		"@typescript-eslint/triple-slash-reference": 0
+	},
+	"ignorePatterns": ["docs/**", "dist/**"]
+}

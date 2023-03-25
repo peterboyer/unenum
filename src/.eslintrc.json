@@ -1,0 +1,5 @@
+{
+	"rules": {
+		"triple-slash-reference": "off"
+	}
+}

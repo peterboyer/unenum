@@ -1,0 +1,12 @@
+{
+  "transform": {
+    "^.+\\.tsx?$": [
+      "esbuild-jest",
+      {
+        "sourcemap": true
+      }
+    ]
+  },
+  "testPathIgnorePatterns": ["__tests__"],
+  "modulePathIgnorePatterns": ["dist"]
+}
