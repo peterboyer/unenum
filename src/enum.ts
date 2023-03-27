@@ -1,5 +1,5 @@
 /// <reference path="utils.d.ts" />
-import type { RequiredKeys, Intersect } from "./utils";
+import type { $unenum } from "./utils";
 
 /**
  * Creates a union of mutually exclusive, discriminable variants.
@@ -23,13 +23,13 @@ import type { RequiredKeys, Intersect } from "./utils";
  * ```
  */
 // prettier-ignore
-type Enum<T extends object> = {
+export type Enum<T extends object> = {
 	[K in keyof T]-?:
-		& { [M in K]-?: K extends RequiredKeys<T> ? { value: T[K] } : true }
+		& { [M in K]-?: K extends $unenum.RequiredKeys<T> ? { value: T[K] } : true }
 		& { [M in Exclude<keyof T, K>]+?: never };
 }[keyof T];
 
-namespace Enum {
+export namespace Enum {
 	/**
 	 * Infers a given Enum's root definition, from which a variants' value type
 	 * may be further inferred.
@@ -43,15 +43,15 @@ namespace Enum {
 	 * FooRoot["B"] -> :+? void | undefined
 	 * ```
 	 */
-	export type Infer<T extends object> = Intersect<
-		T extends unknown ? InferRoots<Pick<T, RequiredKeys<T>>> : never
+	export type Infer<T extends object> = $unenum.Intersect<
+		T extends unknown
+			? Pick<T, $unenum.RequiredKeys<T>> extends infer M
+				? {
+						[K in keyof M]: M[K] extends { value: infer R }
+							? { [V in K]-?: R }
+							: { [V in K]+?: void };
+				  }[keyof M]
+				: never
+			: never
 	>;
-
-	type InferRoots<T> = {
-		[K in keyof T]: T[K] extends { value: infer R }
-			? { [M in K]-?: R }
-			: { [M in K]+?: void };
-	}[keyof T];
 }
-
-export type { Enum };
