@@ -10,8 +10,14 @@ cp src/*.d.ts dist
 		cp $f ../dist/global.$name.types.d.ts;
 	done
 )
-find ./dist -name '*.types.d.ts' -exec sed -i'' 's/^export type .*//g' {} \;
-find ./dist -name '*.types.d.ts' -exec sed -i'' 's/^import type .*//g' {} \;
+find dist -name '*.types.d.ts' -exec sed -i'' 's/^export type .*//g' {} \;
+find dist -name '*.types.d.ts' -exec sed -i'' 's/^import type .*//g' {} \;
+
+cp src/utils.d.ts dist/utils.types.d.ts;
+find dist -name 'utils.types.d.ts' -exec sed -i'' 's/^export type .*//g' {} \;
+find dist -name '*[^.types].d.ts' -exec sed -i'' 's/.*utils.d.ts.*//g' {} \;
+find dist -name '*.types.d.ts' -exec sed -i'' 's/utils.d.ts/utils.types.d.ts/g' {} \;
+
 cp package.json LICENSE README.md dist
 dot-json dist/package.json scripts --delete
 dot-json dist/package.json devDependencies --delete

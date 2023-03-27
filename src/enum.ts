@@ -1,3 +1,4 @@
+/// <reference path="utils.d.ts" />
 import type { RequiredKeys, Intersect } from "./utils";
 
 /**

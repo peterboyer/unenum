@@ -7,7 +7,7 @@
  * -> "A" | "B"
  * ```
  */
-export type RequiredKeys<T extends object> = {
+type RequiredKeys<T extends object> = {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	[K in keyof T]-?: {} extends Pick<T, K> ? never : K;
 }[keyof T];
@@ -21,8 +21,10 @@ export type RequiredKeys<T extends object> = {
  * -> { A: string, B: string, C: string }
  * ```
  */
-export type Intersect<T extends object> = (
+type Intersect<T extends object> = (
 	T extends unknown ? (t: T) => void : never
 ) extends (t: infer R) => void
 	? R
 	: never;
+
+export type { RequiredKeys, Intersect };
