@@ -1,4 +1,30 @@
-# esresult
+# unenum
+
+0kb, ergonomic, Rust-like ADT enums for TypeScript.
+
+```
+type WebEvent = Enum<{
+	// A unit-like variant.
+	PageLoad?: void;
+	PageUnload?: void;
+	// A variant with a value.
+	KeyPress: string;
+	Paste: string;
+	Click: { x: number; y: number; };
+}>
+```
+
+For Applications (Global):
+
+```
+import "unenum/enum";
+```
+
+For Libraries (Imported):
+
+```
+import type { Enum } from 'unenum';
+```
 
 ```ts
 // typescript

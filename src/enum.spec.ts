@@ -44,7 +44,10 @@ describe("Enum", () => {
 	it("should support an unknown generic variable type", () => {
 		const result = (<T>(
 			value: T
-		): Enum<{ A: Enum.Generic<T>; B: undefined }> => {
+		): Enum<{
+			A: T;
+			B?: void;
+		}> => {
 			if (value) {
 				return { A: { value } };
 			}
@@ -58,26 +61,14 @@ describe("Enum", () => {
 	});
 
 	describe("Infer", () => {
-		type MyEnum = Enum<{ A: string; B: undefined }>;
-
-		it("should extract value of non-undefined variant value", () => {
-			expectType<string>({} as Enum.Infer<MyEnum, "A">);
-		});
-
-		it("should give undefined of undefined variant value", () => {
-			expectType<undefined>(undefined as Enum.Infer<MyEnum, "B">);
-		});
-	});
-
-	describe("Root", () => {
 		it("should revert root enum variants", () => {
 			type MyEnum = Enum<{ A: string; B: number }>;
-			expectType<{ A: string; B: number }>({} as Enum.Root<MyEnum>);
+			expectType<{ A: string; B: number }>({} as Enum.Infer<MyEnum>);
 		});
 
 		it("should revert root enum variants without values", () => {
-			type MyEnum = Enum<{ A: string; B: undefined }>;
-			expectType<{ A: string; B: undefined }>({} as Enum.Root<MyEnum>);
+			type MyEnum = Enum<{ A: string; B?: void }>;
+			expectType<{ A: string; B?: void }>({} as Enum.Infer<MyEnum>);
 		});
 	});
 });

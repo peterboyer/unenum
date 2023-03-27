@@ -1,7 +1,7 @@
 import "unenum/global";
 
 type MyEnum = Enum<{
-	A: undefined;
+	A?: void;
 	B: { foo: string };
 }>;
 

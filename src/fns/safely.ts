@@ -1,11 +1,10 @@
-import type { Enum } from "../enum";
 import type { Result } from "../result";
 
 export function safely<T>(
 	fn: () => T
 ): T extends Promise<unknown>
-	? Promise<Result<Enum.Generic<Awaited<T>>, unknown>>
-	: Result<Enum.Generic<Awaited<T>>> {
+	? Promise<Result<Awaited<T>, unknown>>
+	: Result<Awaited<T>> {
 	try {
 		const value = fn();
 		if (value && typeof value === "object" && "then" in value) {

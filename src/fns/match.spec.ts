@@ -8,7 +8,7 @@ describe("match", () => {
 			value: Enum<{
 				A: string;
 				B: number;
-				C: undefined;
+				C?: void;
 				D: never;
 				E: unknown;
 			}>

@@ -1,7 +1,7 @@
 import type { Enum, Result } from "unenum";
 
 type MyEnum = Enum<{
-	A: undefined;
+	A?: void;
 	B: { foo: string };
 }>;
 

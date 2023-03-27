@@ -1,15 +1,15 @@
 import type { Enum } from "../enum";
 
 export const match =
-	<T extends Record<string, { value: unknown } | true>>(target: T) =>
+	<T extends Record<string, unknown>>(target: T) =>
 	<
-		E extends Enum.Root<T>,
+		E extends Enum.Infer<T>,
 		M extends Partial<{
 			[K in keyof E]: (
 				value: E[K] extends { value: infer X } ? X : E[K]
 			) => unknown;
 		}>,
-		F extends (value: Enum<Omit<Enum.Root<T>, keyof M>>) => unknown
+		F extends (value: Enum<Omit<Enum.Infer<T>, keyof M>>) => unknown
 	>(
 		mapper: M,
 		fallback: F
