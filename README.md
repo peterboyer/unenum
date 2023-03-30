@@ -12,7 +12,53 @@ Create your own `Enum`s with no runtime dependencies! Includes `Result` and `Fut
 
 ## Overview
 
-![A side-by-side comparison of unenum's Enum type for TypeScript and Rust's native Enum](./comparison.png)
+<table width="100%">
+<tr>
+<td>
+<pre>// TypeScript
+type WebEvent = Enum<{
+	// Unit
+	PageLoad: undefined;
+	PageUnload: undefined;
+	// Tuple
+	KeyPress: [string];
+	Paste: [string];
+	// Object
+	Click: { x: number; y: number; };
+}></pre><img width="441" height="1">
+<pre>function inspect(event: WebEvent) {
+	 
+	if (event.PageLoad) console.log(...);
+	else if (event.PageUnload) console.log(...);
+	else if (event.KeyPress) console.log(..., event[0]);
+	else if (event.Paste) { const [s] = event; console.log(..., s); }
+	else if (event.Click) { const { x, y } = event; console.log(..., x, y); 
+	 
+}</pre>
+</td>
+<td>
+<pre>// Rust
+enum WebEvent {
+	// Unit
+	PageLoad,
+	PageUnload,
+	// Tuple
+	KeyPress(char),
+	Paste(String),
+	// Struct
+	Click { x: i64, y: i64 },
+}</pre><img width="441" height="1">
+<pre>fn inspect(event: WebEvent) {
+	match event {
+		WebEvent::PageLoad => println!(...),
+		WebEvent::PageUnload => println!(...),
+		WebEvent::KeyPress(c) => println!(..., c),
+		WebEvent::Paste(s) => println!(..., s),
+		WebEvent::Click { x, y } => println!(..., x, y),
+	}
+}</pre>
+</td>
+</table>
 
 ## Installation
 
