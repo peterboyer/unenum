@@ -1,24 +1,22 @@
 import type { Result } from "../result";
 
-export function safely<T>(
-	fn: () => T
-): T extends Promise<unknown>
-	? Promise<Result<Awaited<T>, unknown>>
-	: Result<Awaited<T>> {
+type Safe<T> = T extends Promise<unknown>
+	? Promise<Result<Awaited<T>>>
+	: Result<Awaited<T>>;
+
+export function safely<T>(fn: () => T): Safe<T> {
 	try {
 		const value = fn();
-		if (value && typeof value === "object" && "then" in value) {
-			return (
-				// @ts-expect-error Lazy.
-				value
-					.then((value: unknown) => ({ Ok: { value } }))
-					.catch((value: unknown) => ({ Err: { value } }))
-			);
+		if (value && value instanceof Promise) {
+			const result = value
+				.then((value: unknown): Result => ({ Ok: true, value }))
+				.catch((error: unknown): Result => ({ Err: true, error }));
+			return result as Safe<T>;
 		}
-		// @ts-expect-error Lazy.
-		return { Ok: { value } };
+		const result: Result = { Ok: true, value };
+		return result as Safe<T>;
 	} catch (error) {
-		// @ts-expect-error Lazy.
-		return { Err: { value: error } };
+		const result: Result = { Err: true, error };
+		return result as Safe<T>;
 	}
 }

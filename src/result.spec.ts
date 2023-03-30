@@ -1,45 +1,48 @@
 import { expectType } from "tsd";
+import type { Enum } from "./enum";
 import type { Result } from "./result";
 
 describe("Result", () => {
 	it("should support unknown values", () => {
 		const result = ((): Result => {
 			if (Math.random()) {
-				return { Err: { value: "FooError" } };
+				return { Err: true, error: "FooError" };
 			}
-			return { Ok: { value: "foo" } };
+			return { Ok: true, value: "foo" };
 		})();
 		if (result.Ok) {
-			expectType<unknown>(result.Ok.value);
+			expectType<unknown>(result.value);
 		} else {
-			expectType<unknown>(result.Err.value);
+			expectType<unknown>(result.error);
 		}
 	});
 
 	it("should support specified values", () => {
 		const result = ((): Result<string, "FooError"> => {
 			if (Math.random()) {
-				return { Err: { value: "FooError" } };
+				return { Err: true, error: "FooError" };
 			}
-			return { Ok: { value: "foo" } };
+			return { Ok: true, value: "foo" };
 		})();
 		if (result.Ok) {
-			expectType<string>(result.Ok.value);
+			expectType<string>(result.value);
 		} else {
-			expectType<"FooError">(result.Err.value);
+			expectType<"FooError">(result.error);
 		}
 	});
 
 	it("should support picking a single variant", () => {
-		const result = ((): Pick<Result<string, "FooError">, "Err"> | undefined => {
+		const result = (():
+			| Enum.Pick<Result<string, "FooError">, "Err">
+			| undefined => {
 			if (Math.random()) {
-				return { Err: { value: "FooError" } };
+				return { Err: true, error: "FooError" };
 			}
 			return;
 		})();
 		if (result) {
 			if (result.Err) {
-				expectType<string>(result.Err.value);
+				expectType<string>(result.error);
 			}
 		} else {
 			expectType<undefined>(result);

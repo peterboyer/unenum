@@ -1,43 +1,51 @@
-import { expectType } from "tsd";
+import { expectNotType, expectType } from "tsd";
 import type { Enum } from "./enum";
 
 describe("Enum", () => {
 	it("should support an enum of one", () => {
-		const result = ((): Enum<{ A: string }> => {
-			return { A: { value: "a" } };
+		const result = ((): Enum<{
+			A: { value: string };
+		}> => {
+			return { A: true, value: "a" };
 		})();
 		if (result.A) {
-			expectType<string>(result.A.value);
+			expectType<string>(result.value);
 		} else {
 			expectType<never>(result.A);
 		}
 	});
 
 	it("should support an enum of many", () => {
-		const result = ((): Enum<{ A: string; B: number }> => {
+		const result = ((): Enum<{
+			A: { value: string };
+			B: { value: number };
+		}> => {
 			if (Math.random()) {
-				return { A: { value: "a" } };
+				return { A: true, value: "a" };
 			}
-			return { B: { value: 1 } };
+			return { B: true, value: 123 };
 		})();
 		if (result.A) {
-			expectType<string>(result.A.value);
+			expectType<string>(result.value);
 		} else {
-			expectType<number>(result.B.value);
+			expectType<number>(result.value);
 		}
 	});
 
 	it("should support an enum with possible undefined", () => {
-		const result = ((): Enum<{ A: string; B: number | undefined }> => {
+		const result = ((): Enum<{
+			A: { value: string };
+			B: { value: number | undefined };
+		}> => {
 			if (Math.random()) {
-				return { A: { value: "a" } };
+				return { A: true, value: "a" };
 			}
-			return { B: { value: 1 } };
+			return { B: true, value: 1 };
 		})();
 		if (result.A) {
-			expectType<string>(result.A.value);
+			expectType<string>(result.value);
 		} else {
-			expectType<number | undefined>(result.B.value);
+			expectType<number | undefined>(result.value);
 		}
 	});
 
@@ -45,30 +53,89 @@ describe("Enum", () => {
 		const result = (<T>(
 			value: T
 		): Enum<{
-			A: T;
-			B?: void;
+			A: { value: T };
+			B: undefined;
 		}> => {
 			if (value) {
-				return { A: { value } };
+				return { A: true, value };
 			}
 			return { B: true };
 		})(Math.random());
 		if (result.A) {
-			expectType<number>(result.A.value);
+			expectType<number>(result.value);
 		} else {
 			expectType<true>(result.B);
 		}
 	});
 
-	describe("Infer", () => {
-		it("should revert root enum variants", () => {
-			type MyEnum = Enum<{ A: string; B: number }>;
-			expectType<{ A: string; B: number }>({} as Enum.Infer<MyEnum>);
+	describe("Keys", () => {
+		it("should support Enum(0)", () => {
+			const Empty = {};
+			const $ = {} as Enum.Keys<Enum<typeof Empty>>;
+			expectType<never>($);
+			expectNotType<typeof $>({});
 		});
 
-		it("should revert root enum variants without values", () => {
-			type MyEnum = Enum<{ A: string; B?: void }>;
-			expectType<{ A: string; B?: void }>({} as Enum.Infer<MyEnum>);
+		it("should support Enum(1)", () => {
+			const $ = {} as Enum.Keys<Enum<{ A: undefined }>>;
+			expectType<"A">($);
+		});
+
+		it("should support Enum(n)", () => {
+			const $ = {} as Enum.Keys<Enum<{ A: undefined; B: undefined }>>;
+			expectType<"A" | "B">($);
+		});
+	});
+
+	describe("Values", () => {
+		it("should support Enum(0)", () => {
+			const Empty = {};
+			const $ = {} as Enum.Values<Enum<typeof Empty>>;
+			expectType<never>($);
+			expectNotType<typeof $>({});
+		});
+
+		it("should support Enum(1)", () => {
+			const $ = {} as Enum.Values<
+				Enum<{
+					A: { value: string };
+				}>
+			>;
+			expectType<{ value: string }>($);
+			expectType<typeof $>({} as { value: string });
+		});
+
+		it("should support Enum(n)", () => {
+			const $ = {} as Enum.Values<
+				Enum<{
+					A: { value: string };
+					B: { value: number };
+				}>
+			>;
+			expectType<{ value: string | number }>($);
+			expectType<{ value: string } | { value: number }>($);
+		});
+	});
+
+	describe("Pick", () => {
+		it("should support Enum(0)", () => {
+			const Empty = {};
+			const $ = {} as Enum.Pick<Enum<typeof Empty>, never>;
+			expectType<never>($);
+			expectNotType<typeof $>({});
+		});
+
+		it("should support Enum(1)", () => {
+			const $ = {} as Enum.Pick<Enum<{ A: { value: string } }>, "A">;
+			expectType<{ A: true; value: string }>($);
+		});
+
+		it("should support Enum(n)", () => {
+			const $ = {} as Enum.Pick<
+				Enum<{ A: { value: string }; B: undefined }>,
+				"A"
+			>;
+			expectType<{ A: true; B?: never; value: string }>($);
 		});
 	});
 });

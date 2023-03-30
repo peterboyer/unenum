@@ -7,12 +7,12 @@ describe("Future", () => {
 			if (Math.random()) {
 				return { Pending: true };
 			}
-			return { Ready: { value: "foo" } };
+			return { Ready: true, value: "foo" };
 		})();
 		if (future.Pending) {
 			expectType<true>(future.Pending);
 		} else {
-			expectType<unknown>(future.Ready.value);
+			expectType<unknown>(future.value);
 		}
 	});
 
@@ -21,12 +21,12 @@ describe("Future", () => {
 			if (Math.random()) {
 				return { Pending: true };
 			}
-			return { Ready: { value: "foo" } };
+			return { Ready: true, value: "foo" };
 		})();
 		if (future.Pending) {
 			expectType<true>(future.Pending);
 		} else {
-			expectType<string>(future.Ready.value);
+			expectType<string>(future.value);
 		}
 	});
 });
