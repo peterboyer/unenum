@@ -24,6 +24,8 @@ describe("Result", () => {
 			}
 			return { Ok: true, value: "foo" };
 		})();
+		expectType<string | undefined>(result.value);
+		expectType<"FooError" | undefined>(result.error);
 		if (result.Ok) {
 			expectType<string>(result.value);
 		} else {
@@ -41,6 +43,7 @@ describe("Result", () => {
 			return;
 		})();
 		if (result) {
+			expectType<"FooError">(result.error);
 			if (result.Err) {
 				expectType<string>(result.error);
 			}

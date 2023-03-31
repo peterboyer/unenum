@@ -19,6 +19,7 @@ describe("Enum", () => {
 		const result = ((): Enum<{
 			A: { value: string };
 			B: { value: number };
+			C: undefined;
 		}> => {
 			if (Math.random()) {
 				return { A: true, value: "a" };
@@ -27,8 +28,10 @@ describe("Enum", () => {
 		})();
 		if (result.A) {
 			expectType<string>(result.value);
-		} else {
+		} else if (result.B) {
 			expectType<number>(result.value);
+		} else {
+			expectType<{ C: true }>(result);
 		}
 	});
 
@@ -110,6 +113,7 @@ describe("Enum", () => {
 				Enum<{
 					A: { value: string };
 					B: { value: number };
+					C: undefined;
 				}>
 			>;
 			expectType<{ value: string | number }>($);
