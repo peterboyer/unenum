@@ -2,97 +2,111 @@
 
 # unenum
 
-**A 0kb, Rust-like Enum mechanism for TypeScript to use instead of the `enum`-builtin.**
+**A 0kb, Rust-like Enum/ADT mechanism for TypeScript to use instead of the
+`enum`-builtin.**
 
-Create your own `Enum`s with no runtime dependencies! Includes `Result` and `Future` Enums!
+Create your own `Enum`s with no runtime dependencies, instantiate them with
+plain objects, and consume them with simple `if` statements or optional-chaining.
+Includes `Result` and `Future`!
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) • [`Result`](#resultt-e---okt--erre) • [`Future`](#futuret---readyt--pending) • [`safely`](#safelyfn---result)
+[Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) •
+[`Result`](#resultt-e) • [`Future`](#futuret) • [`safely`](#safelyfn---result)
 
 </div>
 
+<br />
+
 ## Overview
+
+- A side-by-side example of `unenum`'s `Enum` compared with Rust's built-in `enum`.
+- Based on Rust's Enum documentation `WebEvent` example,
+  [here](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html).
 
 <table width="100%">
 <tr>
 <td>
-<pre>// TypeScript
+<pre lang="ts">// TypeScript
+ 
 type WebEvent = Enum<{
-	// Unit
-	PageLoad: undefined;
-	PageUnload: undefined;
-	// Tuple (not feasible, use object)
-	KeyPress: { key: string };
-	Paste: { content: string };
-	// Object
-	Click: { x: number; y: number };
+  // Unit
+  PageLoad: undefined;
+  PageUnload: undefined;
+  // Tuple (use object, not feasible)
+  KeyPress: { key: string };
+  Paste: { content: string };
+  // Object
+  Click: { x: number; y: number };
 }></pre><img width="441" height="1">
-<pre>function inspect(event: WebEvent) {
-	 
-	if (event.PageLoad) console.log(...);
-	else if (event.PageUnload) console.log(...);
-	else if (event.KeyPress) console.log(..., event.key);
-	else if (event.Paste) console.log(..., event.content);
-	else if (event.Click) { const { x, y } = event; console.log(..., x, y); }
-	 
+<pre lang="ts">const event: WebEvent = { PageLoad: true };
+const event: WebEvent = { PageUnload: true };
+const event: WebEvent = { KeyPress: true, key: "x" };
+const event: WebEvent = { Paste: true, content: "..." };
+const event: WebEvent = { Click: true, x: 10, y: 10 };
+ 
+function inspect(event: WebEvent) {
+   
+  if (event.PageLoad) console.log(...);
+  else if (event.PageUnload) console.log(...);
+  else if (event.KeyPress) console.log(..., event.key);
+  else if (event.Paste) console.log(..., event.content);
+  else if (event.Click) console.log(..., event.x, event.y);
+   
 }
+</pre></td>
 
-const event = { PageLoad: true };
-const event = { PageUnload: true };
-const event = { KeyPress: true, key: "x" };
-const event = { Paste: true, content: "..." };
-const event = { Click: true, x: 10, y: 10 };
-
-</pre>
-</td>
 <td>
-<pre>// Rust
+<pre lang="rust">// Rust
+ 
 enum WebEvent {
-	// Unit
-	PageLoad,
-	PageUnload,
-	// Tuple
-	KeyPress(char),
-	Paste(String),
-	// Struct
-	Click { x: i64, y: i64 },
+  // Unit
+  PageLoad,
+  PageUnload,
+  // Tuple
+  KeyPress(char),
+  Paste(String),
+  // Struct
+  Click { x: i64, y: i64 },
 }</pre><img width="441" height="1">
-<pre>fn inspect(event: WebEvent) {
-	match event {
-		WebEvent::PageLoad => println!(...),
-		WebEvent::PageUnload => println!(...),
-		WebEvent::KeyPress(c) => println!(..., c),
-		WebEvent::Paste(s) => println!(..., s),
-		WebEvent::Click { x, y } => println!(..., x, y),
-	}
-}
-
-let event = WebEvent::PageLoad;
+<pre lang="rust">let event = WebEvent::PageLoad;
 let event = WebEvent::PageUnload;
 let event = WebEvent::KeyPress('x')
 let event = WebEvent::Paste("...".to_owned());
 let event = WebEvent::Click { x: 10, y: 10 };
+ 
+fn inspect(event: WebEvent) {
+  match event {
+    WebEvent::PageLoad => println!(...),
+    WebEvent::PageUnload => println!(...),
+    WebEvent::KeyPress(c) => println!(..., c),
+    WebEvent::Paste(s) => println!(..., s),
+    WebEvent::Click { x, y } => println!(..., x, y),
+  }
+}
+</pre></td>
 
-</pre>
-</td>
 </table>
+
+<br />
 
 ## Installation
 
 ```sh
-$ yarn add unenum
+npm install unenum
 ```
 
-For Applications (Global):
+For Applications ([Global](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html)):
 
 ```ts
 import "unenum/enum";
 ```
 
-For Libraries (Imported):
+For Libraries ([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
 
 ```ts
 import type { Enum } from "unenum";
 ```
+
+<br />
 
 ## `Enum`
 
@@ -102,23 +116,22 @@ Creates a union of mutually exclusive, discriminable variants.
 import "unenum/enum"; // global
 import type { Enum } from "unenum"; // imported
 ```
-
 ```ts
 type Foo = Enum<{
   A: { a: string };
   B: { b: number };
   C: undefined;
-}>
--> | { A:  true ; B?: never; C?: never; a: string; }
-   | { A?: never; B:  true ; C?: never; b: number; }
-   | { A?: never; B?: never; C:  true ;            }
+}>;
+-> | { A:  true ; B?: never; C?: never; a: string }
+   | { A?: never; B:  true ; C?: never; b: number }
+   | { A?: never; B?: never; C:  true             }
 
 const foo: Foo = { A: true, a: "abc" };
 const foo: Foo = { B: true, b: 12345 };
-const foo: Foo = { C: true,          };
+const foo: Foo = { C: true           };
 
-if      (foo.A) { foo.a; -> string }
-else if (foo.B) { foo.b; -> number }
+if      (foo.A) { foo.a -> string }
+else if (foo.B) { foo.b -> number }
 else            { ... }
 ```
 
@@ -127,8 +140,8 @@ else            { ... }
 Infers all possible variants keys of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-type FooKeys = Enum.Keys<Foo>
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooKeys = Enum.Keys<Foo>;
 -> "A" | "B" | "C"
 ```
 
@@ -137,117 +150,122 @@ type FooKeys = Enum.Keys<Foo>
 Infers all possible variant values of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-type FooValues = Enum.Values<Foo>
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooValues = Enum.Values<Foo>;
 -> { a: string } | { b: string }
 ```
 
 ### `Enum.Pick<T, V>`
 
-Picks all given variants of the given Enum by variant keys.
+Narrows a given Enum by the given variant keys.
 
 ```ts
-type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-type FooPick = Enum.Pick<Foo, "A" | "C">
--> { A: true, a: string } | { C: true }
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooPick = Enum.Pick<Foo, "A" | "C">;
+-> { A: true; a: string } | { C: true }
 ```
 
-## Enums
+<br />
+
+## Included Enums
 
 ### `Result<T, E>`
 
-- `::Ok { value: T; error?: never; }`
-- `::Err { error: E; value?: never; }`
+- `Ok { value: T; error?: never }`
+- `Err { error: E; value?: never }`
 
 Based on Rust's [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-```tsx
+> **Note**<br/>
+> `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
+
+```ts
 import "unenum/result"; // global
 import type { Result } from "unenum"; // imported
 ```
-
-```tsx
+```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-  return { Ok: true, value: user }
-  return { Err: true, error: "NotFound" }
+  return { Ok: true, value: user };
+  return { Err: true, error: "NotFound" };
 }
 
-// handle error then narrow to value
 const $user = await getUser("foo");
 if ($user.Err) { return ... }
 const user = $user.value;
 
-// value or undefined if error
 const $user = await getUser("foo");
-const user = $user.value;
-const user = $user.Ok && $user.value;
+const userOrUndefined = $user.value;
+const userOrUndefined = $user.Ok && $user.value;
 
-// value or undefined if error (shortest)
-const user = (await getUser("foo")).value;
+const userOrUndefined = (await getUser("foo")).value;
 ```
+
+> **Note**<br/>
+> One pattern to help with naming instances of Results (and other Enums) is to prefix it with a `$` (e.g. `$user`) before unwrapping
+> to access the value as the non-prefixed name (e.g. `user`).
+
+<br />
 
 ### `Future<T>`
 
-- `::Ready { value: T; }`
-- `::Pending { value?: never; }`
+- `Ready { value: T }`
+- `Pending { value?: never }`
 
 Based on Rust's [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
-```tsx
+> **Note**<br/>
+> `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
+
+```ts
 import "unenum/future"; // global
 import type { Future } from "unenum"; // imported
 ```
-
 ```tsx
-const useRemoteUser = async (
-	name: string
-): Future<Result<User, "NotFound" | "DataError">> => {
-	return { Pending: true };
-	const $user = { Ok: { value: user } };
-	const $user = { Err: { value: "NotFound" } };
-	return { Ready: $user };
+const useRemoteUser = async (name: string): Future<Result<User, "NotFound">> => {
+  const $user = { Ok: true, value: user };
+  const $user = { Err: true, value: "NotFound" };
+  return { Ready: true, value: $user };
+  return { Pending: true };
 };
 
-// handle pending and error
 const $userData = useRemoteUserData("foo");
-if ($userData.Pending) {
-	return <Loading />;
-}
+if ($userData.Pending) { return <Loading />; }
 const $user = $userData.value;
-if ($user.Err) {
-	return <Error />;
-}
+if ($user.Err) { return <Error />; }
 const user = $user.value;
 return <View user={user} />;
 
-// value or undefined if pending
 const $userData = useRemoteUserData("foo");
-const $user = $userData.value;
+const $userOrUndefined = $userData.value;
+const userOrUndefined = $userOrUndefined?.value;
 
-// value or undefined if pending (shortest)
-const $user = useRemoteUserData("foo").value;
-
-// value or undefined if pending or if ready with error
-const user = useRemoteUserData("foo").value?.value;
+const $userOrUndefined = useRemoteUserData("foo").value;
+const userOrUndefined = useRemoteUserData("foo").value?.value;
 ```
+
+<br />
 
 ## Utils
 
 ### `safely(fn) -> Result`
 
-Executes a given function and returns a `Result`:
+Executes a given function and wraps value in a `Result`:
 
-- `::Ok`, with the function's inferred `return` value,
-- `::Err`, with `unknown` of any potentially `thrown` errors.
+- `Ok`, with the function's inferred `return` value,
+- `Err`, with `unknown` of any potentially `thrown` errors.
+- Automatically wraps `Result` with `Promise<...>` if given function is async/returns a `Promise`.
 
-```tsx
+```ts
 import { safely } from "unenum/fns"; // runtime
 ```
+```ts
+const $data = safely(() => fn(...));
+const dataOrUndefined = $data.value;
+if ($data.Err) { return ... }
+const data = $data.value;
 
-```tsx
-const $data = safely(() => fn(...))
-const data = $data.value
-
-const $data = await safely(async () => (await fn(...)))
-const data = $data.value
+const $data = await safely(async () => (await fn(...)));
+const dataOrUndefined = $data.value;
+if ($data.Err) { return ... }
+const data = $data.value;
 ```
