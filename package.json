@@ -28,10 +28,6 @@
 		"./future": {
 			"types": "src/future.global.entry.d.ts"
 		},
-		"./fns/match": {
-			"main": "src/fns/match.d.ts",
-			"types": "src/fns/match.d.ts"
-		},
 		"./fns/safely": {
 			"main": "src/fns/safely.js",
 			"types": "src/fns/safely.d.ts"
