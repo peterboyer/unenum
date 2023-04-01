@@ -177,7 +177,8 @@ type FooPick = Enum.Pick<Foo, "A" | "C">;
 
 Based on Rust's [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-> **Note**<br/> > `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
+> **Note**<br/>
+> `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
 
 ```ts
 import "unenum/result"; // global
@@ -214,7 +215,8 @@ const userOrUndefined = (await getUser("foo")).value;
 
 Based on Rust's [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
-> **Note**<br/> > `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
+> **Note**<br/>
+> `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
 
 ```ts
 import "unenum/future"; // global
