@@ -4,6 +4,14 @@ type Safe<T> = T extends Promise<unknown>
 	? Promise<Result<Awaited<T>>>
 	: Result<Awaited<T>>;
 
+/**
+ * Executes a given function and wraps value in a `Result`:
+ *
+ * - `Ok`, with the function's inferred `return` value,
+ * - `Err`, with `unknown` of any potentially `thrown` errors.
+ * - Automatically wraps `Result` with `Promise<...>` if given function is
+ *   async/returns a `Promise`.
+ */
 export function safely<T>(fn: () => T): Safe<T> {
 	try {
 		const value = fn();

@@ -116,6 +116,7 @@ Creates a union of mutually exclusive, discriminable variants.
 import "unenum/enum"; // global
 import type { Enum } from "unenum"; // imported
 ```
+
 ```ts
 type Foo = Enum<{
   A: { a: string };
@@ -176,13 +177,13 @@ type FooPick = Enum.Pick<Foo, "A" | "C">;
 
 Based on Rust's [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-> **Note**<br/>
-> `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
+> **Note**<br/> > `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
 
 ```ts
 import "unenum/result"; // global
 import type { Result } from "unenum"; // imported
 ```
+
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
   return { Ok: true, value: user };
@@ -213,25 +214,31 @@ const userOrUndefined = (await getUser("foo")).value;
 
 Based on Rust's [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
-> **Note**<br/>
-> `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
+> **Note**<br/> > `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
 
 ```ts
 import "unenum/future"; // global
 import type { Future } from "unenum"; // imported
 ```
+
 ```tsx
-const useRemoteUser = async (name: string): Future<Result<User, "NotFound">> => {
-  const $user = { Ok: true, value: user };
-  const $user = { Err: true, value: "NotFound" };
-  return { Ready: true, value: $user };
-  return { Pending: true };
+const useRemoteUser = async (
+	name: string
+): Future<Result<User, "NotFound">> => {
+	const $user = { Ok: true, value: user };
+	const $user = { Err: true, value: "NotFound" };
+	return { Ready: true, value: $user };
+	return { Pending: true };
 };
 
 const $userData = useRemoteUserData("foo");
-if ($userData.Pending) { return <Loading />; }
+if ($userData.Pending) {
+	return <Loading />;
+}
 const $user = $userData.value;
-if ($user.Err) { return <Error />; }
+if ($user.Err) {
+	return <Error />;
+}
 const user = $user.value;
 return <View user={user} />;
 
@@ -258,6 +265,7 @@ Executes a given function and wraps value in a `Result`:
 ```ts
 import { safely } from "unenum/fns"; // runtime
 ```
+
 ```ts
 const $data = safely(() => fn(...));
 const dataOrUndefined = $data.value;

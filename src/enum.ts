@@ -10,17 +10,17 @@ type Empty = typeof Empty;
  *   A: { a: string };
  *   B: { b: number };
  *   C: undefined;
- * }>
- * -> | { A:  true ; B?: never; C?: never; a: string; }
- *    | { A?: never; B:  true ; C?: never; b: number; }
- *    | { A?: never; B?: never; C:  true ;            }
+ * }>;
+ * -> | { A:  true ; B?: never; C?: never; a: string }
+ *    | { A?: never; B:  true ; C?: never; b: number }
+ *    | { A?: never; B?: never; C:  true             }
  *
  * const foo: Foo = { A: true, a: "abc" };
  * const foo: Foo = { B: true, b: 12345 };
- * const foo: Foo = { C: true,          };
+ * const foo: Foo = { C: true           };
  *
- * if      (foo.A) { foo.a; -> string }
- * else if (foo.B) { foo.b; -> number }
+ * if      (foo.A) { foo.a -> string }
+ * else if (foo.B) { foo.b -> number }
  * else            { ... }
  * ```
  */
@@ -38,8 +38,8 @@ export namespace Enum {
 	 *
 	 * @example
 	 * ```ts
-	 * type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-	 * type FooKeys = Enum.Keys<Foo>
+	 * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+	 * type FooKeys = Enum.Keys<Foo>;
 	 * -> "A" | "B" | "C"
 	 * ```
 	 */
@@ -52,8 +52,8 @@ export namespace Enum {
 	 *
 	 * @example
 	 * ```ts
-	 * type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-	 * type FooValues = Enum.Values<Foo>
+	 * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+	 * type FooValues = Enum.Values<Foo>;
 	 * -> { a: string } | { b: string }
 	 * ```
 	 */
@@ -66,13 +66,13 @@ export namespace Enum {
 		: never;
 
 	/**
-	 * Picks all given variants of the given Enum by variant keys.
+	 * Narrows a given Enum by the given variant keys.
 	 *
 	 * @example
 	 * ```ts
-	 * type Foo = Enum<{ A: { a: string }, B: { b: number }, C: undefined }>
-	 * type FooPick = Enum.Pick<Foo, "A" | "C">
-	 * -> { A: true, a: string } | { C: true }
+	 * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+	 * type FooPick = Enum.Pick<Foo, "A" | "C">;
+	 * -> { A: true; a: string } | { C: true }
 	 * ```
 	 */
 	export type Pick<T extends object, V extends Enum.Keys<T>> = T extends (
