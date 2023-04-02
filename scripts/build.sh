@@ -65,10 +65,6 @@ function bumpdiff() {
   fi
 }
 
-# oTAG= env variable not-empty, then git tag with version.
-oTAG=$(env | grep oTAG)
-oSHA=$(env | grep oSHA)
-
 NAME=$(dot-json package.json name)
 VERSION=$(dot-json package.json version)
 VERSION_MAJOR=$(echo $VERSION | awk 'BEGIN{ FS = "." }{ print $1 }')
@@ -101,7 +97,7 @@ else
 	fi
 fi
 
-if [[ -n $oSHA ]]; then
+if [[ -n $PUBLISH_CHANNEL == "sha" ]]; then
 	echo "[>] flag: sha"
 	VERSION_NEXT=$VERSION_NEXT-sha.$(git rev-parse --short HEAD)
 	(cd dist && dot-json package.json version $VERSION_NEXT)
