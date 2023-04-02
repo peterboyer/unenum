@@ -1,4 +1,4 @@
-import type { Result } from "../result";
+import type { Result } from "./result";
 
 type Safe<T> = T extends Promise<unknown>
 	? Promise<Result<Awaited<T>>>

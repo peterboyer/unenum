@@ -11,45 +11,56 @@
 		"test:e2e": "./scripts/test-e2e.sh",
 		"lint": "./scripts/lint.sh",
 		"lint:ts": "./scripts/lint-ts.sh",
-		"build": "./scripts/build.sh",
-		"docs": "./scripts/docs.sh"
+		"build": "./scripts/build.sh"
 	},
-	"types": "src/index.d.ts",
+	"main": "./cjs/index.js",
+	"module": "./mjs/index.js",
+	"types": "./mjs/index.d.ts",
 	"exports": {
 		".": {
-			"types": "src/index.ts"
+			"types": "./mjs/index.d.ts",
+			"import": "./mjs/index.js",
+			"default": "./cjs/index.js"
 		},
-		"./enum": {
-			"types": "src/enum.global.entry.d.ts"
+		"./global": {
+			"types": "./mjs/global.d.ts",
+			"import": "./mjs/global.js",
+			"default": "./cjs/global.js"
 		},
-		"./result": {
-			"types": "src/result.global.entry.d.ts"
+		"./global.enum": {
+			"types": "./mjs/global.enum.d.ts",
+			"import": "./mjs/global.js",
+			"default": "./cjs/global.js"
 		},
-		"./future": {
-			"types": "src/future.global.entry.d.ts"
+		"./global.result": {
+			"types": "./mjs/global.result.d.ts",
+			"import": "./mjs/global.js",
+			"default": "./cjs/global.js"
 		},
-		"./fns/safely": {
-			"main": "src/fns/safely.js",
-			"types": "src/fns/safely.d.ts"
+		"./global.future": {
+			"types": "./mjs/global.future.d.ts",
+			"import": "./mjs/global.js",
+			"default": "./cjs/global.js"
 		}
 	},
 	"devDependencies": {
-		"@tsconfig/node-lts-strictest": "^18.12.1",
+		"@tsconfig/esm": "^1.0.2",
+		"@tsconfig/strictest": "^2.0.0",
 		"@types/jest": "^29.4.1",
-		"@typescript-eslint/eslint-plugin": "^5.55.0",
-		"@typescript-eslint/parser": "^5.55.0",
-		"concurrently": "^7.6.0",
+		"@typescript-eslint/eslint-plugin": "^5.57.0",
+		"@typescript-eslint/parser": "^5.57.0",
+		"concurrently": "^8.0.1",
 		"dot-json": "^1.2.2",
-		"esbuild": "^0.17.11",
+		"esbuild": "^0.17.15",
 		"esbuild-jest": "^0.5.0",
-		"eslint": "^8.36.0",
+		"eslint": "^8.37.0",
 		"eslint-config-prettier": "^8.7.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"jest": "^29.5.0",
 		"prettier": "^2.8.4",
-		"tsd": "^0.27.0",
+		"tsd": "^0.28.1",
 		"typedoc": "^0.23.26",
-		"typescript": "^4.9.5"
+		"typescript": "^5.0.3"
 	},
 	"keywords": [
 		"es",

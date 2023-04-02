@@ -6,8 +6,8 @@
 `enum`-builtin.**
 
 Create your own `Enum`s with no runtime dependencies, instantiate them with
-plain objects, and consume them with simple `if` statements or optional-chaining.
-Includes `Result` and `Future`!
+plain objects, and consume them with simple `if` statements or
+optional-chaining. Includes `Result` and `Future`!
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) •
 [`Result`](#resultt-e) • [`Future`](#futuret) • [`safely`](#safelyfn---result)
@@ -18,7 +18,8 @@ Includes `Result` and `Future`!
 
 ## Overview
 
-- A side-by-side example of `unenum`'s `Enum` compared with Rust's built-in `enum`.
+- A side-by-side example of `unenum`'s `Enum` compared with Rust's built-in
+  `enum`.
 - Based on Rust's Enum documentation `WebEvent` example,
   [here](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html).
 
@@ -94,16 +95,18 @@ fn inspect(event: WebEvent) {
 npm install unenum
 ```
 
-For Applications ([Global](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html)):
+For Applications
+([Global](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html)):
 
 ```ts
-import "unenum/enum";
+import "unenum/global";
 ```
 
-For Libraries ([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
+For Libraries
+([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
 
 ```ts
-import type { Enum } from "unenum";
+import type { ... } from "unenum";
 ```
 
 <br />
@@ -113,7 +116,7 @@ import type { Enum } from "unenum";
 Creates a union of mutually exclusive, discriminable variants.
 
 ```ts
-import "unenum/enum"; // global
+import "unenum/global.enum"; // global
 import type { Enum } from "unenum"; // imported
 ```
 
@@ -175,13 +178,17 @@ type FooPick = Enum.Pick<Foo, "A" | "C">;
 - `Ok { value: T; error?: never }`
 - `Err { error: E; value?: never }`
 
-Based on Rust's [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
+Based on Rust's
+[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-> **Note**<br/>
-> `Result` uses `value?: never` and `error?: never` to allow for shorthand access to `.value` or `.error` if you want to default to `undefined` if either property is not present.
+> **Note**
+>
+> `Result` uses `value?: never` and `error?: never` to allow for shorthand
+> access to `.value` or `.error` if you want to default to `undefined` if
+> either property is not present.
 
 ```ts
-import "unenum/result"; // global
+import "unenum/global.result"; // global
 import type { Result } from "unenum"; // imported
 ```
 
@@ -202,9 +209,11 @@ const userOrUndefined = $user.Ok && $user.value;
 const userOrUndefined = (await getUser("foo")).value;
 ```
 
-> **Note**<br/>
-> One pattern to help with naming instances of Results (and other Enums) is to prefix it with a `$` (e.g. `$user`) before unwrapping
-> to access the value as the non-prefixed name (e.g. `user`).
+> **Note**
+>
+> One pattern to help with naming instances of Results (and other Enums) is to
+> prefix it with a `$` (e.g. `$user`) before unwrapping to access the value as
+> the non-prefixed name (e.g. `user`).
 
 <br />
 
@@ -213,13 +222,18 @@ const userOrUndefined = (await getUser("foo")).value;
 - `Ready { value: T }`
 - `Pending { value?: never }`
 
-Based on Rust's [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
+Based on Rust's
+[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
+[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
-> **Note**<br/>
-> `Future` uses `value?: never` to allow for shorthand access to `.value` if you want to default to `undefined` if `value` is not present (i.e. when `Pending`).
+> **Note**
+>
+> `Future` uses `value?: never` to allow for shorthand access to `.value` if
+> you want to default to `undefined` if `value` is not present (i.e. when
+> `Pending`).
 
 ```ts
-import "unenum/future"; // global
+import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
 ```
 
@@ -262,10 +276,11 @@ Executes a given function and wraps value in a `Result`:
 
 - `Ok`, with the function's inferred `return` value,
 - `Err`, with `unknown` of any potentially `thrown` errors.
-- Automatically wraps `Result` with `Promise<...>` if given function is async/returns a `Promise`.
+- Automatically wraps `Result` with `Promise<...>` if given function is
+  async/returns a `Promise`.
 
 ```ts
-import { safely } from "unenum/fns"; // runtime
+import { safely } from "unenum"; // runtime
 ```
 
 ```ts

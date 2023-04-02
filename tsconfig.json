@@ -1,7 +1,7 @@
 {
-	"extends": "@tsconfig/node-lts-strictest",
+	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
 	"include": ["src"],
-	"exclude": ["dist", "src/**/*.spec.ts"],
+	"exclude": ["src/**/*.spec.ts"],
 	"compilerOptions": {
 		"outDir": "dist",
 		"declaration": true,

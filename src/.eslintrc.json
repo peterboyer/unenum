@@ -1,5 +1,7 @@
 {
 	"rules": {
-		"triple-slash-reference": "off"
+		"triple-slash-reference": "off",
+		"@typescript-eslint/no-namespace": 0,
+		"@typescript-eslint/triple-slash-reference": 0
 	}
 }
