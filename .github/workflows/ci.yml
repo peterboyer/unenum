@@ -19,8 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
 
+      - run: yarn install --frozen-lockfile
       - run: |
           yarn concurrently \
             --names "lint,lint:ts,test,build" \
@@ -28,7 +28,6 @@ jobs:
             "yarn lint:ts" \
             "yarn test" \
             "yarn build"
-
       - uses: actions/upload-artifact@v3
         with:
           name: dist
@@ -47,6 +46,8 @@ jobs:
       INPUT_TOKEN: ""
       PUBLISH_CHANNEL: ${{ github.event.inputs.deploy == 'y' && 'latest' || 'sha' }}
     steps:
+      - uses: actions/checkout@v3
+
       - uses: actions/download-artifact@v3
         with:
           name: dist
