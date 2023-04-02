@@ -1,27 +1,27 @@
 import type { Enum, Result } from "unenum";
 
 type MyEnum = Enum<{
-	A?: void;
-	B: { foo: string };
+	A: undefined;
+	B: { b: string };
 }>;
 
 {
 	const result = ((value: string): Result<MyEnum, "ValueInvalid"> => {
 		if (!value) {
-			return { Err: { value: "ValueInvalid" } };
+			return { Err: true, error: "ValueInvalid" };
 		}
 		if (value === "a") {
-			return { Ok: { value: { A: true } } };
+			return { Ok: true, value: { A: true } };
 		}
-		return { Ok: { value: { B: { value: { foo: value } } } } };
+		return { Ok: true, value: { B: true, b: "..." } };
 	})("foo");
 	if (result.Err) {
-		console.log(result.Err.value === "ValueInvalid");
+		console.log(result.error === "ValueInvalid");
 	} else {
-		if (result.Ok.value.A) {
-			console.log(result.Ok.value.A === true);
+		if (result.value.A) {
+			console.log(result.value.A === true);
 		} else {
-			console.log(typeof result.Ok.value.B.value.foo === "string");
+			console.log(result.value.b === "...");
 		}
 	}
 }

@@ -28,6 +28,7 @@ jobs:
             "yarn lint:ts" \
             "yarn test" \
             "yarn build"
+      - run: yarn test:e2e
       - uses: actions/upload-artifact@v3
         with:
           name: dist
