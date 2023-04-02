@@ -5,17 +5,18 @@ rm -rf dist
 # mjs
 tsc \
 	--outDir dist/mjs
-cp src/*.d.ts dist/mjs
+mv dist/mjs/*.ts dist
+cp src/*.d.ts dist
 (
 	cd src;
 	for f in *[^.spec][^.d].ts; do
 		name=${f//.ts/};
-		cp $f ../dist/mjs/global.$name.types.d.ts;
+		cp $f ../dist/global.$name.types.d.ts;
 	done
 )
-find dist/mjs -name '*.types.d.ts' -exec sed -i'' 's/import type .*//g' {} \;
-find dist/mjs -name '*.types.d.ts' -exec sed -i'' 's/export //g' {} \;
-touch dist/mjs/global.mjs
+find dist -name '*.types.d.ts' -exec sed -i'' 's/import type .*//g' {} \;
+find dist -name '*.types.d.ts' -exec sed -i'' 's/export //g' {} \;
+touch dist/mjs/global.js
 cat >dist/mjs/package.json <<!EOF
 {
 	"type": "module"
@@ -27,6 +28,7 @@ tsc \
 	--outDir dist/cjs \
 	--module commonjs \
 	--target es2015 \
+	--declaration false \
 	--verbatimModuleSyntax false
 touch dist/cjs/global.js
 cat >dist/cjs/package.json <<!EOF

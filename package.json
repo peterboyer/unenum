@@ -15,30 +15,30 @@
 	},
 	"main": "./cjs/index.js",
 	"module": "./mjs/index.js",
-	"types": "./mjs/index.d.ts",
+	"types": "./index.d.ts",
 	"exports": {
 		".": {
-			"types": "./mjs/index.d.ts",
+			"types": "./index.d.ts",
 			"import": "./mjs/index.js",
 			"default": "./cjs/index.js"
 		},
 		"./global": {
-			"types": "./mjs/global.d.ts",
+			"types": "./global.d.ts",
 			"import": "./mjs/global.js",
 			"default": "./cjs/global.js"
 		},
 		"./global.enum": {
-			"types": "./mjs/global.enum.d.ts",
+			"types": "./global.enum.d.ts",
 			"import": "./mjs/global.js",
 			"default": "./cjs/global.js"
 		},
 		"./global.result": {
-			"types": "./mjs/global.result.d.ts",
+			"types": "./global.result.d.ts",
 			"import": "./mjs/global.js",
 			"default": "./cjs/global.js"
 		},
 		"./global.future": {
-			"types": "./mjs/global.future.d.ts",
+			"types": "./global.future.d.ts",
 			"import": "./mjs/global.js",
 			"default": "./cjs/global.js"
 		}
@@ -59,7 +59,6 @@
 		"jest": "^29.5.0",
 		"prettier": "^2.8.4",
 		"tsd": "^0.28.1",
-		"typedoc": "^0.23.26",
 		"typescript": "^5.0.3"
 	},
 	"keywords": [
