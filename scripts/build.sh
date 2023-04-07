@@ -3,7 +3,7 @@
 rm -rf dist
 
 # mjs
-tsc \
+tsc --project tsconfig.build.json \
 	--outDir dist/mjs
 mv dist/mjs/*.ts dist
 cp src/*.d.ts dist
@@ -24,7 +24,7 @@ cat >dist/mjs/package.json <<!EOF
 !EOF
 
 # cjs
-tsc \
+tsc --project tsconfig.build.json \
 	--outDir dist/cjs \
 	--module commonjs \
 	--target es2015 \

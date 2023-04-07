@@ -1,10 +1,10 @@
 {
 	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
 	"include": ["src"],
-	"exclude": ["src/**/*.spec.ts"],
 	"compilerOptions": {
 		"outDir": "dist",
 		"declaration": true,
-		"noEmitOnError": true
+		"noEmitOnError": true,
+		"moduleResolution": "node"
 	}
 }
