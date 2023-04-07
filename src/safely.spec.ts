@@ -1,6 +1,6 @@
 import { expectType } from "tsd";
 import { safely } from "./safely";
-import type { Result } from "../result";
+import type { Result } from "./result";
 
 describe("safely", () => {
 	it("should handle value", () => {
