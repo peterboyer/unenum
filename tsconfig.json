@@ -2,9 +2,7 @@
 	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
 	"include": ["src"],
 	"compilerOptions": {
-		"outDir": "dist",
-		"declaration": true,
-		"noEmitOnError": true,
+		"noEmit": true,
 		"moduleResolution": "node"
 	}
 }

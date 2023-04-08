@@ -1,1 +1,5 @@
-/// <reference path="global.enum.types.d.ts" />
+import type { Enum as _Enum } from "./enum";
+
+declare global {
+	export { _Enum as Enum };
+}

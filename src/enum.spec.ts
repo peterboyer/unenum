@@ -1,4 +1,4 @@
-import { expectNotType, expectType } from "tsd";
+import { expectType } from "tsd";
 import type { Enum } from "./enum";
 
 describe("Enum", () => {
@@ -11,7 +11,7 @@ describe("Enum", () => {
 		if (result.A) {
 			expectType<string>(result.value);
 		} else {
-			expectType<never>(result.A);
+			expectType<typeof result.A extends never ? true : false>(true as const);
 		}
 	});
 
@@ -75,17 +75,17 @@ describe("Enum", () => {
 		it("should support Enum(0)", () => {
 			const Empty = {};
 			const $ = {} as Enum.Keys<Enum<typeof Empty>>;
-			expectType<never>($);
-			expectNotType<typeof $>({});
+			expectType<typeof $ extends never ? true : false>(true as const);
 		});
 
 		it("should support Enum(1)", () => {
 			const $ = {} as Enum.Keys<Enum<{ A: undefined }>>;
 			expectType<"A">($);
+			expectType<typeof $ extends never ? true : false>(false as const);
 		});
 
 		it("should support Enum(n)", () => {
-			const $ = {} as Enum.Keys<Enum<{ A: undefined; B: undefined }>>;
+			const $ = {} as Enum.Keys<Enum<{ A: undefined; B: { value: string } }>>;
 			expectType<"A" | "B">($);
 		});
 	});
@@ -94,8 +94,7 @@ describe("Enum", () => {
 		it("should support Enum(0)", () => {
 			const Empty = {};
 			const $ = {} as Enum.Values<Enum<typeof Empty>>;
-			expectType<never>($);
-			expectNotType<typeof $>({});
+			expectType<typeof $ extends never ? true : false>(true as const);
 		});
 
 		it("should support Enum(1)", () => {
@@ -105,7 +104,7 @@ describe("Enum", () => {
 				}>
 			>;
 			expectType<{ value: string }>($);
-			expectType<typeof $>({} as { value: string });
+			expectType<typeof $ extends never ? true : false>(false as const);
 		});
 
 		it("should support Enum(n)", () => {
@@ -118,6 +117,7 @@ describe("Enum", () => {
 			>;
 			expectType<{ value: string | number }>($);
 			expectType<{ value: string } | { value: number }>($);
+			expectType<typeof $ extends never ? true : false>(false as const);
 		});
 	});
 
@@ -125,13 +125,13 @@ describe("Enum", () => {
 		it("should support Enum(0)", () => {
 			const Empty = {};
 			const $ = {} as Enum.Pick<Enum<typeof Empty>, never>;
-			expectType<never>($);
-			expectNotType<typeof $>({});
+			expectType<typeof $ extends never ? true : false>(true as const);
 		});
 
 		it("should support Enum(1)", () => {
 			const $ = {} as Enum.Pick<Enum<{ A: { value: string } }>, "A">;
 			expectType<{ A: true; value: string }>($);
+			expectType<typeof $ extends never ? true : false>(false as const);
 		});
 
 		it("should support Enum(n)", () => {
@@ -140,6 +140,30 @@ describe("Enum", () => {
 				"A"
 			>;
 			expectType<{ A: true; B?: never; value: string }>($);
+		});
+	});
+
+	describe("Omit", () => {
+		it("should support Enum(0)", () => {
+			const Empty = {};
+			const $ = {} as Enum.Omit<Enum<typeof Empty>, never>;
+			expectType<typeof $ extends never ? true : false>(true as const);
+		});
+
+		it("should support Enum(1)", () => {
+			const $ = {} as Enum.Omit<Enum<{ A: { value: string } }>, "A">;
+			expectType<typeof $ extends never ? true : false>(true as const);
+		});
+
+		it("should support Enum(n)", () => {
+			const $ = {} as Enum.Omit<
+				Enum<{ A: { value: string }; B: undefined }>,
+				"A"
+			>;
+			expectType<{ B: true; A?: never }>($);
+			// @ts-expect-error It should be wrong.
+			expectType<{ A: true; B?: never }>($);
+			expectType<typeof $ extends never ? true : false>(false as const);
 		});
 	});
 });

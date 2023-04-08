@@ -1,4 +1,9 @@
 {
 	"extends": ["./tsconfig.json"],
-	"exclude": ["src/**/*.spec.ts"]
+	"exclude": ["src/**/*.spec.ts"],
+	"compilerOptions": {
+		"outDir": "dist",
+		"noEmit": false,
+		"noEmitOnError": true
+	}
 }

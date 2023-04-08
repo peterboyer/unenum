@@ -2,20 +2,15 @@
 
 rm -rf dist
 
+# ts
+tsc --project tsconfig.build.json \
+	--declaration true \
+	--emitDeclarationOnly true
+cp src/*.d.ts dist
+
 # mjs
 tsc --project tsconfig.build.json \
 	--outDir dist/mjs
-mv dist/mjs/*.ts dist
-cp src/*.d.ts dist
-(
-	cd src;
-	for f in *[^.spec][^.d].ts; do
-		name=${f//.ts/};
-		cp $f ../dist/global.$name.types.d.ts;
-	done
-)
-find dist -name '*.types.d.ts' -exec sed -i'' 's/import type .*//g' {} \;
-find dist -name '*.types.d.ts' -exec sed -i'' 's/export //g' {} \;
 touch dist/mjs/global.js
 cat >dist/mjs/package.json <<!EOF
 {
@@ -28,7 +23,6 @@ tsc --project tsconfig.build.json \
 	--outDir dist/cjs \
 	--module commonjs \
 	--target es2015 \
-	--declaration false \
 	--verbatimModuleSyntax false
 touch dist/cjs/global.js
 cat >dist/cjs/package.json <<!EOF
