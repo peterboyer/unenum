@@ -1,6 +1,8 @@
 import type { Result } from "./result";
 
-type Safe<T> = T extends Promise<unknown>
+type Safe<T> = 0 extends 1 & T
+	? Result<unknown> // if T is any, use unknown
+	: T extends Promise<unknown>
 	? Promise<Result<Awaited<T>>>
 	: Result<Awaited<T>>;
 

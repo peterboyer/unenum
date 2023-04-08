@@ -1,4 +1,5 @@
 import type { Enum, Result } from "unenum";
+import { safely } from "unenum";
 
 type MyEnum = Enum<{
 	A: undefined;
@@ -23,5 +24,11 @@ type MyEnum = Enum<{
 		} else {
 			console.log(result.value.b === "...");
 		}
+	}
+	const $data = safely(() => JSON.parse(""));
+	if ($data.Err) {
+		console.log($data.error);
+	} else {
+		console.log($data.value);
 	}
 }

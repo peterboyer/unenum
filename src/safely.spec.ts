@@ -32,4 +32,13 @@ describe("safely", () => {
 		expectType<Result<never, unknown>>(result);
 		expect(result).toMatchObject({ Err: true, error: { message: "bar" } });
 	});
+
+	it("should handle _any_ return value", () => {
+		const result = safely(() => JSON.parse(""));
+		if (result.Err) {
+			expectType<unknown>(result.error);
+		} else {
+			expectType<unknown>(result.value);
+		}
+	});
 });
