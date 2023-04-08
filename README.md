@@ -18,10 +18,17 @@ optional-chaining. Includes `Result` and `Future`!
 
 ## Overview
 
-- A side-by-side example of `unenum`'s `Enum` compared with Rust's built-in
-  `enum`.
-- Based on Rust's Enum documentation `WebEvent` example,
-  [here](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html).
+- The builtin TypeScript `enum` is incredibly limited:
+
+  - each enum "variant" can only be mapped by `number` or `string` value,
+  - of which cannot be instantiated with it's own data,
+  - and it criticised as an anti-pattern whereby an object with `as const`
+    serves as a better alternative.
+
+- A side-by-side example of `unenum`'s `Enum` compared with Rust's builtin
+  `enum`:
+  - does not rely on explicit `number` | `string` representations,
+  - and each variant may be instantiated with it's own prescribed data.
 
 <table width="100%">
 <tr>
@@ -86,6 +93,11 @@ fn inspect(event: WebEvent) {
 </pre></td>
 
 </table>
+
+> **Note**
+>
+> Example is based on Rust's "Enum" documentation's `WebEvent` example,
+> [here](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html).
 
 <br />
 
@@ -161,12 +173,22 @@ type FooValues = Enum.Values<Foo>;
 
 ### `Enum.Pick<T, V>`
 
-Narrows a given Enum by the given variant keys.
+Narrows a given Enum by including only the given variant keys.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
 type FooPick = Enum.Pick<Foo, "A" | "C">;
 -> { A: true; a: string } | { C: true }
+```
+
+### `Enum.Omit<T, V>`
+
+Narrows a given Enum by excluding only the given variant keys.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooOmit = Enum.Omit<Foo, "A" | "C">;
+-> { B: true; b: number }
 ```
 
 <br />
