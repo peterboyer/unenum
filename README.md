@@ -2,12 +2,8 @@
 
 # unenum
 
-**A 0kb, Rust-like Enum/ADT mechanism for TypeScript to use instead of the
-`enum`-builtin.**
-
-Create your own `Enum`s with no runtime dependencies, instantiate them with
-plain objects, and consume them with simple `if` statements or
-optional-chaining. Includes `Result` and `Future`!
+**A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
+requirements.**
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) •
 [`Result`](#resultt-e) • [`Future`](#futuret) • [`safely`](#safelyfn---result)
@@ -18,17 +14,40 @@ optional-chaining. Includes `Result` and `Future`!
 
 ## Overview
 
-- The builtin TypeScript `enum` is incredibly limited:
+TypeScript should have a more versitile and ergonomic Enum/ADT mechanism that
+_feels_ like native utility, as opposed its
+[limited](https://www.typescriptlang.org/docs/handbook/enums.html#const-enum-pitfalls),
+[misused](https://bluepnume.medium.com/nine-terrible-ways-to-use-typescript-enums-and-one-good-way-f9c7ec68bf15),
+and [redundant](https://www.youtube.com/watch?v=jjMbPt_H3RQ) built-in `enum`
+keyword which can be mostly replaced with a plain key-value mapping object
+using `as const`.
 
-  - each enum "variant" can only be mapped by `number` or `string` value,
-  - of which cannot be instantiated with it's own data,
-  - and it criticised as an anti-pattern whereby an object with `as const`
-    serves as a better alternative.
+<br />
 
-- A side-by-side example of `unenum`'s `Enum` compared with Rust's builtin
-  `enum`:
-  - does not rely on explicit `number` | `string` representations,
-  - and each variant may be instantiated with it's own prescribed data.
+Introducing `unenum`; a Rust-inspired, discriminable Enum/ADT type generic,
+featuring:
+
+- **Zero dependencies**; `unenum` is extremely lightweight.
+- **Zero runtime requirements**; `unenum` can be completely compiled away -- no
+  runtime or bundle size cost.
+- **`Enum` variants that can define custom per-instance data**; impossible with
+  native TypeScript `enum`s.
+
+<br />
+
+`unenum` wants to _feel_ like a native TypeScript utility type, _like a
+pattern_, rather than a library:
+
+- **`Enum`s are defined as `type` statements**; instead of factory functions.
+- **`Enum`s are instantiated with plain object `{ ... }` syntax**; instead of
+  constructors.
+- **`Enum`s can be consumed (and narrowed) with plain `if` statements**;
+  instead of imported match utilities.
+
+<br />
+
+Here's an example of `unenum`'s [`Enum`](#enum) compared with Rust's
+[`enum`](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html):
 
 <table width="100%">
 <tr>
@@ -39,7 +58,7 @@ type WebEvent = Enum<{
   // Unit
   PageLoad: undefined;
   PageUnload: undefined;
-  // Tuple (use object, not feasible)
+  // Tuple (use object: not feasible)
   KeyPress: { key: string };
   Paste: { content: string };
   // Object
@@ -93,11 +112,6 @@ fn inspect(event: WebEvent) {
 </pre></td>
 
 </table>
-
-> **Note**
->
-> Example is based on Rust's "Enum" documentation's `WebEvent` example,
-> [here](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html).
 
 <br />
 
@@ -233,9 +247,9 @@ const userOrUndefined = (await getUser("foo")).value;
 
 > **Note**
 >
-> One pattern to help with naming instances of Results (and other Enums) is to
-> prefix it with a `$` (e.g. `$user`) before unwrapping to access the value as
-> the non-prefixed name (e.g. `user`).
+> Instances of Results (and other Enums) can be named with a `$` prefix (e.g.
+> `$user`) before unwrapping to access the value as the non-prefixed name (e.g.
+> `user`).
 
 <br />
 
