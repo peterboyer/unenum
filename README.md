@@ -165,24 +165,30 @@ else if (foo.B) { foo.b -> number }
 else            { ... }
 ```
 
-### `Enum.Keys<T>`
+### `Enum.Root<T>`
 
-Infers all possible variants keys of the given Enum.
+Retrives the root definition of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooKeys = Enum.Keys<Foo>;
--> "A" | "B" | "C"
+type FooRoot = Enum.Root<Foo>;
+-> { A: { a: string }; B: { b: number }; C: undefined }
 ```
 
-### `Enum.Values<T>`
+### `Enum.Merge<T>`
 
-Infers all possible variant values of the given Enum.
+Combines all given Enums into a new Enum.
 
 ```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooValues = Enum.Values<Foo>;
--> { a: string } | { b: string }
+type A = Enum<{ A1: { a: string }; A2: undefined }>;
+type B = Enum<{ B1: { b: number }; B2: undefined }>;
+type AB = Enum.Merge<A | B>;
+-> Enum<{
+  A1: { a: string };
+  A2: undefined;
+  B1: { b: number };
+  B2: undefined;
+ }>
 ```
 
 ### `Enum.Pick<T, V>`
@@ -203,6 +209,26 @@ Narrows a given Enum by excluding only the given variant keys.
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
 type FooOmit = Enum.Omit<Foo, "A" | "C">;
 -> { B: true; b: number }
+```
+
+### `Enum.Keys<T>`
+
+Infers all possible variants keys of the given Enum.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooKeys = Enum.Keys<Foo>;
+-> "A" | "B" | "C"
+```
+
+### `Enum.Values<T>`
+
+Infers all possible variant values of the given Enum.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type FooValues = Enum.Values<Foo>;
+-> { a: string } | { b: string }
 ```
 
 <br />

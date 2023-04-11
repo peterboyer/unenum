@@ -15,7 +15,7 @@ export type EnumRoot<T extends EnumBase> = T extends never
 	: NonNullable<T[""]>;
 
 /**
- * Intersects all given Enums into a new Enum.
+ * Combines all given Enums into a new Enum.
  *
  * @example
  * ```ts
