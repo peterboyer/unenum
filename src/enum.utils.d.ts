@@ -1,41 +1,36 @@
-const Empty = {};
-export type Empty = typeof Empty;
+import type { EnumBase } from "./enum";
 
 /**
- * Infers all possible variants keys of the given Enum.
+ * Retrives the root definition of the given Enum.
  *
  * @example
  * ```ts
  * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * type FooKeys = Enum.Keys<Foo>;
- * -> "A" | "B" | "C"
+ * type FooRoot = Enum.Root<Foo>;
+ * -> { A: { a: string }; B: { b: number }; C: undefined }
  * ```
  */
-type EnumKeys<T extends object> = T extends unknown
-	? { [K in keyof T]-?: T[K] extends true ? K : never }[keyof T]
-	: never;
-
-export type { EnumKeys as Keys };
+export type EnumRoot<T extends EnumBase> = T extends never
+	? Empty
+	: NonNullable<T[""]>;
 
 /**
- * Infers all possible variant values of the given Enum.
+ * Intersects all given Enums into a new Enum.
  *
  * @example
  * ```ts
- * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * type FooValues = Enum.Values<Foo>;
- * -> { a: string } | { b: string }
+ * type A = Enum<{ A1: { a: string }; A2: undefined }>;
+ * type B = Enum<{ B1: { b: number }; B2: undefined }>;
+ * type AB = Enum.Merge<A | B>;
+ * -> Enum<{
+ *   A1: { a: string };
+ *   A2: undefined;
+ *   B1: { b: number };
+ *   B2: undefined;
+ *  }>
  * ```
  */
-type EnumValues<T extends object> = T extends unknown
-	? Omit<T, EnumKeys<T>> extends infer U
-		? Empty extends U
-			? never
-			: U
-		: never
-	: never;
-
-export type { EnumValues as Values };
+export type EnumMerge<T extends EnumBase> = Enum<Intersect<EnumRoot<T>>>;
 
 /**
  * Narrows a given Enum by including only the given variant keys.
@@ -47,13 +42,9 @@ export type { EnumValues as Values };
  * -> { A: true; a: string } | { C: true }
  * ```
  */
-export type EnumPick<T extends object, V extends EnumKeys<T>> = T extends (
-	V extends unknown ? { [K in V]: true } : never
-)
-	? T
-	: never;
-
-export type { EnumPick as Pick };
+export type EnumPick<T extends EnumBase, K extends EnumKeys<T>> = Enum<
+	Pick<EnumRoot<T>, K>
+>;
 
 /**
  * Narrows a given Enum by excluding only the given variant keys.
@@ -65,10 +56,57 @@ export type { EnumPick as Pick };
  * -> { B: true; b: number }
  * ```
  */
-export type EnumOmit<T extends object, V extends EnumKeys<T>> = T extends (
-	V extends unknown ? { [K in V]: true } : never
-)
-	? never
-	: T;
+export type EnumOmit<T extends EnumBase, K extends EnumKeys<T>> = Enum<
+	Pick<EnumRoot<T>, Exclude<EnumKeys<T>, K>>
+>;
 
-export type { EnumOmit as Omit };
+/**
+ * Infers all possible variants keys of the given Enum.
+ *
+ * @example
+ * ```ts
+ * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+ * type FooKeys = Enum.Keys<Foo>;
+ * -> "A" | "B" | "C"
+ * ```
+ */
+export type EnumKeys<T extends EnumBase> = T extends never
+	? never
+	: keyof EnumRoot<T>;
+
+/**
+ * Infers all possible variant values of the given Enum.
+ *
+ * @example
+ * ```ts
+ * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+ * type FooValues = Enum.Values<Foo>;
+ * -> { a: string } | { b: string }
+ * ```
+ */
+export type EnumValues<T extends EnumBase> = T extends never
+	? never
+	: NonNullable<EnumRoot<T>[keyof EnumRoot<T>]>;
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Empty = {};
+/**
+ * Represents an object with no keys or values.
+ */
+export type Empty = typeof Empty;
+
+/**
+ * Create an intersection of all union members.
+ *
+ * @example
+ * ```
+ * Intersect<{ A: string } | { B: string } | { C: string }>
+ * -> { A: string, B: string, C: string }
+ * ```
+ */
+type Intersect<T extends object> = (
+	T extends unknown ? (t: T) => void : never
+) extends (t: infer R) => void
+	? R
+	: never;
