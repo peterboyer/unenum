@@ -6,9 +6,9 @@ import type { EnumBase, Empty } from "./enum.utils";
  * @example
  * ```ts
  * type Foo = Enum<{
- *   A: { a: string };
- *   B: { b: number };
- *   C: undefined;
+ * 	A: { a: string };
+ * 	B: { b: number };
+ * 	C: undefined;
  * }>;
  * -> | { A:  true ; B?: never; C?: never; a: string }
  *    | { A?: never; B:  true ; C?: never; b: number }

@@ -6,7 +6,7 @@
 requirements.**
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) •
-[`Result`](#resultt-e) • [`Future`](#futuret) • [`safely`](#safelyfn---result)
+[`Result`](#resultt-e) • [`Future`](#futureu) • [`safely`](#safelyfn---result)
 
 </div>
 
@@ -55,29 +55,30 @@ Here's an example of `unenum`'s [`Enum`](#enum) compared with Rust's
 <pre lang="ts">// TypeScript
  
 type WebEvent = Enum<{
-  // Unit
-  PageLoad: undefined;
-  PageUnload: undefined;
-  // Tuple (use object: not feasible)
-  KeyPress: { key: string };
-  Paste: { content: string };
-  // Object
-  Click: { x: number; y: number };
-}></pre><img width="441" height="1">
-<pre lang="ts">const event: WebEvent = { PageLoad: true };
+	// Unit
+	PageLoad: undefined;
+	PageUnload: undefined;
+	// Tuple (use object: not feasible)
+	KeyPress: { key: string };
+	Paste: { content: string };
+	// Object
+	Click: { x: number; y: number };
+}>
+ 
+const event: WebEvent = { PageLoad: true };
 const event: WebEvent = { PageUnload: true };
 const event: WebEvent = { KeyPress: true, key: "x" };
 const event: WebEvent = { Paste: true, content: "..." };
 const event: WebEvent = { Click: true, x: 10, y: 10 };
  
 function inspect(event: WebEvent) {
-   
-  if (event.PageLoad) console.log(...);
-  else if (event.PageUnload) console.log(...);
-  else if (event.KeyPress) console.log(..., event.key);
-  else if (event.Paste) console.log(..., event.content);
-  else if (event.Click) console.log(..., event.x, event.y);
-   
+ 
+	if (event.PageLoad) console.log(...);
+	else if (event.PageUnload) console.log(...);
+	else if (event.KeyPress) console.log(..., event.key);
+	else if (event.Paste) console.log(..., event.content);
+	else if (event.Click) console.log(..., event.x, event.y);
+ 
 }
 </pre></td>
 
@@ -85,29 +86,30 @@ function inspect(event: WebEvent) {
 <pre lang="rust">// Rust
  
 enum WebEvent {
-  // Unit
-  PageLoad,
-  PageUnload,
-  // Tuple
-  KeyPress(char),
-  Paste(String),
-  // Struct
-  Click { x: i64, y: i64 },
-}</pre><img width="441" height="1">
-<pre lang="rust">let event = WebEvent::PageLoad;
+	// Unit
+	PageLoad,
+	PageUnload,
+	// Tuple
+	KeyPress(char),
+	Paste(String),
+	// Struct
+	Click { x: i64, y: i64 },
+}
+ 
+let event = WebEvent::PageLoad;
 let event = WebEvent::PageUnload;
 let event = WebEvent::KeyPress('x')
 let event = WebEvent::Paste("...".to_owned());
 let event = WebEvent::Click { x: 10, y: 10 };
  
 fn inspect(event: WebEvent) {
-  match event {
-    WebEvent::PageLoad => println!(...),
-    WebEvent::PageUnload => println!(...),
-    WebEvent::KeyPress(c) => println!(..., c),
-    WebEvent::Paste(s) => println!(..., s),
-    WebEvent::Click { x, y } => println!(..., x, y),
-  }
+	match event {
+		WebEvent::PageLoad => println!(...),
+		WebEvent::PageUnload => println!(...),
+		WebEvent::KeyPress(c) => println!(..., c),
+		WebEvent::Paste(s) => println!(..., s),
+		WebEvent::Click { x, y } => println!(..., x, y),
+	}
 }
 </pre></td>
 
@@ -148,9 +150,9 @@ import type { Enum } from "unenum"; // imported
 
 ```ts
 type Foo = Enum<{
-  A: { a: string };
-  B: { b: number };
-  C: undefined;
+	A: { a: string };
+	B: { b: number };
+	C: undefined;
 }>;
 -> | { A:  true ; B?: never; C?: never; a: string }
    | { A?: never; B:  true ; C?: never; b: number }
@@ -173,9 +175,9 @@ Infers the base definition of the given Enum.
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
 Enum.Infer<Foo>;
 -> {
-  A: { a: string };
-  B: { b: number };
-  C: undefined;
+	A: { a: string };
+	B: { b: number };
+	C: undefined;
 }
 ```
 
@@ -188,11 +190,11 @@ type A = Enum<{ A1: { a: string }; A2: undefined }>;
 type B = Enum<{ B1: { b: number }; B2: undefined }>;
 Enum.Merge<A | B>
 -> Enum<{
-  A1: { a: string };
-  A2: undefined;
-  B1: { b: number };
-  B2: undefined;
- }>
+	A1: { a: string };
+	A2: undefined;
+	B1: { b: number };
+	B2: undefined;
+}>
 ```
 
 ### `Enum.Pick<U, V>`
@@ -263,12 +265,14 @@ import type { Result } from "unenum"; // imported
 
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-  return { Ok: true, value: user };
-  return { Err: true, error: "NotFound" };
+	return { Ok: true, value: user };
+	return { Err: true, error: "NotFound" };
 }
 
 const $user = await getUser("foo");
-if ($user.Err) { return ... }
+if ($user.Err) {
+	return ...
+}
 const user = $user.value;
 
 const $user = await getUser("foo");
@@ -344,13 +348,21 @@ import { safely } from "unenum"; // runtime
 ```
 
 ```ts
+// sync
 const $data = safely(() => fn(...));
 const dataOrUndefined = $data.value;
-if ($data.Err) { return ... }
+if ($data.Err) {
+	return ...
+}
 const data = $data.value;
+```
 
+```ts
+// async
 const $data = await safely(async () => (await fn(...)));
 const dataOrUndefined = $data.value;
-if ($data.Err) { return ... }
+if ($data.Err) {
+	return ...
+}
 const data = $data.value;
 ```

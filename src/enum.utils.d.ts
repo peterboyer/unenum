@@ -6,9 +6,9 @@
  * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
  * Enum.Infer<Foo>;
  * -> {
- *   A: { a: string };
- *   B: { b: number };
- *   C: undefined;
+ * 	A: { a: string };
+ * 	B: { b: number };
+ * 	C: undefined;
  * }
  * ```
  */
@@ -25,11 +25,11 @@ export type EnumInfer<U extends EnumBase> = U extends never
  * type B = Enum<{ B1: { b: number }; B2: undefined }>;
  * Enum.Merge<A | B>
  * -> Enum<{
- *   A1: { a: string };
- *   A2: undefined;
- *   B1: { b: number };
- *   B2: undefined;
- *  }>
+ * 	A1: { a: string };
+ * 	A2: undefined;
+ * 	B1: { b: number };
+ * 	B2: undefined;
+ * }>
  * ```
  */
 export type EnumMerge<U extends EnumBase> = Enum<Intersect<EnumInfer<U>>>;
