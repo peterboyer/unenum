@@ -165,24 +165,28 @@ else if (foo.B) { foo.b -> number }
 else            { ... }
 ```
 
-### `Enum.Root<T>`
+### `Enum.Infer<U>`
 
-Retrives the root definition of the given Enum.
+Infers the base definition of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooRoot = Enum.Root<Foo>;
--> { A: { a: string }; B: { b: number }; C: undefined }
+Enum.Infer<Foo>;
+-> {
+  A: { a: string };
+  B: { b: number };
+  C: undefined;
+}
 ```
 
-### `Enum.Merge<T>`
+### `Enum.Merge<U>`
 
 Combines all given Enums into a new Enum.
 
 ```ts
 type A = Enum<{ A1: { a: string }; A2: undefined }>;
 type B = Enum<{ B1: { b: number }; B2: undefined }>;
-type AB = Enum.Merge<A | B>;
+Enum.Merge<A | B>
 -> Enum<{
   A1: { a: string };
   A2: undefined;
@@ -191,44 +195,47 @@ type AB = Enum.Merge<A | B>;
  }>
 ```
 
-### `Enum.Pick<T, V>`
+### `Enum.Pick<U, V>`
 
 Narrows a given Enum by including only the given variant keys.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooPick = Enum.Pick<Foo, "A" | "C">;
--> { A: true; a: string } | { C: true }
+Enum.Pick<Foo, "A" | "C">
+-> | { A: true; a: string }
+   | { C: true }
 ```
 
-### `Enum.Omit<T, V>`
+### `Enum.Omit<U, V>`
 
 Narrows a given Enum by excluding only the given variant keys.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
 type FooOmit = Enum.Omit<Foo, "A" | "C">;
--> { B: true; b: number }
+Enum.Omit<Foo, "A" | "C">
+-> | { B: true; b: number }
 ```
 
-### `Enum.Keys<T>`
+### `Enum.Keys<U>`
 
 Infers all possible variants keys of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooKeys = Enum.Keys<Foo>;
+Enum.Keys<Foo>
 -> "A" | "B" | "C"
 ```
 
-### `Enum.Values<T>`
+### `Enum.Values<U>`
 
 Infers all possible variant values of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooValues = Enum.Values<Foo>;
--> { a: string } | { b: string }
+Enum.Values<Foo>
+-> | { a: string }
+   | { b: string }
 ```
 
 <br />
@@ -266,7 +273,7 @@ const user = $user.value;
 
 const $user = await getUser("foo");
 const userOrUndefined = $user.value;
-const userOrUndefined = $user.Ok && $user.value;
+const userOrDefaultUser = $user.value ?? defaultUser;
 
 const userOrUndefined = (await getUser("foo")).value;
 ```
@@ -279,10 +286,10 @@ const userOrUndefined = (await getUser("foo")).value;
 
 <br />
 
-### `Future<T>`
+### `Future<U>`
 
-- `Ready { value: T }`
-- `Pending { value?: never }`
+- `Pending`
+- `...U`
 
 Based on Rust's
 [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
@@ -290,9 +297,8 @@ Based on Rust's
 
 > **Note**
 >
-> `Future` uses `value?: never` to allow for shorthand access to `.value` if
-> you want to default to `undefined` if `value` is not present (i.e. when
-> `Pending`).
+> Unlike `Result`, `Future` is a generic that appends a `Pending` variant with
+> a given `Enum`.
 
 ```ts
 import "unenum/global.future"; // global
@@ -300,32 +306,24 @@ import type { Future } from "unenum"; // imported
 ```
 
 ```tsx
-const useRemoteUser = async (
-	name: string
-): Future<Result<User, "NotFound">> => {
-	const $user = { Ok: true, value: user };
-	const $user = { Err: true, value: "NotFound" };
-	return { Ready: true, value: $user };
+const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
 	return { Pending: true };
+	return { Ok: true, value: user };
+	return { Err: true, value: "NotFound" };
 };
 
-const $userData = useRemoteUserData("foo");
-if ($userData.Pending) {
+const $user = useRemoteUser("foo");
+if ($user.Pending) {
 	return <Loading />;
 }
-const $user = $userData.value;
 if ($user.Err) {
 	return <Error />;
 }
 const user = $user.value;
 return <View user={user} />;
 
-const $userData = useRemoteUserData("foo");
-const $userOrUndefined = $userData.value;
-const userOrUndefined = $userOrUndefined?.value;
-
-const $userOrUndefined = useRemoteUserData("foo").value;
-const userOrUndefined = useRemoteUserData("foo").value?.value;
+const $user = useRemoteUser("foo");
+const userOrUndefined = !$userData.Pending && $userData.value;
 ```
 
 <br />
