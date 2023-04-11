@@ -77,8 +77,8 @@ describe("Enum", () => {
 		}
 	});
 
-	describe("Infer", () => {
-		const $ = {} as Enum.Infer<
+	describe("Root", () => {
+		const $ = {} as Enum.Root<
 			Enum<{
 				A: { value: string };
 				B: { value: number };

@@ -167,13 +167,13 @@ else if (foo.B) { foo.b -> number }
 else            { ... }
 ```
 
-### `Enum.Infer<U>`
+### `Enum.Root<U>`
 
-Infers the base definition of the given Enum.
+Retrieves the root definition of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-Enum.Infer<Foo>;
+Enum.Root<Foo>;
 -> {
 	A: { a: string };
 	B: { b: number };
@@ -214,7 +214,6 @@ Narrows a given Enum by excluding only the given variant keys.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-type FooOmit = Enum.Omit<Foo, "A" | "C">;
 Enum.Omit<Foo, "A" | "C">
 -> | { B: true; b: number }
 ```
@@ -349,7 +348,8 @@ import { safely } from "unenum"; // runtime
 
 ```ts
 // sync
-const $data = safely(() => fn(...));
+const fooOrThrow = () => { ... }
+const $data = safely(() => fooOrThrow(...));
 const dataOrUndefined = $data.value;
 if ($data.Err) {
 	return ...
@@ -359,7 +359,8 @@ const data = $data.value;
 
 ```ts
 // async
-const $data = await safely(async () => (await fn(...)));
+const fooOrThrow = async () => { ... }
+const $data = await safely(() => fooOrThrow(...));
 const dataOrUndefined = $data.value;
 if ($data.Err) {
 	return ...

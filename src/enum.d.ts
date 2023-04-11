@@ -32,7 +32,7 @@ export type Enum<T extends Record<string, object | undefined>> = {
 }[keyof T] & EnumBase<T>;
 
 import type {
-	EnumInfer,
+	EnumRoot,
 	EnumMerge,
 	EnumPick,
 	EnumOmit,
@@ -41,7 +41,7 @@ import type {
 } from "./enum.utils";
 
 export namespace Enum {
-	export type { EnumInfer as Infer };
+	export type { EnumRoot as Root };
 	export type { EnumMerge as Merge };
 	export type { EnumPick as Pick };
 	export type { EnumOmit as Omit };

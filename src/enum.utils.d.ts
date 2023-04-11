@@ -1,10 +1,10 @@
 /**
- * Infers the base definition of the given Enum.
+ * Retrieves the root definition of the given Enum.
  *
  * @example
  * ```ts
  * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * Enum.Infer<Foo>;
+ * Enum.Root<Foo>;
  * -> {
  * 	A: { a: string };
  * 	B: { b: number };
@@ -12,7 +12,7 @@
  * }
  * ```
  */
-export type EnumInfer<U extends EnumBase> = U extends never
+export type EnumRoot<U extends EnumBase> = U extends never
 	? Empty
 	: NonNullable<U[""]>;
 
@@ -32,7 +32,7 @@ export type EnumInfer<U extends EnumBase> = U extends never
  * }>
  * ```
  */
-export type EnumMerge<U extends EnumBase> = Enum<Intersect<EnumInfer<U>>>;
+export type EnumMerge<U extends EnumBase> = Enum<Intersect<EnumRoot<U>>>;
 
 /**
  * Narrows a given Enum by including only the given variant keys.
@@ -46,7 +46,7 @@ export type EnumMerge<U extends EnumBase> = Enum<Intersect<EnumInfer<U>>>;
  * ```
  */
 export type EnumPick<U extends EnumBase, K extends EnumKeys<U>> = Enum<
-	Pick<EnumInfer<U>, K>
+	Pick<EnumRoot<U>, K>
 >;
 
 /**
@@ -60,7 +60,7 @@ export type EnumPick<U extends EnumBase, K extends EnumKeys<U>> = Enum<
  * ```
  */
 export type EnumOmit<U extends EnumBase, K extends EnumKeys<U>> = Enum<
-	Pick<EnumInfer<U>, Exclude<EnumKeys<U>, K>>
+	Pick<EnumRoot<U>, Exclude<EnumKeys<U>, K>>
 >;
 
 /**
@@ -75,7 +75,7 @@ export type EnumOmit<U extends EnumBase, K extends EnumKeys<U>> = Enum<
  */
 export type EnumKeys<U extends EnumBase> = U extends never
 	? never
-	: keyof EnumInfer<U>;
+	: keyof EnumRoot<U>;
 
 /**
  * Infers all possible variant values of the given Enum.
@@ -90,7 +90,7 @@ export type EnumKeys<U extends EnumBase> = U extends never
  */
 export type EnumValues<U extends EnumBase> = U extends never
 	? never
-	: NonNullable<EnumInfer<U>[keyof EnumInfer<U>]>;
+	: NonNullable<EnumRoot<U>[keyof EnumRoot<U>]>;
 
 ////////////////////////////////////////////////////////////////////////////////
 
