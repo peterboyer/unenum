@@ -1,7 +1,9 @@
 import type { Result } from "./result";
 
-type Safe<T> = 0 extends 1 & T
-	? Result<unknown> // if T is any, use unknown
+type Safe<T> = [T] extends [never]
+	? Result<never>
+	: 0 extends 1 & T
+	? Result // if T is any, use unknown
 	: T extends Promise<unknown>
 	? Promise<Result<Awaited<T>>>
 	: Result<Awaited<T>>;
@@ -19,14 +21,14 @@ export function safely<T>(fn: () => T): Safe<T> {
 		const value = fn();
 		if (value && value instanceof Promise) {
 			const result = value
-				.then((value: unknown): Result => ({ Ok: true, value }))
-				.catch((error: unknown): Result => ({ Err: true, error }));
+				.then((value: unknown): Result => ({ is: "Ok", value }))
+				.catch((error: unknown): Result => ({ is: "Err", error }));
 			return result as Safe<T>;
 		}
-		const result: Result = { Ok: true, value };
+		const result: Result = { is: "Ok", value };
 		return result as Safe<T>;
 	} catch (error) {
-		const result: Result = { Err: true, error };
+		const result: Result = { is: "Err", error };
 		return result as Safe<T>;
 	}
 }

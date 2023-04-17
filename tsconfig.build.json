@@ -1,6 +1,6 @@
 {
 	"extends": ["./tsconfig.json"],
-	"exclude": ["src/**/*.spec.ts"],
+	"exclude": ["src/**/*.spec.ts", "testutils.ts"],
 	"compilerOptions": {
 		"outDir": "dist",
 		"noEmit": false,

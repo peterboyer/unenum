@@ -1,205 +1,111 @@
-import { expectType } from "tsd";
+import type { Expect, Equal } from "./testutils";
 import type { Enum } from "./enum";
 
-describe("Enum", () => {
-	it("should enforce object values in definintion", () => {
-		// @ts-expect-error "string" in not assignable to "object".
-		expectType<Enum<{ A: string }>>({ A: true });
-		expectType<Enum<{ A: { value: string } }>>({ A: true, value: "foo" });
-	});
+const Empty = {};
+type None = typeof Empty;
+type Unit = { Unit: undefined };
+type Data = { Data: { value: unknown } };
+type Both = Unit & Data;
+type Generic<T> = { Generic: { value: T } };
 
-	it("should support an enum of one", () => {
-		const $ = ((): Enum<{
-			A: { value: string };
-		}> => {
-			return { A: true, value: "a" };
-		})();
-		if ($.A) {
-			expectType<string>($.value);
-		} else {
-			expectType<typeof $.A extends never ? true : false>(true as const);
+type ENone = Enum<None>;
+type EUnit = Enum<Unit>;
+type EData = Enum<Data>;
+type EBoth = Enum<Both>;
+type EGeneric<T> = Enum<Generic<T>>;
+
+({}) as [
+	Expect<Equal<ENone, never>>,
+	Expect<Equal<ENone["is"], never>>,
+	Expect<Equal<EUnit, { is: "Unit" }>>,
+	Expect<Equal<EUnit["is"], "Unit">>,
+	Expect<Equal<EData, { is: "Data"; value: unknown }>>,
+	Expect<Equal<EData["is"], "Data">>,
+	Expect<Equal<EBoth, { is: "Unit" } | { is: "Data"; value: unknown }>>,
+	Expect<Equal<EBoth["is"], "Unit" | "Data">>,
+	Expect<Equal<EGeneric<number>, { is: "Generic"; value: number }>>,
+	Expect<Equal<EGeneric<number>["is"], "Generic">>,
+
+	Expect<Equal<Enum.Keys<ENone>, never>>,
+	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
+	Expect<Equal<Enum.Keys<EData>, "Data">>,
+	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
+	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
+
+	Expect<Equal<Enum.Values<ENone>, never>>,
+	Expect<Equal<Enum.Values<EUnit>, never>>,
+	Expect<Equal<Enum.Values<EData>, { value: unknown }>>,
+	Expect<Equal<Enum.Values<EBoth>, { value: unknown }>>,
+	Expect<Equal<Enum.Values<EGeneric<number>>, { value: number }>>,
+
+	Expect<Equal<Enum.Pick<ENone, never>, never>>,
+	Expect<Equal<Enum.Pick<EUnit, never>, never>>,
+	Expect<Equal<Enum.Pick<EUnit, "Unit">, EUnit>>,
+	Expect<Equal<Enum.Pick<EData, never>, never>>,
+	Expect<Equal<Enum.Pick<EData, "Data">, EData>>,
+	Expect<Equal<Enum.Pick<EBoth, never>, never>>,
+	Expect<Equal<Enum.Pick<EBoth, "Unit">, EUnit>>,
+	Expect<Equal<Enum.Pick<EBoth, "Data">, EData>>,
+	Expect<Equal<Enum.Pick<EBoth, "Unit" | "Data">, EBoth>>,
+	Expect<Equal<Enum.Pick<EGeneric<number>, never>, never>>,
+	Expect<Equal<Enum.Pick<EGeneric<number>, "Generic">, EGeneric<number>>>,
+
+	Expect<Equal<Enum.Omit<ENone, never>, never>>,
+	Expect<Equal<Enum.Omit<EUnit, never>, EUnit>>,
+	Expect<Equal<Enum.Omit<EUnit, "Unit">, never>>,
+	Expect<Equal<Enum.Omit<EData, never>, EData>>,
+	Expect<Equal<Enum.Omit<EData, "Data">, never>>,
+	Expect<Equal<Enum.Omit<EBoth, never>, EBoth>>,
+	Expect<Equal<Enum.Omit<EBoth, "Unit">, EData>>,
+	Expect<Equal<Enum.Omit<EBoth, "Data">, EUnit>>,
+	Expect<Equal<Enum.Omit<EBoth, "Unit" | "Data">, never>>,
+	Expect<Equal<Enum.Omit<EGeneric<number>, never>, EGeneric<number>>>,
+	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>,
+
+	Expect<Equal<Enum.Merge<never>, never>>,
+	Expect<Equal<Enum.Merge<EUnit>, EUnit>>,
+	Expect<Equal<Enum.Merge<EData>, EData>>,
+	Expect<Equal<Enum.Merge<EBoth>, EBoth>>,
+	Expect<Equal<Enum.Merge<EGeneric<number>>, EGeneric<number>>>,
+	Expect<Equal<Enum.Merge<EUnit | EData>, EBoth>>,
+	Expect<Equal<Enum.Merge<EUnit | EData>, EUnit | EData>>,
+	Expect<
+		Equal<
+			Enum.Merge<EUnit | EData | EGeneric<number>>,
+			EUnit | EData | EGeneric<number>
+		>
+	>
+];
+
+{
+	type State = Enum<{
+		Left: { value: string };
+		Right: { value: string };
+		None: undefined;
+	}>;
+
+	const getState = (): State => {
+		if ("".toString()) return { is: "Left", value: "" };
+		if ("".toString()) return { is: "Right", value: "" };
+		return { is: "None" };
+	};
+
+	() => {
+		const $state = getState();
+
+		if ($state.is === "Left") {
+			({}) as [Expect<Equal<typeof $state, { is: "Left"; value: string }>>];
+			return;
 		}
-	});
-
-	it("should support an enum of many", () => {
-		const $ = ((): Enum<{
-			A: { value: string };
-			B: { value: number };
-			C: undefined;
-		}> => {
-			if (Math.random()) {
-				return { A: true, value: "a" };
-			}
-			return { B: true, value: 123 };
-		})();
-		if ($.A) {
-			expectType<string>($.value);
-		} else if ($.B) {
-			expectType<number>($.value);
-		} else {
-			expectType<{ C: true }>($);
+		if ($state.is === "Right") {
+			({}) as [Expect<Equal<typeof $state, { is: "Right"; value: string }>>];
+			return;
 		}
-	});
-
-	it("should support an enum with possible undefined", () => {
-		const $ = ((): Enum<{
-			A: { value: string };
-			B: { value: number | undefined };
-		}> => {
-			if (Math.random()) {
-				return { A: true, value: "a" };
-			}
-			return { B: true, value: 1 };
-		})();
-		if ($.A) {
-			expectType<string>($.value);
-		} else {
-			expectType<number | undefined>($.value);
+		if ($state.is === "None") {
+			({}) as [Expect<Equal<typeof $state, { is: "None" }>>];
+			return;
 		}
-	});
 
-	it("should support an unknown generic variable type", () => {
-		const $ = (<T>(
-			value: T
-		): Enum<{
-			A: { value: T };
-			B: undefined;
-		}> => {
-			if (value) {
-				return { A: true, value };
-			}
-			return { B: true };
-		})(Math.random());
-		if ($.A) {
-			expectType<number>($.value);
-		} else {
-			expectType<true>($.B);
-		}
-	});
-
-	describe("Root", () => {
-		const $ = {} as Enum.Root<
-			Enum<{
-				A: { value: string };
-				B: { value: number };
-				C: undefined;
-			}>
-		>;
-		expectType<{
-			A: { value: string };
-			B: { value: number };
-			C: undefined;
-		}>($);
-		expectType<typeof $ extends never ? true : false>(false as const);
-	});
-
-	describe("Merge", () => {
-		type A = Enum<{ A1: undefined; A2: { foo: string } }>;
-		type B = Enum<{ B1: undefined; B2: { bar: string } }>;
-		const $ = {} as Enum.Merge<A | B>;
-		expectType<
-			| { A1: true; A2?: never; B1?: never; B2?: never }
-			| { A1?: never; A2: true; B1?: never; B2?: never; foo: string }
-			| { A1?: never; A2?: never; B1: true; B2?: never }
-			| { A1?: never; A2?: never; B1?: never; B2: true; bar: string }
-		>($);
-		expectType<typeof $ extends never ? true : false>(false as const);
-	});
-
-	describe("Keys", () => {
-		it("should support Enum(0)", () => {
-			const Empty = {};
-			const $ = {} as Enum.Keys<Enum<typeof Empty>>;
-			expectType<typeof $ extends never ? true : false>(true as const);
-		});
-
-		it("should support Enum(1)", () => {
-			const $ = {} as Enum.Keys<Enum<{ A: undefined }>>;
-			expectType<"A">($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-
-		it("should support Enum(n)", () => {
-			const $ = {} as Enum.Keys<Enum<{ A: undefined; B: { value: string } }>>;
-			expectType<"A" | "B">($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-	});
-
-	describe("Values", () => {
-		it("should support Enum(0)", () => {
-			const Empty = {};
-			const $ = {} as Enum.Values<Enum<typeof Empty>>;
-			expectType<typeof $ extends never ? true : false>(true as const);
-		});
-
-		it("should support Enum(1)", () => {
-			const $ = {} as Enum.Values<
-				Enum<{
-					A: { value: string };
-				}>
-			>;
-			expectType<{ value: string }>($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-
-		it("should support Enum(n)", () => {
-			const $ = {} as Enum.Values<
-				Enum<{
-					A: { value: string };
-					B: { value: number };
-					C: undefined;
-				}>
-			>;
-			expectType<{ value: string | number }>($);
-			expectType<{ value: string } | { value: number }>($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-	});
-
-	describe("Pick", () => {
-		it("should support Enum(0)", () => {
-			const Empty = {};
-			const $ = {} as Enum.Pick<Enum<typeof Empty>, never>;
-			expectType<typeof $ extends never ? true : false>(true as const);
-		});
-
-		it("should support Enum(1)", () => {
-			const $ = {} as Enum.Pick<Enum<{ A: { value: string } }>, "A">;
-			expectType<{ A: true; value: string }>($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-
-		it("should support Enum(n)", () => {
-			const $ = {} as Enum.Pick<
-				Enum<{ A: { value: string }; B: undefined }>,
-				"A"
-			>;
-			expectType<{ A: true; B?: never; value: string }>($);
-		});
-	});
-
-	describe("Omit", () => {
-		it("should support Enum(0)", () => {
-			const Empty = {};
-			const $ = {} as Enum.Omit<Enum<typeof Empty>, never>;
-			expectType<typeof $ extends never ? true : false>(true as const);
-		});
-
-		it("should support Enum(1)", () => {
-			const $ = {} as Enum.Omit<Enum<{ A: { value: string } }>, "A">;
-			expectType<typeof $ extends never ? true : false>(true as const);
-		});
-
-		it("should support Enum(n)", () => {
-			const $ = {} as Enum.Omit<
-				Enum<{ A: { value: string }; B: undefined }>,
-				"A"
-			>;
-			expectType<{ B: true; A?: never }>($);
-			// @ts-expect-error It should be wrong.
-			expectType<{ A: true; B?: never }>($);
-			expectType<typeof $ extends never ? true : false>(false as const);
-		});
-	});
-});
+		({}) as [Expect<Equal<typeof $state, never>>];
+	};
+}

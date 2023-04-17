@@ -173,7 +173,7 @@ Retrieves the root definition of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-Enum.Root<Foo>;
+Enum.Root<Foo>
 -> {
 	A: { a: string };
 	B: { b: number };

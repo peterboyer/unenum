@@ -1,44 +1,40 @@
-import { expectType } from "tsd";
+import type { Expect, Equal } from "./testutils";
 import { safely } from "./safely";
 import type { Result } from "./result";
 
 describe("safely", () => {
 	it("should handle value", () => {
-		const result = safely(() => "foo");
-		expectType<Result<string, unknown>>(result);
-		expect(result).toMatchObject({ Ok: true, value: "foo" });
+		const $value = safely(() => "foo");
+		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
+		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
-	it("should handle thrown error", () => {
-		const result = safely(() => {
+	it("should handle error", () => {
+		const $value = safely(() => {
 			throw new TypeError("bar");
 		});
-		expectType<Result<never, unknown>>(result);
-		expect(result).toMatchObject({ Err: true, error: { message: "bar" } });
+		({}) as [Expect<Equal<typeof $value, Result<never>>>];
+		expect($value).toMatchObject({ is: "Err", error: { message: "bar" } });
 	});
 
 	it("should handle promise value", async () => {
-		const result = await safely(() => (async () => "foo")());
-		expectType<Result<string, unknown>>(result);
-		expect(result).toMatchObject({ Ok: true, value: "foo" });
+		const $value = await safely(() => (async () => "foo")());
+		({}) as [Expect<Equal<typeof $value, Result<string>>>];
+		expect($value).toMatchObject({ Ok: true, value: "foo" });
 	});
 
-	it("should handle promise value", async () => {
-		const result = await safely(() =>
+	it("should handle promise error", async () => {
+		const $value = await safely(() =>
 			(async () => {
 				throw new TypeError("bar");
 			})()
 		);
-		expectType<Result<never, unknown>>(result);
-		expect(result).toMatchObject({ Err: true, error: { message: "bar" } });
+		({}) as [Expect<Equal<typeof $value, Result<never>>>];
+		expect($value).toMatchObject({ Err: true, error: { message: "bar" } });
 	});
 
-	it("should handle _any_ return value", () => {
-		const result = safely(() => JSON.parse(""));
-		if (result.Err) {
-			expectType<unknown>(result.error);
-		} else {
-			expectType<unknown>(result.value);
-		}
+	it("should handle any as unknown", () => {
+		const $value = safely(() => JSON.parse(""));
+		({}) as [Expect<Equal<typeof $value, Result>>];
 	});
 });

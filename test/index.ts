@@ -1,4 +1,4 @@
-import type { Enum, Result } from "unenum";
+import type { Enum, Future, Result } from "unenum";
 import { safely } from "unenum";
 
 type MyEnum = Enum<{
@@ -30,5 +30,15 @@ type MyEnum = Enum<{
 		console.log($data.error);
 	} else {
 		console.log($data.value);
+	}
+
+	const useUser = (): Future<Result<number, "DataError">> => {
+		return { Pending: true };
+	};
+	const $user = useUser();
+	if ($user.Pending) {
+		console.log("pending");
+	} else if ($user.Err) {
+		console.log($user.error);
 	}
 }
