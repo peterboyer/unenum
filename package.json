@@ -11,7 +11,7 @@
 		"lint": "./scripts/lint.sh",
 		"lint:ts": "./scripts/lint-ts.sh",
 		"build": "./scripts/build.sh",
-		"verify": "yarn lint && yarn lint:ts && yarn build && yarn test && yarn test:e2e"
+		"all": "yarn lint && yarn lint:ts && yarn build && yarn test && yarn test:e2e"
 	},
 	"main": "./cjs/index.js",
 	"module": "./mjs/index.js",
