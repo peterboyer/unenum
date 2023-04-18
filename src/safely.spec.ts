@@ -20,7 +20,7 @@ describe("safely", () => {
 	it("should handle promise value", async () => {
 		const $value = await safely(() => (async () => "foo")());
 		({}) as [Expect<Equal<typeof $value, Result<string>>>];
-		expect($value).toMatchObject({ Ok: true, value: "foo" });
+		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
 	it("should handle promise error", async () => {
@@ -30,7 +30,7 @@ describe("safely", () => {
 			})()
 		);
 		({}) as [Expect<Equal<typeof $value, Result<never>>>];
-		expect($value).toMatchObject({ Err: true, error: { message: "bar" } });
+		expect($value).toMatchObject({ is: "Err", error: { message: "bar" } });
 	});
 
 	it("should handle any as unknown", () => {

@@ -29,7 +29,7 @@ type Empty = typeof Empty;
  */
 // prettier-ignore
 export type Enum<TVariants extends Record<string, object | undefined>> = {
-	[Variant in keyof TVariants]-?: Identity<
+	[Variant in keyof TVariants]-?: Flatten<
 		& { is: Variant }
 		& (TVariants[Variant] extends undefined ? Empty : TVariants[Variant])
 	>;
@@ -48,12 +48,12 @@ export namespace Enum {
  *
  * @example
  * ```
- * Identity<{ is: "Data" } & { value: string }>
+ * Flatten<{ is: "Data" } & { value: string }>
  * -> { is: "Data"; value: string }
  * ```
- * https://stackoverflow.com/a/49683575
  */
-type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
+// https://stackoverflow.com/a/49683575
+type Flatten<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
 /**
  * Infers all possible variants keys of the given Enum.
