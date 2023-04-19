@@ -1,17 +1,16 @@
 /**
- * Creates a union of mutually exclusive, discriminable variants.
- *
- * @example
- * ```ts
- * type Foo = Enum<{
- * 	A: { a: string };
- * 	B: { b: number };
- * 	C: undefined;
- * }>;
- * -> | { is: "A"; a: string }
- *    | { is: "B"; b: number }
- *    | { is: "C"            }
- * ```
+Creates a union of mutually exclusive, discriminable variants.
+
+```ts
+type Foo = Enum<{
+	A: { a: string };
+	B: { b: number };
+	C: undefined;
+}>;
+-> | { is: "A"; a: string }
+   | { is: "B"; b: number }
+   | { is: "C"            }
+```
  */
 // prettier-ignore
 export type Enum<TVariants extends Record<string, object | undefined>> = {
@@ -45,27 +44,25 @@ type Empty = typeof Empty;
 type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
 /**
- * Infers all possible variants keys of the given Enum.
- *
- * @example
- * ```ts
- * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * Enum.Keys<Foo>
- * -> "A" | "B" | "C"
- * ```
+Infers all possible variants keys of the given Enum.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Keys<Foo>
+-> "A" | "B" | "C"
+```
  */
 type EnumKeys<TEnum> = TEnum extends { is: string } ? TEnum["is"] : never;
 
 /**
- * Infers all possible variant values of the given Enum.
- *
- * @example
- * ```ts
- * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * Enum.Values<Foo>
- * -> | { a: string }
- *    | { b: string }
- * ```
+Infers all possible variant values of the given Enum.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Values<Foo>
+-> | { a: string }
+   | { b: string }
+```
  */
 type EnumValues<TEnum> = TEnum extends { is: string }
 	? Omit<TEnum, "is"> extends infer Values
@@ -76,15 +73,14 @@ type EnumValues<TEnum> = TEnum extends { is: string }
 	: never;
 
 /**
- * Narrows a given Enum by including only the given variant keys.
- *
- * @example
- * ```ts
- * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * Enum.Pick<Foo, "A" | "C">
- * -> | { is: "A"; a: string }
- *    | { is: "C" }
- * ```
+Narrows a given Enum by including only the given variant keys.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Pick<Foo, "A" | "C">
+-> | { is: "A"; a: string }
+   | { is: "C" }
+```
  */
 type EnumPick<TEnum, TVariant extends EnumKeys<TEnum>> = TEnum extends {
 	is: TVariant;
@@ -93,14 +89,13 @@ type EnumPick<TEnum, TVariant extends EnumKeys<TEnum>> = TEnum extends {
 	: never;
 
 /**
- * Narrows a given Enum by excluding only the given variant keys.
- *
- * @example
- * ```ts
- * type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
- * Enum.Omit<Foo, "A" | "C">
- * -> | { is: "B"; b: number }
- * ```
+Narrows a given Enum by excluding only the given variant keys.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Omit<Foo, "A" | "C">
+-> | { is: "B"; b: number }
+```
  */
 type EnumOmit<TEnum, TVariant extends EnumKeys<TEnum>> = TEnum extends {
 	is: TVariant;

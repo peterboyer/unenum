@@ -65,19 +65,19 @@ type WebEvent = Enum<{
 	Click: { x: number; y: number };
 }>
  
-const event: WebEvent = { PageLoad: true };
-const event: WebEvent = { PageUnload: true };
-const event: WebEvent = { KeyPress: true, key: "x" };
-const event: WebEvent = { Paste: true, content: "..." };
-const event: WebEvent = { Click: true, x: 10, y: 10 };
+const event: WebEvent = { is: "PageLoad" };
+const event: WebEvent = { is: "PageUnload" };
+const event: WebEvent = { is: "KeyPress", key: "x" };
+const event: WebEvent = { is: "Paste", content: "..." };
+const event: WebEvent = { is: "Click", x: 10, y: 10 };
  
 function inspect(event: WebEvent) {
  
-	if (event.PageLoad) console.log(...);
-	else if (event.PageUnload) console.log(...);
-	else if (event.KeyPress) console.log(..., event.key);
-	else if (event.Paste) console.log(..., event.content);
-	else if (event.Click) console.log(..., event.x, event.y);
+	if (event.is === "PageLoad") console.log(event);
+	else if (event.is === "PageUnload") console.log(event);
+	else if (event.is === "KeyPress") console.log(event, event.key);
+	else if (event.is === "Paste") console.log(event, event.content);
+	else if (event.is === "Click") console.log(event, event.x, event.y);
  
 }
 </pre></td>
@@ -134,19 +134,19 @@ For Libraries
 ([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
 
 ```ts
-import type { ... } from "unenum";
+import type { Enum, ... } from "unenum";
 ```
 
 <br />
 
 ## `Enum`
 
-Creates a union of mutually exclusive, discriminable variants.
-
 ```ts
 import "unenum/global.enum"; // global
 import type { Enum } from "unenum"; // imported
 ```
+
+Creates a union of mutually exclusive, discriminable variants.
 
 ```ts
 type Foo = Enum<{
@@ -154,69 +154,17 @@ type Foo = Enum<{
 	B: { b: number };
 	C: undefined;
 }>;
--> | { A:  true ; B?: never; C?: never; a: string }
-   | { A?: never; B:  true ; C?: never; b: number }
-   | { A?: never; B?: never; C:  true             }
-
-const foo: Foo = { A: true, a: "abc" };
-const foo: Foo = { B: true, b: 12345 };
-const foo: Foo = { C: true           };
-
-if      (foo.A) { foo.a -> string }
-else if (foo.B) { foo.b -> number }
-else            { ... }
+-> | { is: "A"; a: string }
+   | { is: "B"; b: number }
+   | { is: "C"            }
 ```
 
-### `Enum.Root<U>`
-
-Retrieves the root definition of the given Enum.
-
-```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-Enum.Root<Foo>
--> {
-	A: { a: string };
-	B: { b: number };
-	C: undefined;
-}
-```
-
-### `Enum.Merge<U>`
-
-Combines all given Enums into a new Enum.
-
-```ts
-type A = Enum<{ A1: { a: string }; A2: undefined }>;
-type B = Enum<{ B1: { b: number }; B2: undefined }>;
-Enum.Merge<A | B>
--> Enum<{
-	A1: { a: string };
-	A2: undefined;
-	B1: { b: number };
-	B2: undefined;
-}>
-```
-
-### `Enum.Pick<U, V>`
-
-Narrows a given Enum by including only the given variant keys.
-
-```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-Enum.Pick<Foo, "A" | "C">
--> | { A: true; a: string }
-   | { C: true }
-```
-
-### `Enum.Omit<U, V>`
-
-Narrows a given Enum by excluding only the given variant keys.
-
-```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
-Enum.Omit<Foo, "A" | "C">
--> | { B: true; b: number }
-```
+> **Note**
+>
+> For convenience, you may want to consider naming instances of container-like
+> `Enum` values (e.g. `Result` and `Future`) with a `$` prefix (e.g. `const
+> $user = ...`) before safely unwrapping the desired value with a non-prefixed
+> name (e.g. `const user = $user.value`).
 
 ### `Enum.Keys<U>`
 
@@ -239,95 +187,126 @@ Enum.Values<Foo>
    | { b: string }
 ```
 
+### `Enum.Pick<U, V>`
+
+Narrows a given Enum by including only the given variant keys.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Pick<Foo, "A" | "C">
+-> | { is: "A"; a: string }
+   | { is: "C" }
+```
+
+### `Enum.Omit<U, V>`
+
+Narrows a given Enum by excluding only the given variant keys.
+
+```ts
+type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+Enum.Omit<Foo, "A" | "C">
+-> | { is: "B"; b: number }
+```
+
 <br />
 
 ## Included Enums
 
 ### `Result<T, E>`
 
-- `Ok { value: T; error?: never }`
-- `Err { error: E; value?: never }`
-
-Based on Rust's
-[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
-
-> **Note**
->
-> `Result` uses `value?: never` and `error?: never` to allow for shorthand
-> access to `.value` or `.error` if you want to default to `undefined` if
-> either property is not present.
-
 ```ts
 import "unenum/global.result"; // global
 import type { Result } from "unenum"; // imported
 ```
 
+Represents either success (`Ok`) or failure (`Err`).
+
+_`Result` uses `value?: never` and `error?: never` to allow for shorthand access
+to `.value` or `.error` if you want to safely default to `undefined` if either
+property is not present._
+
+Based on Rust's
+[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
+
+```ts
+Result<number>
+-> | { is: "Ok"; value: number; error?: never }
+   | { is: "Err"; error: unknown; value?: never }
+
+Result<number, "FetchError">
+-> | { is: "Ok"; value: number; error?: never }
+   | { is: "Err"; error: "FetchError"; value?: never }
+```
+
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-	return { Ok: true, value: user };
-	return { Err: true, error: "NotFound" };
+	return { is: "Ok", value: user };
+	return { is: "Err", error: "NotFound" };
 }
 
 const $user = await getUser("foo");
-if ($user.Err) {
-	return ...
-}
+if ($user.is === "Err") { return ... }
 const user = $user.value;
 
 const $user = await getUser("foo");
 const userOrUndefined = $user.value;
-const userOrDefaultUser = $user.value ?? defaultUser;
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 
-const userOrUndefined = (await getUser("foo")).value;
+const $user = await getUser("foo");
+const userOrDefault = $user.value ?? defaultUser;
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
-
-> **Note**
->
-> Instances of Results (and other Enums) can be named with a `$` prefix (e.g.
-> `$user`) before unwrapping to access the value as the non-prefixed name (e.g.
-> `user`).
 
 <br />
 
 ### `Future<U>`
-
-- `Pending`
-- `...U`
-
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
-
-> **Note**
->
-> Unlike `Result`, `Future` is a generic that appends a `Pending` variant with
-> a given `Enum`.
 
 ```ts
 import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
 ```
 
+Represents an asynchronous value that is either loading (`Pending`) or resolved
+(`Ready`). If given an `Enum` parameter, `Future` will merge only the `Pending`
+variant with it.
+
+```ts
+Future<string>
+-> | { is: "Pending" }
+   | { is: "Ready", value: string }
+
+Future<Result<number>>
+-> | { is: "Pending" }
+   | { is: "Ok"; value: number }
+   | { is: "Err"; error: unknown }
+
+Future<Result<number, "FetchError">>
+-> | { is: "Pending" }
+   | { is: "Ok"; value: number }
+   | { is: "Err"; error: "FetchError" }
+```
+
 ```tsx
 const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
-	return { Pending: true };
-	return { Ok: true, value: user };
-	return { Err: true, value: "NotFound" };
+	return { is: "Pending" };
+	return { is: "Ok", value: user };
+	return { is: "Err", error: "NotFound" };
 };
 
 const $user = useRemoteUser("foo");
-if ($user.Pending) {
-	return <Loading />;
-}
-if ($user.Err) {
-	return <Error />;
-}
+if ($user.is === "Pending") { return <Loading />; }
+if ($user.is === "Err") { return <Error />; }
 const user = $user.value;
 return <View user={user} />;
 
 const $user = useRemoteUser("foo");
-const userOrUndefined = !$userData.Pending && $userData.value;
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
+
+Based on Rust's
+[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
+[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
 <br />
 
@@ -335,35 +314,21 @@ const userOrUndefined = !$userData.Pending && $userData.value;
 
 ### `safely(fn) -> Result`
 
-Executes a given function and wraps value in a `Result`:
-
-- `Ok`, with the function's inferred `return` value,
-- `Err`, with `unknown` of any potentially `thrown` errors.
-- Automatically wraps `Result` with `Promise<...>` if given function is
-  async/returns a `Promise`.
-
 ```ts
 import { safely } from "unenum"; // runtime
 ```
 
-```ts
-// sync
-const fooOrThrow = () => { ... }
-const $data = safely(() => fooOrThrow(...));
-const dataOrUndefined = $data.value;
-if ($data.Err) {
-	return ...
-}
-const data = $data.value;
-```
+Executes a given function and returns a `Result` that wraps its normal
+return value as `Ok` and any thrown errors as `Err`. Supports async/`Promise`
+returns automatically.
 
 ```ts
-// async
-const fooOrThrow = async () => { ... }
-const $data = await safely(() => fooOrThrow(...));
-const dataOrUndefined = $data.value;
-if ($data.Err) {
-	return ...
-}
-const data = $data.value;
+safely(() => JSON.stringify(...))
+-> Result<string>
+
+safely(() => JSON.parse(...))
+-> Result<unknown>
+
+safely(() => fetch("/endpoint").then(res => res.json() as Data))
+-> Promise<Result<Data>>
 ```
