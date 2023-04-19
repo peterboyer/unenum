@@ -4,10 +4,13 @@ import type { Enum } from "./enum";
 Represents either success (`Ok`) or failure (`Err`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
-to `.value` or `.error` if you want to safely default to `undefined` if either
-property is not present._
+to `.value` or `.error` if you want to safely default to `undefined` if neither
+property is available._
 
 ```ts
+import "unenum/global.result"; // global
+import type { Result } from "unenum"; // imported
+
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
    | { is: "Err"; error: unknown; value?: never }

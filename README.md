@@ -141,22 +141,20 @@ import type { Enum, ... } from "unenum";
 
 ## `Enum`
 
-```ts
-import "unenum/global.enum"; // global
-import type { Enum } from "unenum"; // imported
-```
-
 Creates a union of mutually exclusive, discriminable variants.
 
 ```ts
+import "unenum/global.enum"; // global
+import type { Enum } from "unenum"; // imported
+
 type Foo = Enum<{
-	A: { a: string };
-	B: { b: number };
-	C: undefined;
+	A: undefined;
+	B: { b: string };
+	C: { c: number };
 }>;
--> | { is: "A"; a: string }
-   | { is: "B"; b: number }
-   | { is: "C"            }
+-> | { is: "A" }
+   | { is: "B"; b: string }
+   | { is: "C"; c: number }
 ```
 
 > **Note**
@@ -166,46 +164,65 @@ type Foo = Enum<{
 > $user = ...`) before safely unwrapping the desired value with a non-prefixed
 > name (e.g. `const user = $user.value`).
 
-### `Enum.Keys<U>`
+### `Enum.Keys<TEnum>`
 
 Infers all possible variants keys of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+
 Enum.Keys<Foo>
 -> "A" | "B" | "C"
 ```
 
-### `Enum.Values<U>`
+### `Enum.Values<TEnum>`
 
 Infers all possible variant values of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+
 Enum.Values<Foo>
--> | { a: string }
-   | { b: string }
+-> | { b: string }
+   | { c: number }
 ```
 
-### `Enum.Pick<U, V>`
+### `Enum.Props<TEnum>`
+
+Infers all _common_ variants' properties' names of the given Enum. If `TAll` is
+`true`, then _all_ variants' properties' names are inferred.
+
+```ts
+type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
+
+Enum.Props<Foo>
+-> "x"
+
+Enum.Props<Foo, true>
+-> "x" | "y"
+```
+
+### `Enum.Pick<TEnum, TVariantKey>`
 
 Narrows a given Enum by including only the given variant keys.
 
 ```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+
 Enum.Pick<Foo, "A" | "C">
--> | { is: "A"; a: string }
-   | { is: "C" }
+-> | { is: "A" }
+   | { is: "C"; c: number }
 ```
 
-### `Enum.Omit<U, V>`
+### `Enum.Omit<TEnum, TVariantKey>`
 
 Narrows a given Enum by excluding only the given variant keys.
 
 ```ts
-type Foo = Enum<{ A: { a: string }; B: { b: number }; C: undefined }>;
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+
 Enum.Omit<Foo, "A" | "C">
--> | { is: "B"; b: number }
+-> | { is: "B"; b: string }
 ```
 
 <br />
@@ -214,21 +231,16 @@ Enum.Omit<Foo, "A" | "C">
 
 ### `Result<T, E>`
 
-```ts
-import "unenum/global.result"; // global
-import type { Result } from "unenum"; // imported
-```
-
 Represents either success (`Ok`) or failure (`Err`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if either
-property is not present._
-
-Based on Rust's
-[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
+property is not available._
 
 ```ts
+import "unenum/global.result"; // global
+import type { Result } from "unenum"; // imported
+
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
    | { is: "Err"; error: unknown; value?: never }
@@ -257,33 +269,39 @@ const userOrDefault = $user.value ?? defaultUser;
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 
+Based on Rust's
+[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
+
 <br />
 
 ### `Future<U>`
 
-```ts
-import "unenum/global.future"; // global
-import type { Future } from "unenum"; // imported
-```
-
 Represents an asynchronous value that is either loading (`Pending`) or resolved
-(`Ready`). If given an `Enum` parameter, `Future` will merge only the `Pending`
-variant with it.
+(`Ready`). If defined with an `Enum` type, `Future` will omit its `Ready`
+variant in favour of the "non-pending" `Enum`'s variants.
 
-```ts
+_`Future` uses `value?: never` to allow for shorthand access to `.value` if you
+want to safely default to `undefined` if it is not available. If defining with
+an `Enum` type, all its _common_ properties will be inferred as `?: never`
+properties on the `Pending` variant to allow for shorthand `undefined` access
+also. (See `Enum.Props`.)
+
+```ts import "unenum/global.future"; // global
+import type { Future } from "unenum"; // imported
+
 Future<string>
--> | { is: "Pending" }
-   | { is: "Ready", value: string }
+-> | { is: "Pending"; value?: never }
+   | { is: "Ready"; value: string }
 
 Future<Result<number>>
--> | { is: "Pending" }
-   | { is: "Ok"; value: number }
-   | { is: "Err"; error: unknown }
+-> | { is: "Pending"; value?: never; error?: never }
+   | { is: "Ok"; value: number; error?: never }
+   | { is: "Err"; error: unknown; value?: never }
 
 Future<Result<number, "FetchError">>
--> | { is: "Pending" }
-   | { is: "Ok"; value: number }
-   | { is: "Err"; error: "FetchError" }
+-> | { is: "Pending"; value?: never; error?: never }
+   | { is: "Ok"; value: number; error?: never }
+   | { is: "Err"; error: "FetchError"; value?: never }
 ```
 
 ```tsx
@@ -300,8 +318,17 @@ const user = $user.value;
 return <View user={user} />;
 
 const $user = useRemoteUser("foo");
+const userOrUndefined = $user.value;
 const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+
+const $user = useRemoteUser("foo");
+const userOrDefault = $user.value ?? defaultUser;
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
+```
+
+Based on Rust's
+[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
+[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 ```
 
 Based on Rust's
@@ -314,15 +341,13 @@ Based on Rust's
 
 ### `safely(fn) -> Result`
 
+Executes a given function and returns a `Result` that wraps its normal return
+value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns
+automatically.
+
 ```ts
 import { safely } from "unenum"; // runtime
-```
 
-Executes a given function and returns a `Result` that wraps its normal
-return value as `Ok` and any thrown errors as `Err`. Supports async/`Promise`
-returns automatically.
-
-```ts
 safely(() => JSON.stringify(...))
 -> Result<string>
 

@@ -38,6 +38,16 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Values<EBoth>, { value: unknown }>>,
 	Expect<Equal<Enum.Values<EGeneric<number>>, { value: number }>>,
 
+	Expect<Equal<Enum.Props<ENone>, never>>,
+	Expect<Equal<Enum.Props<EUnit>, never>>,
+	Expect<Equal<Enum.Props<EData>, "value">>,
+	Expect<Equal<Enum.Props<EBoth>, never>>,
+	Expect<Equal<Enum.Props<EBoth, true>, "value">>,
+	Expect<Equal<Enum.Props<EBoth, false>, never>>,
+	Expect<Equal<Enum.Props<EGeneric<number>>, "value">>,
+	Expect<Equal<Enum.Props<EGeneric<number>, true>, "value">>,
+	Expect<Equal<Enum.Props<EGeneric<number>, false>, "value">>,
+
 	Expect<Equal<Enum.Pick<ENone, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, "Unit">, EUnit>>,
