@@ -8,6 +8,7 @@ import type { Enum } from "./enum";
  * Result<number>
  * -> | { is: "Ok", value: number }
  *    | { is: "Err", error: unknown }
+ *
  * Result<number, "FetchError">
  * -> | { is: "Ok", value: number }
  *    | { is: "Err", error: "FetchError" }

@@ -60,21 +60,7 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Omit<EBoth, "Data">, EUnit>>,
 	Expect<Equal<Enum.Omit<EBoth, "Unit" | "Data">, never>>,
 	Expect<Equal<Enum.Omit<EGeneric<number>, never>, EGeneric<number>>>,
-	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>,
-
-	Expect<Equal<Enum.Merge<never>, never>>,
-	Expect<Equal<Enum.Merge<EUnit>, EUnit>>,
-	Expect<Equal<Enum.Merge<EData>, EData>>,
-	Expect<Equal<Enum.Merge<EBoth>, EBoth>>,
-	Expect<Equal<Enum.Merge<EGeneric<number>>, EGeneric<number>>>,
-	Expect<Equal<Enum.Merge<EUnit | EData>, EBoth>>,
-	Expect<Equal<Enum.Merge<EUnit | EData>, EUnit | EData>>,
-	Expect<
-		Equal<
-			Enum.Merge<EUnit | EData | EGeneric<number>>,
-			EUnit | EData | EGeneric<number>
-		>
-	>
+	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>
 ];
 
 {

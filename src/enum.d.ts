@@ -1,7 +1,3 @@
-// @ts-expect-error It's okay for this .d.ts file to have this const.
-const Empty = {};
-type Empty = typeof Empty;
-
 /**
  * Creates a union of mutually exclusive, discriminable variants.
  *
@@ -15,21 +11,11 @@ type Empty = typeof Empty;
  * -> | { is: "A"; a: string }
  *    | { is: "B"; b: number }
  *    | { is: "C"            }
- *
- * const $foo: Foo = { is: "A", a: "abc" };
- * const $foo: Foo = { is: "B", b: 12345 };
- * const $foo: Foo = { is: "C"           };
- *
- * if   ($foo.is === "A") {
- * 	return $foo.a; -> string
- * } else {
- * 	return $foo.is === "B" ? $foo.b : undefined; -> number | undefined
- * }
  * ```
  */
 // prettier-ignore
 export type Enum<TVariants extends Record<string, object | undefined>> = {
-	[Variant in keyof TVariants]-?: Flatten<
+	[Variant in keyof TVariants]-?: Identity<
 		& { is: Variant }
 		& (TVariants[Variant] extends undefined ? Empty : TVariants[Variant])
 	>;
@@ -40,20 +26,23 @@ export namespace Enum {
 	export type { EnumValues as Values };
 	export type { EnumPick as Pick };
 	export type { EnumOmit as Omit };
-	export type { EnumMerge as Merge };
 }
+
+// @ts-expect-error It's okay for this .d.ts file to have this const.
+const Empty = {};
+type Empty = typeof Empty;
 
 /**
  * Merges intersections.
  *
  * @example
  * ```
- * Flatten<{ is: "Data" } & { value: string }>
+ * Identity<{ is: "Data" } & { value: string }>
  * -> { is: "Data"; value: string }
  * ```
  */
 // https://stackoverflow.com/a/49683575
-type Flatten<T> = T extends object ? { [K in keyof T]: T[K] } : never;
+type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
 /**
  * Infers all possible variants keys of the given Enum.
@@ -118,19 +107,3 @@ type EnumOmit<TEnum, TVariant extends EnumKeys<TEnum>> = TEnum extends {
 }
 	? never
 	: TEnum;
-
-/**
- * Combines all given Enums into a new Enum.
- *
- * @example
- * ```ts
- * type A = Enum<{ A1: { a: string }; A2: undefined }>;
- * type B = Enum<{ B1: { b: number }; B2: undefined }>;
- * Enum.Merge<A | B>
- * -> Enum<{
- * 	A1: { a: string }; A2: undefined;
- * 	B1: { b: number }; B2: undefined;
- * }>
- * ```
- */
-type EnumMerge<TEnum> = TEnum extends { is: string } ? TEnum : never;

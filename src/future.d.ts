@@ -10,10 +10,12 @@ import type { Enum } from "./enum";
  * Future<string>
  * -> | { is: "Pending" }
  *    | { is: "Ready", value: string }
+ *
  * Future<Result<number>>
  * -> | { is: "Pending" }
  *    | { is: "Ok", value: number }
  *    | { is: "Err", error: unknown }
+ *
  * Future<Result<number, "FetchError">>
  * -> | { is: "Pending" }
  *    | { is: "Ok", value: number }
