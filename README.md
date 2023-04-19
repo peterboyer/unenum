@@ -159,14 +159,14 @@ type Foo = Enum<{
 
 > **Note**
 >
-> For convenience, you may want to consider naming instances of container-like
-> `Enum` values (e.g. `Result` and `Future`) with a `$` prefix (e.g. `const
-> $user = ...`) before safely unwrapping the desired value with a non-prefixed
-> name (e.g. `const user = $user.value`).
+> Consider naming "intermediate", container-like `Enum` values (e.g. like
+> `Result`s and `Future`s) with a `$` prefix (e.g. `const $user = ...`) before
+> safely unwrapping the desired value with its non-prefixed name (e.g. `const
+> user = $user.value`).
 
 ### `Enum.Keys<TEnum>`
 
-Infers all possible variants keys of the given Enum.
+Infers all possible variants' keys of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -177,7 +177,7 @@ Enum.Keys<Foo>
 
 ### `Enum.Values<TEnum>`
 
-Infers all possible variant values of the given Enum.
+Infers all possible variants' values of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -204,7 +204,7 @@ Enum.Props<Foo, true>
 
 ### `Enum.Pick<TEnum, TVariantKey>`
 
-Narrows a given Enum by including only the given variant keys.
+Narrows a given Enum by including only the given variants by key.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -216,7 +216,7 @@ Enum.Pick<Foo, "A" | "C">
 
 ### `Enum.Omit<TEnum, TVariantKey>`
 
-Narrows a given Enum by excluding only the given variant keys.
+Narrows a given Enum by excluding only the given variants by key.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;

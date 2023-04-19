@@ -48,7 +48,7 @@ type Empty = typeof Empty;
 type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
 /**
-Infers all possible variants keys of the given Enum.
+Infers all possible variants' keys of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -60,7 +60,7 @@ Enum.Keys<Foo>
 type EnumKeys<TEnum> = TEnum extends { is: string } ? TEnum["is"] : never;
 
 /**
-Infers all possible variant values of the given Enum.
+Infers all possible variants' values of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -118,7 +118,7 @@ type Intersect<T> = (T extends unknown ? (t: T) => void : never) extends (
 	: never;
 
 /**
-Narrows a given Enum by including only the given variant keys.
+Narrows a given Enum by including only the given variants by key.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -135,7 +135,7 @@ type EnumPick<TEnum, TVariantKey extends EnumKeys<TEnum>> = TEnum extends {
 	: never;
 
 /**
-Narrows a given Enum by excluding only the given variant keys.
+Narrows a given Enum by excluding only the given variants by key.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
