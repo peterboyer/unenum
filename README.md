@@ -5,8 +5,8 @@
 **A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
 requirements.**
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants) •
-[`Result`](#resulttvalue-terror) • [`Future`](#futuretvalueorenum) • [`safely`](#safelyfn---result)
+[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumvariants) •
+[`Result`](#resultvalue-error) • [`Future`](#futurevalueorenum) • [`safely`](#safelyfn---result)
 
 </div>
 
@@ -46,7 +46,7 @@ pattern_, rather than a library:
 
 <br />
 
-Here's an example of `unenum`'s [`Enum`](#enumtvariants) compared with Rust's
+Here's an example of `unenum`'s [`Enum`](#enumvariants) compared with Rust's
 [`enum`](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html):
 
 <table width="100%">
@@ -139,7 +139,7 @@ import type { Enum, ... } from "unenum";
 
 <br />
 
-## `Enum<TVariants>`
+## `Enum<Variants>`
 
 Creates a union of mutually exclusive, discriminable variants.
 
@@ -157,7 +157,7 @@ type Foo = Enum<{
    | { is: "C"; c: number }
 ```
 
-### `Enum.Keys<TEnum>`
+### `Enum.Keys<Enum>`
 
 Infers all possible variants' keys of the given Enum.
 
@@ -168,7 +168,7 @@ Enum.Keys<Foo>
 -> "A" | "B" | "C"
 ```
 
-### `Enum.Values<TEnum>`
+### `Enum.Values<Enum>`
 
 Infers all possible variants' values of the given Enum.
 
@@ -180,10 +180,10 @@ Enum.Values<Foo>
    | { c: number }
 ```
 
-### `Enum.Props<TEnum, TAll=false>`
+### `Enum.Props<Enum, All?>`
 
-Infers only _common_ variants' properties' names of the given Enum. If `TAll`
-is `true`, then _all_ variants' properties' names are inferred.
+Infers only _common_ variants' properties' names of the given Enum. If `All` is
+`true`, then _all_ variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
@@ -195,7 +195,7 @@ Enum.Props<Foo, true>
 -> "x" | "y"
 ```
 
-### `Enum.Pick<TEnum, TVariantKey>`
+### `Enum.Pick<Enum, VariantKeys>`
 
 Narrows a given Enum by including only the given variants by key.
 
@@ -207,7 +207,7 @@ Enum.Pick<Foo, "A" | "C">
    | { is: "C"; c: number }
 ```
 
-### `Enum.Omit<TEnum, TVariantKey>`
+### `Enum.Omit<Enum, VariantKeys>`
 
 Narrows a given Enum by excluding only the given variants by key.
 
@@ -222,7 +222,7 @@ Enum.Omit<Foo, "A" | "C">
 
 ## Included Enums
 
-### `Result<TValue, TError>`
+### `Result<Value?, Error?>`
 
 Represents either success `value` (`Ok`) or failure `error` (`Err`).
 
@@ -277,7 +277,7 @@ Based on Rust's
 
 <br />
 
-### `Future<TValueOrEnum>`
+### `Future<ValueOrEnum?>`
 
 Represents an asynchronous `value` that is either loading (`Pending`) or
 resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its

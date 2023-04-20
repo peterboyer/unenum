@@ -79,8 +79,8 @@ type EnumValues<TEnum> = TEnum extends { is: string }
 	: never;
 
 /**
-Infers only _common_ variants' properties' names of the given Enum. If `TAll`
-is `true`, then _all_ variants' properties' names are inferred.
+Infers only _common_ variants' properties' names of the given Enum. If `All` is
+`true`, then _all_ variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
