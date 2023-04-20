@@ -14,6 +14,10 @@ also. (See `Enum.Props`.)
 ```ts import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
 
+Future
+-> | { is: "Pending"; value?: never }
+   | { is: "Ready"; value: unknown }
+
 Future<string>
 -> | { is: "Pending"; value?: never }
    | { is: "Ready"; value: string }
@@ -22,11 +26,6 @@ Future<Result<number>>
 -> | { is: "Pending"; value?: never; error?: never }
    | { is: "Ok"; value: number; error?: never }
    | { is: "Err"; error: unknown; value?: never }
-
-Future<Result<number, "FetchError">>
--> | { is: "Pending"; value?: never; error?: never }
-   | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: "FetchError"; value?: never }
 ```
 
 ```tsx

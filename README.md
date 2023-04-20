@@ -180,7 +180,7 @@ Enum.Values<Foo>
    | { c: number }
 ```
 
-### `Enum.Props<TEnum, TAll = false>`
+### `Enum.Props<TEnum, TAll=false>`
 
 Infers only _common_ variants' properties' names of the given Enum. If `TAll`
 is `true`, then _all_ variants' properties' names are inferred.
@@ -233,6 +233,10 @@ property is not available._
 ```ts
 import "unenum/global.result"; // global
 import type { Result } from "unenum"; // imported
+
+Result
+-> | { is: "Ok"; value: unknown; error?: never }
+   | { is: "Err"; error: unknown; value?: never }
 
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
@@ -288,6 +292,10 @@ also. (See `Enum.Props`.)
 ```ts import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
 
+Future
+-> | { is: "Pending"; value?: never }
+   | { is: "Ready"; value: unknown }
+
 Future<string>
 -> | { is: "Pending"; value?: never }
    | { is: "Ready"; value: string }
@@ -296,11 +304,6 @@ Future<Result<number>>
 -> | { is: "Pending"; value?: never; error?: never }
    | { is: "Ok"; value: number; error?: never }
    | { is: "Err"; error: unknown; value?: never }
-
-Future<Result<number, "FetchError">>
--> | { is: "Pending"; value?: never; error?: never }
-   | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: "FetchError"; value?: never }
 ```
 
 ```tsx
