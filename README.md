@@ -5,8 +5,8 @@
 **A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
 requirements.**
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enum) •
-[`Result`](#resultt-e) • [`Future`](#futureu) • [`safely`](#safelyfn---result)
+[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants) •
+[`Result`](#resulttvalue-terror) • [`Future`](#futuretvalueorenum) • [`safely`](#safelyfn---result)
 
 </div>
 
@@ -46,7 +46,7 @@ pattern_, rather than a library:
 
 <br />
 
-Here's an example of `unenum`'s [`Enum`](#enum) compared with Rust's
+Here's an example of `unenum`'s [`Enum`](#enumtvariants) compared with Rust's
 [`enum`](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html):
 
 <table width="100%">
@@ -58,7 +58,7 @@ type WebEvent = Enum<{
 	// Unit
 	PageLoad: undefined;
 	PageUnload: undefined;
-	// Tuple (use object: not feasible)
+	// Tuple (not practical; use object instead)
 	KeyPress: { key: string };
 	Paste: { content: string };
 	// Object
@@ -104,11 +104,11 @@ let event = WebEvent::Click { x: 10, y: 10 };
  
 fn inspect(event: WebEvent) {
 	match event {
-		WebEvent::PageLoad => println!(...),
-		WebEvent::PageUnload => println!(...),
-		WebEvent::KeyPress(c) => println!(..., c),
-		WebEvent::Paste(s) => println!(..., s),
-		WebEvent::Click { x, y } => println!(..., x, y),
+		WebEvent::PageLoad => println!(event),
+		WebEvent::PageUnload => println!(event),
+		WebEvent::KeyPress(c) => println!(event, c),
+		WebEvent::Paste(s) => println!(event, s),
+		WebEvent::Click { x, y } => println!(event, x, y),
 	}
 }
 </pre></td>
@@ -139,7 +139,7 @@ import type { Enum, ... } from "unenum";
 
 <br />
 
-## `Enum`
+## `Enum<TVariants>`
 
 Creates a union of mutually exclusive, discriminable variants.
 
@@ -156,13 +156,6 @@ type Foo = Enum<{
    | { is: "B"; b: string }
    | { is: "C"; c: number }
 ```
-
-> **Note**
->
-> Consider naming "intermediate", container-like `Enum` values (e.g. like
-> `Result`s and `Future`s) with a `$` prefix (e.g. `const $user = ...`) before
-> safely unwrapping the desired value with its non-prefixed name (e.g. `const
-> user = $user.value`).
 
 ### `Enum.Keys<TEnum>`
 
@@ -187,10 +180,10 @@ Enum.Values<Foo>
    | { c: number }
 ```
 
-### `Enum.Props<TEnum>`
+### `Enum.Props<TEnum, TAll = false>`
 
-Infers all _common_ variants' properties' names of the given Enum. If `TAll` is
-`true`, then _all_ variants' properties' names are inferred.
+Infers only _common_ variants' properties' names of the given Enum. If `TAll`
+is `true`, then _all_ variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
@@ -229,9 +222,9 @@ Enum.Omit<Foo, "A" | "C">
 
 ## Included Enums
 
-### `Result<T, E>`
+### `Result<TValue, TError>`
 
-Represents either success (`Ok`) or failure (`Err`).
+Represents either success `value` (`Ok`) or failure `error` (`Err`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if either
@@ -272,17 +265,23 @@ const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 Based on Rust's
 [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
+> **Note**
+>
+> You may find it useful to name container-like `Enum` values (e.g. of
+> `Result`s and `Future`s) with a `$` prefix (e.g. `$user`) before unwrapping
+> the desired value into non-prefixed value (e.g. `const user = $user.value`).
+
 <br />
 
-### `Future<U>`
+### `Future<TValueOrEnum>`
 
-Represents an asynchronous value that is either loading (`Pending`) or resolved
-(`Ready`). If defined with an `Enum` type, `Future` will omit its `Ready`
-variant in favour of the "non-pending" `Enum`'s variants.
+Represents an asynchronous `value` that is either loading (`Pending`) or
+resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
+`Ready` variant in favour of the "non-pending" `Enum`'s variants.
 
 _`Future` uses `value?: never` to allow for shorthand access to `.value` if you
-want to safely default to `undefined` if it is not available. If defining with
-an `Enum` type, all its _common_ properties will be inferred as `?: never`
+want to safely default to `undefined` if it is not available. If using with an
+`Enum` type, all its _common_ properties will be extended as `?: never`
 properties on the `Pending` variant to allow for shorthand `undefined` access
 also. (See `Enum.Props`.)
 
@@ -329,11 +328,6 @@ const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 Based on Rust's
 [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
 [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
-```
-
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
 <br />
 
@@ -342,8 +336,7 @@ Based on Rust's
 ### `safely(fn) -> Result`
 
 Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns
-automatically.
+value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns.
 
 ```ts
 import { safely } from "unenum"; // runtime

@@ -1,7 +1,7 @@
 import type { Enum } from "./enum";
 
 /**
-Represents either success (`Ok`) or failure (`Err`).
+Represents either success `value` (`Ok`) or failure `error` (`Err`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if neither

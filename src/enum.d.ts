@@ -16,7 +16,7 @@ type Foo = Enum<{
 ```
  */
 // prettier-ignore
-export type Enum<TVariants extends Record<string, object | undefined>> = {
+export type Enum<TVariants extends Record<string, Record<string, unknown> | undefined>> = {
 	[Variant in keyof TVariants]-?: Identity<
 		& { is: Variant }
 		& (TVariants[Variant] extends undefined ? Empty : TVariants[Variant])
@@ -79,8 +79,8 @@ type EnumValues<TEnum> = TEnum extends { is: string }
 	: never;
 
 /**
-Infers all _common_ variants' properties' names of the given Enum. If `TAll` is
-`true`, then _all_ variants' properties' names are inferred.
+Infers only _common_ variants' properties' names of the given Enum. If `TAll`
+is `true`, then _all_ variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;

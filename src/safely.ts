@@ -2,8 +2,7 @@ import type { Result } from "./result";
 
 /**
 Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns
-automatically.
+value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns.
 
 ```ts
 import { safely } from "unenum"; // runtime

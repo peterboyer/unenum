@@ -1,13 +1,13 @@
 import type { Enum } from "./enum";
 
 /**
-Represents an asynchronous value that is either loading (`Pending`) or resolved
-(`Ready`). If defined with an `Enum` type, `Future` will omit its `Ready`
-variant in favour of the "non-pending" `Enum`'s variants.
+Represents an asynchronous `value` that is either loading (`Pending`) or
+resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
+`Ready` variant in favour of the "non-pending" `Enum`'s variants.
 
 _`Future` uses `value?: never` to allow for shorthand access to `.value` if you
-want to safely default to `undefined` if it is not available. If defining with
-an `Enum` type, all its _common_ properties will be inferred as `?: never`
+want to safely default to `undefined` if it is not available. If using with an
+`Enum` type, all its _common_ properties will be extended as `?: never`
 properties on the `Pending` variant to allow for shorthand `undefined` access
 also. (See `Enum.Props`.)
 
