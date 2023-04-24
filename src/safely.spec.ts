@@ -20,7 +20,7 @@ describe("safely", () => {
 			throw new TypeError("bar");
 		});
 		({}) as [Expect<Equal<typeof $value, Result<never>>>];
-		expect($value).toMatchObject({ is: "Err", error: { message: "bar" } });
+		expect($value).toMatchObject({ is: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle promise value", async () => {
@@ -44,7 +44,7 @@ describe("safely", () => {
 			})()
 		);
 		({}) as [Expect<Equal<typeof $value, Result<never>>>];
-		expect($value).toMatchObject({ is: "Err", error: { message: "bar" } });
+		expect($value).toMatchObject({ is: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle any as unknown", () => {

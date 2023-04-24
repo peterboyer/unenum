@@ -33,7 +33,7 @@ import type { Result } from "./result";
 			Future<Result<string>>,
 			| { is: "Pending"; value?: never; error?: never }
 			| { is: "Ok"; value: string; error?: never }
-			| { is: "Err"; error: unknown; value?: never }
+			| { is: "Error"; error: unknown; value?: never }
 		>
 	>
 ];

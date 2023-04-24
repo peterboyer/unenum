@@ -25,19 +25,19 @@ Future<string>
 Future<Result<number>>
 -> | { is: "Pending"; value?: never; error?: never }
    | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: unknown; value?: never }
+   | { is: "Error"; error: unknown; value?: never }
 ```
 
 ```tsx
 const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
 	return { is: "Pending" };
 	return { is: "Ok", value: user };
-	return { is: "Err", error: "NotFound" };
+	return { is: "Error", error: "NotFound" };
 };
 
 const $user = useRemoteUser("foo");
 if ($user.is === "Pending") { return <Loading />; }
-if ($user.is === "Err") { return <Error />; }
+if ($user.is === "Error") { return <Error />; }
 const user = $user.value;
 return <View user={user} />;
 

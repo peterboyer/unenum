@@ -1,7 +1,7 @@
 import type { Enum } from "./enum";
 
 /**
-Represents either success `value` (`Ok`) or failure `error` (`Err`).
+Represents either success `value` (`Ok`) or failure `error` (`Error`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if neither
@@ -13,21 +13,21 @@ import type { Result } from "unenum"; // imported
 
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: unknown; value?: never }
+   | { is: "Error"; error: unknown; value?: never }
 
 Result<number, "FetchError">
 -> | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: "FetchError"; value?: never }
+   | { is: "Error"; error: "FetchError"; value?: never }
 ```
 
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
 	return { is: "Ok", value: user };
-	return { is: "Err", error: "NotFound" };
+	return { is: "Error", error: "NotFound" };
 }
 
 const $user = await getUser("foo");
-if ($user.is === "Err") { return ... }
+if ($user.is === "Error") { return ... }
 const user = $user.value;
 
 const $user = await getUser("foo");
@@ -44,5 +44,5 @@ Based on Rust's
  */
 export type Result<T = unknown, E = unknown> = Enum<{
 	Ok: { value: T; error?: never };
-	Err: { error: E; value?: never };
+	Error: { error: E; value?: never };
 }>;

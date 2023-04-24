@@ -224,7 +224,7 @@ Enum.Omit<Foo, "A" | "C">
 
 ### `Result<Value?, Error?>`
 
-Represents either success `value` (`Ok`) or failure `error` (`Err`).
+Represents either success `value` (`Ok`) or failure `error` (`Error`).
 
 _`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if either
@@ -236,25 +236,25 @@ import type { Result } from "unenum"; // imported
 
 Result
 -> | { is: "Ok"; value: unknown; error?: never }
-   | { is: "Err"; error: unknown; value?: never }
+   | { is: "Error"; error: unknown; value?: never }
 
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: unknown; value?: never }
+   | { is: "Error"; error: unknown; value?: never }
 
 Result<number, "FetchError">
 -> | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: "FetchError"; value?: never }
+   | { is: "Error"; error: "FetchError"; value?: never }
 ```
 
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
 	return { is: "Ok", value: user };
-	return { is: "Err", error: "NotFound" };
+	return { is: "Error", error: "NotFound" };
 }
 
 const $user = await getUser("foo");
-if ($user.is === "Err") { return ... }
+if ($user.is === "Error") { return ... }
 const user = $user.value;
 
 const $user = await getUser("foo");
@@ -303,19 +303,19 @@ Future<string>
 Future<Result<number>>
 -> | { is: "Pending"; value?: never; error?: never }
    | { is: "Ok"; value: number; error?: never }
-   | { is: "Err"; error: unknown; value?: never }
+   | { is: "Error"; error: unknown; value?: never }
 ```
 
 ```tsx
 const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
 	return { is: "Pending" };
 	return { is: "Ok", value: user };
-	return { is: "Err", error: "NotFound" };
+	return { is: "Error", error: "NotFound" };
 };
 
 const $user = useRemoteUser("foo");
 if ($user.is === "Pending") { return <Loading />; }
-if ($user.is === "Err") { return <Error />; }
+if ($user.is === "Error") { return <Error />; }
 const user = $user.value;
 return <View user={user} />;
 
@@ -339,7 +339,8 @@ Based on Rust's
 ### `safely(fn) -> Result`
 
 Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Err`. Supports async/`Promise` returns.
+value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
+returns.
 
 ```ts
 import { safely } from "unenum"; // runtime

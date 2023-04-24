@@ -33,7 +33,7 @@ function inspect(): string | undefined {
 
 function app() {
 	const $inspect = safely(() => inspect());
-	if ($inspect.is === "Err") {
+	if ($inspect.is === "Error") {
 		return console.log($inspect.error);
 	}
 	return console.log($inspect.value);
