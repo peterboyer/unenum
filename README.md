@@ -262,6 +262,7 @@ See [`match`](#matchvalue-matcher---).
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
+import { match } from "unenum";
 match(foo, {
 	A: () => 123,
 	B: ({ b }) => b === "" ? "empty" : "abc",
@@ -273,7 +274,7 @@ match(foo, {
 >
 > Using the `match` utility will make `unenum` a runtime dependency with a
 > non-0kb bundle-size cost instead of being a type-only utility. However,
-> `match` is tiny, and very helpful with reducing complexity for conditional
+> `match` is tiny and very helpful for reducing complexity of conditional
 > variable assignments instead of needing to write one-off functions,
 > [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)s, or ternary
 > expressions.
@@ -319,7 +320,7 @@ switch (foo.is) {
 
 > **Note**
 >
-> `switch` statements are severly limited because they can only branch based on
+> `switch` statements are severely limited because they can only branch based on
 > an `Enum`'s `is` variant discriminant. `if` statements allow for more
 > versitile conditional expressions that may accomodate evaluating other
 > variables or even properties on the `Enum` variant itself (e.g. `if (foo.is
