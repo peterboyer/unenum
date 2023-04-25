@@ -1,7 +1,7 @@
 /**
-Uses a given `Enum` `value` to execute a corresponding variant `matcher`
+Uses a given `Enum` `value` to execute its corresponding variant's `matcher`
 function and return its result. Use `match.orUndefined(...)` or
-`match.orDefault(...)` if you want to safely handle only a subset of variants.
+`match.orDefault(...)` if you want to match with only a subset of variants.
 
 ```ts
 import { match } from "unenum"; // runtime
