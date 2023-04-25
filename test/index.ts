@@ -1,5 +1,5 @@
 import type { Enum } from "unenum";
-import { safely } from "unenum";
+import { safely, match } from "unenum";
 
 type WebEvent = Enum<{
 	// Unit
@@ -21,8 +21,7 @@ function getWebEvent(): WebEvent | Enum<{ None: undefined }> {
 	return { is: "None" };
 }
 
-function inspect(): string | undefined {
-	const event = getWebEvent();
+function inspect(event: WebEvent): string | undefined {
 	if (event.is === "PageLoad") console.log(event);
 	else if (event.is === "PageUnload") console.log(event);
 	else if (event.is === "KeyPress") console.log(event, event.key);
@@ -31,12 +30,28 @@ function inspect(): string | undefined {
 	return "foo";
 }
 
+function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
+	return match(event, {
+		PageLoad: () => "load" as const,
+		PageUnload: () => "unload" as const,
+	});
+}
+
 function app() {
-	const $inspect = safely(() => inspect());
+	const event = getWebEvent();
+	if (event.is === "None") {
+		return;
+	}
+
+	const eventPageType = getEventPageType(event);
+	console.log(eventPageType);
+
+	const $inspect = safely(() => inspect(event));
 	if ($inspect.is === "Error") {
 		return console.log($inspect.error);
 	}
-	return console.log($inspect.value);
+	console.log();
+	return console.log(event);
 }
 
 () => app();

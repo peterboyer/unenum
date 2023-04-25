@@ -220,6 +220,69 @@ Enum.Omit<Foo, "A" | "C">
 
 <br />
 
+## Patterns
+
+### `If` Statement Narrowing
+
+Using `if` statements to discriminate between `Enum` variants.
+
+```ts
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = { ... };
+
+foo -> A | B | C
+if (foo.is === "A") {
+	return doSomethingWithA(foo);
+}
+
+foo -> B | C
+if (foo.is === "B") {
+	return doSomethingWithB(foo);
+} else {
+	return doSomethingWithC(foo);
+}
+
+foo -> never
+```
+
+### Ternary Expressions
+
+Using ternaries to discriminate between `Enum` variants resulting in a value,
+similar to Rust `match` statements.
+
+```ts
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = { ... };
+
+const bar = (
+	foo.is === "A"
+		? 123
+	: foo.is === "B"
+		? "abc"
+	: null
+);
+
+bar -> number | string | null
+```
+
+### Switch Statements
+
+Discriminating on `is` to narrow cases.
+
+```ts
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = { ... }
+
+switch (foo.is) {
+	case "A": {
+		return doSomethingWithA(foo);
+	}
+	default: {
+		return doSomethingWithBOrC(foo);
+	}
+}
+```
+
 ## Included Enums
 
 ### `Result<Value?, Error?>`
