@@ -224,13 +224,13 @@ Enum.Omit<Foo, "A" | "C">
 
 ## Patterns
 
-`Enum` values are [disciminated
+`Enum`s are [disciminated
 unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
-that use the `is` property to differentiate between variants. TypeScript
+that use `is` as a property to differentiate between variants. TypeScript
 supports [type
 narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) by
-analysing control flow statements like `if` and `return` to determine which
-`Enum` variants are possible to allow for safe property access.
+analysing control flow statements like `if` and `return` to determine when
+certain `Enum` variants are accessible, allowing for safe property access.
 
 ### With `if` statements (recommended)
 
@@ -260,13 +260,13 @@ See [`match`](#matchvalue-matcher---).
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
-const foo: Foo = { ... }
+const foo: Foo = { ... };
 
 match(foo, {
 	A: () => 123,
 	B: ({ b }) => b === "" ? "empty" : "abc",
 	C: () => null,
-})
+});
 ```
 
 > **Note**
@@ -288,7 +288,7 @@ foo.is === "A"
 	? 123
 : foo.is === "B"
 	? (foo.b === "" ? "empty" : "abc")
-: null
+: null;
 ```
 
 > **Note**
@@ -376,7 +376,7 @@ Based on Rust's
 
 > **Note**
 >
-> You may find it useful to name container-like `Enum` values (e.g. of
+> You may find it useful to name variables for container-like `Enum`s (like
 > `Result`s and `Future`s) with a `$` prefix (e.g. `$user`) before unwrapping
 > the desired value into non-prefixed value (e.g. `const user = $user.value`).
 
