@@ -5,8 +5,10 @@
 **A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
 requirements.**
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumvariants) •
-[`Result`](#resultvalue-error) • [`Future`](#futurevalueorenum) • [`safely`](#safelyfn---result) • [`match`](#matchvalue-matcher---)
+[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumvariants)
+• [Patterns](#patterns) • [`Result`](#resultvalue-error) •
+[`Future`](#futurevalueorenum) • [`match`](#matchvalue-matcher---) •
+[`safely`](#safelyfn---result)
 
 </div>
 
@@ -222,52 +224,81 @@ Enum.Omit<Foo, "A" | "C">
 
 ## Patterns
 
-### `If` Statement Narrowing
+`Enum` values are [disciminated
+unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
+that use the `is` property to differentiate between variants. TypeScript
+supports [type
+narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) by
+analysing control flow statements like `if` and `return` to determine which
+`Enum` variants are possible to allow for safe property access.
 
-Using `if` statements to discriminate between `Enum` variants.
+### With `if` statements (recommended)
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
-foo -> A | B | C
 if (foo.is === "A") {
-	return doSomethingWithA(foo);
+	return 123;
 }
 
-foo -> B | C
 if (foo.is === "B") {
-	return doSomethingWithB(foo);
-} else {
-	return doSomethingWithC(foo);
+	return foo.b === "" ? "empty" : "abc";
 }
 
-foo -> never
+return null;
 ```
 
-### Ternary Expressions
+> **Note**
+>
+> `if` statements are the most universal and native way to handle `Enum`
+> variants without any dependencies.
 
-Using ternaries to discriminate between `Enum` variants resulting in a value,
-similar to Rust `match` statements.
+### With `match` function (dependency)
+
+See [`match`](#matchvalue-matcher---).
+
+```ts
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = { ... }
+
+match(foo, {
+	A: () => 123,
+	B: ({ b }) => b === "" ? "empty" : "abc",
+	C: () => null,
+})
+```
+
+> **Note**
+>
+> Using the `match` utility will make `unenum` a runtime dependency with a
+> non-0kb bundle-size cost instead of being a type-only utility. However,
+> `match` is tiny, and very helpful with reducing complexity for conditional
+> variable assignments instead of needing to write one-off functions,
+> [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)s, or ternary
+> expressions.
+
+### With ternary expressions
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
-const bar = (
-	foo.is === "A"
-		? 123
-	: foo.is === "B"
-		? "abc"
-	: null
-);
-
-bar -> number | string | null
+foo.is === "A"
+	? 123
+: foo.is === "B"
+	? (foo.b === "" ? "empty" : "abc")
+: null
 ```
 
-### Switch Statements
+> **Note**
+>
+> Ternary expressions are often criticised for poor readibility, where
+> sufficiently complex and nested expression (such as the above example) are
+> strong candidates for refactoring into functions that may use `if` statements
+> and the early-return pattern to cleanly narrow down an `Enum`'s variants.
 
-Discriminating on `is` to narrow cases.
+### With `switch` statements
 
 ```ts
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
@@ -275,13 +306,24 @@ const foo: Foo = { ... }
 
 switch (foo.is) {
 	case "A": {
-		return doSomethingWithA(foo);
+		return 123;
+	}
+	case "B": {
+		return foo.b === "" ? "empty" : "abc";
 	}
 	default: {
-		return doSomethingWithBOrC(foo);
+		return null;
 	}
 }
 ```
+
+> **Note**
+>
+> `switch` statements are severly limited because they can only branch based on
+> an `Enum`'s `is` variant discriminant. `if` statements allow for more
+> versitile conditional expressions that may accomodate evaluating other
+> variables or even properties on the `Enum` variant itself (e.g. `if (foo.is
+> === "B" && foo.b === "hello") ...`).
 
 ## Included Enums
 
@@ -399,33 +441,14 @@ Based on Rust's
 
 ## Utils
 
-### `safely(fn) -> Result`
-
-Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
-returns.
-
-```ts
-import { safely } from "unenum"; // runtime
-
-safely(() => JSON.stringify(...))
--> Result<string>
-
-safely(() => JSON.parse(...))
--> Result<unknown>
-
-safely(() => fetch("/endpoint").then(res => res.json() as Data))
--> Promise<Result<Data>>
-```
-
 ### `match(value, matcher) -> ...`
 
-Uses a given `Enum` `value` to execute its corresponding variant's `matcher`
+Uses a given `Enum` `value` to execute its corresponding variants' `matcher`
 function and return its result. Use `match.orUndefined(...)` or
-`match.orDefault(...)` if you want to match with only a subset of variants.
+`match.orDefault(...)` if you want to match against only a subset of variants.
 
 ```ts
-import { match } from "unenum"; // runtime
+import { match } from "unenum"; // dependency
 
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = ...
@@ -452,4 +475,23 @@ match.orDefault(
 	($) => $.is === "B" ? true : false
 )
 -> null | string | boolean
+```
+
+### `safely(fn) -> Result`
+
+Executes a given function and returns a `Result` that wraps its normal return
+value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
+returns.
+
+```ts
+import { safely } from "unenum"; // dependency
+
+safely(() => JSON.stringify(...))
+-> Result<string>
+
+safely(() => JSON.parse(...))
+-> Result<unknown>
+
+safely(() => fetch("/endpoint").then(res => res.json() as Data))
+-> Promise<Result<Data>>
 ```
