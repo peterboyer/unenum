@@ -232,6 +232,38 @@ narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) by
 analysing control flow statements like `if` and `return` to determine when
 certain `Enum` variants are accessible, allowing for safe property access.
 
+If a function's return type is not explicitly annotated it will be inferred
+instead, which _will_ lead to inaccurate `Enum` return types. Explicitly
+specifying an `Enum` (e.g. `Foo`) as a return type will ensure that a function
+returns a valid `Enum` variant and provides autocompletion to help instantiate
+`Enum` variants with all their properties (e.g. `return { is: "B", b: "..."
+}`).
+
+### With explicit return types (recommended)
+
+```ts
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+
+function getFoo(value: string | number): Foo {
+	if (!value) {
+		return { is: "A" };
+	}
+
+	if (typeof value === "string") {
+		return { is: "B", b: value };
+	}
+
+	return { is: "C", c: value };
+}
+```
+
+> **Note**
+>
+> If you _need_ to limit the range of possible `Enum` variants that can be
+> returned (or used as a value/parameter/etc), use
+> [`Enum.Pick`](#enumpickenum-variantkeys) or
+> [`Enum.Omit`](#enumomitenum-variantkeys).
+
 ### With `if` statements (recommended)
 
 ```ts
