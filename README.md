@@ -6,7 +6,7 @@
 requirements.**
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enumvariants) •
-[`Result`](#resultvalue-error) • [`Future`](#futurevalueorenum) • [`safely`](#safelyfn---result)
+[`Result`](#resultvalue-error) • [`Future`](#futurevalueorenum) • [`safely`](#safelyfn---result) • [`match`](#matchvalue-matcher---)
 
 </div>
 
@@ -416,4 +416,38 @@ safely(() => JSON.parse(...))
 
 safely(() => fetch("/endpoint").then(res => res.json() as Data))
 -> Promise<Result<Data>>
+```
+
+### `match(value, matcher) -> ...`
+
+Uses a given `Enum` `value` to execute a corresponding variant `matcher`
+function and return its result. Use `match.orUndefined(...)` or
+`match.orDefault(...)` if you want to safely handle only a subset of variants.
+
+```ts
+import { match } from "unenum"; // runtime
+
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = ...
+
+// all cases
+match(foo, {
+	A: () => null,
+	B: ({ b }) => b,
+	C: ({ c }) => c,
+})
+-> null | string | number
+
+// some cases or undefined
+match.orUndefined(foo, {
+	A: () => null,
+	B: ({ b }) => b,
+})
+-> null | string | undefined
+
+// some cases or default
+match.orDefault(foo, {
+	A: () => null,
+}, ($) => $.is === "B" ? true : false)
+-> null | string | boolean
 ```

@@ -1,10 +1,10 @@
 /**
-Uses a given `Enum` value to evaluate and return the result of the matching
-`matcher` functions based on its variant. If any variants are not specified in
-the `matcher`, `undefined` is returned as a fallback. If a `fallback` function
-is specified then the return value is returned as a fallback.
+Uses a given `Enum` `value` to execute a corresponding variant `matcher`
+function and return its result. Use `match.orUndefined(...)` or
+`match.orDefault(...)` if you want to safely handle only a subset of variants.
 
-```ts import { match } from "unenum"; // runtime
+```ts
+import { match } from "unenum"; // runtime
 
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = ...
@@ -17,18 +17,17 @@ match(foo, {
 })
 -> null | string | number
 
-// missing some cases
-match(foo, {
+// some cases or undefined
+match.orUndefined(foo, {
 	A: () => null,
 	B: ({ b }) => b,
 })
 -> null | string | undefined
 
-// using a fallback
-match(foo, {
+// some cases or default
+match.orDefault(foo, {
 	A: () => null,
-	B: ({ b }) => b,
-}, ({ c }) => true)
+}, ($) => $.is === "B" ? true : false)
 -> null | string | boolean
 ```
  */
@@ -38,47 +37,67 @@ export function match<
 >(
 	value: TEnum,
 	matcher: TMatcher
-): ReturnType<NonNullable<TMatcher[keyof TMatcher]>>;
+): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> {
+	const { is } = value;
+	const matcherValue = matcher[is as keyof TMatcher & string];
+	if (!matcherValue) {
+		throw TypeError(
+			`Given Enum value has no matching variants: ${JSON.stringify(value)}`
+		);
+	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return matcherValue(value as any) as ReturnType<
+		NonNullable<TMatcher[keyof TMatcher]>
+	>;
+}
 
-export function match<
+match.orUndefined = <
 	TEnum extends { is: string },
 	TMatcher extends Partial<Matcher<TEnum>>
 >(
 	value: TEnum,
 	matcher: TMatcher
-): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> | undefined;
+): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> | undefined => {
+	const { is } = value;
+	const matcherValue = matcher[is as keyof TMatcher & string];
+	if (!matcherValue) {
+		return undefined;
+	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return matcherValue(value as any) as ReturnType<
+		NonNullable<TMatcher[keyof TMatcher]>
+	>;
+};
 
-export function match<
+match.orDefault = <
 	TEnum extends { is: string },
 	TMatcher extends Partial<Matcher<TEnum>>,
-	TFallback extends Fallback<TEnum, TMatcher>
+	TDefaultMatch extends (
+		value: NeverAsUnknown<TEnum extends { is: keyof TMatcher } ? never : TEnum>
+	) => unknown
 >(
 	value: TEnum,
 	matcher: TMatcher,
-	fallback: TFallback
-): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> | ReturnType<TFallback>;
-
-export function match<
-	TEnum extends { is: string },
-	TMatcher extends Record<string, (value: unknown) => unknown>,
-	TFallback extends (value: unknown) => unknown
->(value: TEnum, matcher: TMatcher, fallback?: TFallback): unknown {
+	defaultMatch: TDefaultMatch
+):
+	| ReturnType<NonNullable<TMatcher[keyof TMatcher]>>
+	| ReturnType<TDefaultMatch> => {
 	const { is } = value;
-	const matcherValue = matcher[is as keyof TMatcher];
-	if (!matcherValue) {
-		return fallback ? fallback(value) : undefined;
+	const valueMatch = matcher[is as keyof TMatcher & string];
+	if (!valueMatch) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return defaultMatch(value as any) as ReturnType<TDefaultMatch>;
 	}
-	return matcherValue(value);
-}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return valueMatch(value as any) as ReturnType<
+		NonNullable<TMatcher[keyof TMatcher]>
+	>;
+};
 
 type Matcher<TEnum extends { is: string }> = {
 	[TVariant in TEnum["is"]]: (
 		value: TEnum extends { is: TVariant } ? TEnum : never
 	) => unknown;
 };
-
-type Fallback<TEnum, TMatcher> = (
-	value: NeverAsUnknown<TEnum extends { is: keyof TMatcher } ? never : TEnum>
-) => unknown;
 
 type NeverAsUnknown<T> = [T] extends [never] ? unknown : T;

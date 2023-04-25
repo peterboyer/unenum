@@ -5,7 +5,7 @@ import type { Enum } from "./enum";
 describe("match", () => {
 	type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 
-	test("result", () => {
+	test("match", () => {
 		const doMatch = (foo: Foo) =>
 			match(foo, {
 				A: ({ is }) => is === "A",
@@ -13,26 +13,30 @@ describe("match", () => {
 				C: ({ c }) => c,
 			});
 
-		const result = doMatch({} as Foo);
-		({}) as [Expect<Equal<typeof result, boolean | number | string>>];
+		() => {
+			const result = doMatch({} as Foo);
+			({}) as [Expect<Equal<typeof result, boolean | number | string>>];
+		};
 
 		expect(doMatch({ is: "A" })).toBe(true);
 		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
 		expect(doMatch({ is: "C", c: 12345 })).toBe(12345);
-		expect(doMatch({} as Foo)).toBeUndefined();
+		expect(() => doMatch({} as Foo)).toThrow();
 	});
 
-	test("resultOrUndefined", () => {
+	test("match.orUndefined", () => {
 		const doMatch = (foo: Foo) =>
-			match(foo, {
+			match.orUndefined(foo, {
 				B: ({ b }) => b,
 				C: ({ c }) => c,
 			});
 
-		const resultOrUndefined = doMatch({} as Foo);
-		({}) as [
-			Expect<Equal<typeof resultOrUndefined, number | string | undefined>>
-		];
+		() => {
+			const resultOrUndefined = doMatch({} as Foo);
+			({}) as [
+				Expect<Equal<typeof resultOrUndefined, number | string | undefined>>
+			];
+		};
 
 		expect(doMatch({ is: "A" })).toBeUndefined();
 		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
@@ -40,9 +44,9 @@ describe("match", () => {
 		expect(doMatch({} as Foo)).toBeUndefined();
 	});
 
-	test("resultOrFallback", () => {
+	test("match.orDefault", () => {
 		const doMatch = (foo: Foo) =>
-			match(
+			match.orDefault(
 				foo,
 				{
 					B: ({ b }) => b,
@@ -51,8 +55,10 @@ describe("match", () => {
 				({ is }) => is
 			);
 
-		const resultOrFallback = doMatch({} as Foo);
-		({}) as [Expect<Equal<typeof resultOrFallback, number | string>>];
+		() => {
+			const resultOrFallback = doMatch({} as Foo);
+			({}) as [Expect<Equal<typeof resultOrFallback, number | string>>];
+		};
 
 		expect(doMatch({ is: "A" })).toBe("A");
 		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
@@ -60,9 +66,9 @@ describe("match", () => {
 		expect(doMatch({} as Foo)).toBeUndefined();
 	});
 
-	test("resultOrFallbackNever", () => {
+	test("match.orDefault exhaustive", () => {
 		const doMatch = (foo: Foo) =>
-			match(
+			match.orDefault(
 				foo,
 				{
 					A: ({ is }) => is === "A",
@@ -75,12 +81,14 @@ describe("match", () => {
 				}
 			);
 
-		const resultOrFallbackNever = doMatch({} as Foo);
-		({}) as [
-			Expect<
-				Equal<typeof resultOrFallbackNever, null | boolean | number | string>
-			>
-		];
+		() => {
+			const resultOrFallbackNever = doMatch({} as Foo);
+			({}) as [
+				Expect<
+					Equal<typeof resultOrFallbackNever, null | boolean | number | string>
+				>
+			];
+		};
 
 		expect(doMatch({ is: "A" })).toBe(true);
 		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
