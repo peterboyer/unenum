@@ -446,8 +446,10 @@ match.orUndefined(foo, {
 -> null | string | undefined
 
 // some cases or default
-match.orDefault(foo, {
-	A: () => null,
-}, ($) => $.is === "B" ? true : false)
+match.orDefault(
+	foo,
+	{ A: () => null },
+	($) => $.is === "B" ? true : false
+)
 -> null | string | boolean
 ```

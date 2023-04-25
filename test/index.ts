@@ -31,10 +31,14 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return match.orUndefined(event, {
-		PageLoad: () => "load" as const,
-		PageUnload: () => "unload" as const,
-	});
+	return match.orDefault(
+		event,
+		{
+			PageLoad: () => "load" as const,
+			PageUnload: () => "unload" as const,
+		},
+		() => undefined
+	);
 }
 
 function app() {
