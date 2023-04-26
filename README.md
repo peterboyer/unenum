@@ -57,13 +57,10 @@ Here's an example of `unenum`'s [`Enum`](#enumvariants) compared with Rust's
 <pre lang="ts">// TypeScript
  
 type WebEvent = Enum<{
-	// Unit
 	PageLoad: undefined;
 	PageUnload: undefined;
-	// Tuple (not practical; use object instead)
 	KeyPress: { key: string };
 	Paste: { content: string };
-	// Object
 	Click: { x: number; y: number };
 }>
  
@@ -88,13 +85,10 @@ function inspect(event: WebEvent) {
 <pre lang="rust">// Rust
  
 enum WebEvent {
-	// Unit
 	PageLoad,
 	PageUnload,
-	// Tuple
 	KeyPress(char),
 	Paste(String),
-	// Struct
 	Click { x: i64, y: i64 },
 }
  
