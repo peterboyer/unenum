@@ -1,11 +1,11 @@
 import type { Enum } from "./enum";
 
 /**
-Represents either success `value` (`Ok`) or failure `error` (`Error`).
+Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
 
-_`Result` uses `value?: never` and `error?: never` to allow for shorthand access
-to `.value` or `.error` if you want to safely default to `undefined` if neither
-property is available._
+`Result` uses `value?: never` and `error?: never` to allow for shorthand access
+to `.value` or `.error` if you want to safely default to `undefined` if either
+property is not available.
 
 ```ts
 import "unenum/global.result"; // global

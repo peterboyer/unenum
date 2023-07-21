@@ -6,8 +6,8 @@
 requirements.**
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants)
-• [Patterns](#patterns) • [`Result`](#resultvalue-error) •
-[`Future`](#futurevalueorenum) • [`match`](#matchvalue-matcher---) •
+• [Patterns](#patterns) • [`Result`](#resulttvalue-terror) •
+[`Future`](#futuretvalueorenum) • [`match`](#matchvalue-matcher---) •
 [`safely`](#safelyfn---result)
 
 </div>
@@ -32,12 +32,12 @@ featuring:
 - **Zero dependencies**; `unenum` is extremely lightweight.
 - **Zero runtime requirements**; `unenum` can be completely compiled away -- no
   runtime or bundle size cost.
-- **`Enum` variants that can define custom per-instance data**; impossible with
+- **`Enum` variants can define custom per-instance data**; impossible with
   native TypeScript `enum`s.
 
 <br />
 
-`unenum` wants to _feel_ like a native TypeScript utility type, _like a
+`unenum` aims to _feel_ like a native TypeScript utility type, _like a
 pattern_, rather than a library:
 
 - **`Enum`s are defined as `type` statements**; instead of factory functions.
@@ -167,6 +167,57 @@ type MyFoo = Enum<{
 type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
 ```
 
+### `Enum.Pick<TEnum, TVariantKeys>`
+
+Narrows a given Enum by including only the given variants by key.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Pick<Foo, "A" | "C">
+-> | { is: "A" }
+   | { is: "C"; c: number }
+```
+
+### `Enum.Omit<TEnum, TVariantKeys>`
+
+Narrows a given Enum by excluding only the given variants by key.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Omit<Foo, "A" | "C">
+-> | { is: "B"; b: string }
+```
+
+### `Enum.Merge<TEnums>`
+
+Merges a given union of Enums' variants and properties into a single Enum.
+
+```ts
+Enum.Merge<
+   | Enum<{ A: true; B: true; C: { c1: string } }>
+   | Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
+>
+-> Enum<{
+  A: true;
+  B: { b1: string };
+  C: { c1: string; c2: number };
+  D: true;
+}>
+```
+
+### `Enum.Unwrap<TEnum>`
+
+Infers an object mapping variant names to their unit or struct variant values.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Unwrap<Foo>
+-> | { A: true; B: { b: string }; C: { c: number } }
+```
+
 ### `Enum.Keys<TEnum>`
 
 Infers all possible variants' keys of the given Enum.
@@ -203,57 +254,6 @@ Enum.Props<Foo>
 
 Enum.Props<Foo, true>
 -> "x" | "y"
-```
-
-### `Enum.Pick<TEnum, TVariantKeys>`
-
-Narrows a given Enum by including only the given variants by key.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Pick<Foo, "A" | "C">
--> | { is: "A" }
-   | { is: "C"; c: number }
-```
-
-### `Enum.Omit<TEnum, TVariantKeys>`
-
-Narrows a given Enum by excluding only the given variants by key.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Omit<Foo, "A" | "C">
--> | { is: "B"; b: string }
-```
-
-### `Enum.Unwrap<TEnum>`
-
-Infers an object mapping variant names to their unit or struct variant values.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Unwrap<Foo>
--> | { A: true; B: { b: string }; C: { c: number } }
-```
-
-### `Enum.Merge<TEnums>`
-
-Merges a given union of Enums' variants and properties into a single Enum.
-
-```ts
-Enum.Merge<
-   | Enum<{ A: true; B: true; C: { c1: string } }>
-   | Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
->
--> Enum<{
-  A: true;
-  B: { b1: string };
-  C: { c1: string; c2: number };
-  D: true;
-}>
 ```
 
 <br />
@@ -396,13 +396,13 @@ switch (foo.is) {
 
 ## Included Enums
 
-### `Result<Value?, Error?>`
+### `Result<TValue?, TError?>`
 
-Represents either success `value` (`Ok`) or failure `error` (`Error`).
+Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
 
-_`Result` uses `value?: never` and `error?: never` to allow for shorthand access
+`Result` uses `value?: never` and `error?: never` to allow for shorthand access
 to `.value` or `.error` if you want to safely default to `undefined` if either
-property is not available._
+property is not available.
 
 ```ts
 import "unenum/global.result"; // global
@@ -451,7 +451,7 @@ Based on Rust's
 
 <br />
 
-### `Future<ValueOrEnum?>`
+### `Future<TValueOrEnum?>`
 
 Represents an asynchronous `value` that is either loading (`Pending`) or
 resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
