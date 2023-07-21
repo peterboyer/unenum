@@ -30,28 +30,22 @@ type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
 ```
 */
 export type Enum<
-	TVariants extends Enum.Variants,
-	TDiscriminant extends Enum.Discriminant = Enum.DiscriminantDefault
+	TVariants extends EnumVariants,
+	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
 > = {
 	// prettier-ignore
 	[TVariantKey in keyof TVariants]-?:
 		TVariants[TVariantKey] extends true
-			? Enum.VariantUnit<TVariantKey & string, TDiscriminant>
+			? EnumVariantUnit<TVariantKey & string, TDiscriminant>
 		: TVariants[TVariantKey] extends Record<string, unknown>
-			? Enum.VariantStruct<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
+			? EnumVariantStruct<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
 		: never;
 }[keyof TVariants];
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Enum {
+	// @ts-expect-error Should work.
 	export type {
-		// consts
-		EnumVariants as Variants,
-		EnumDiscriminant as Discriminant,
-		EnumDiscriminantDefault as DiscriminantDefault,
-		// primitives
-		EnumVariantUnit as VariantUnit,
-		EnumVariantStruct as VariantStruct,
-		// utils
 		EnumKeys as Keys,
 		EnumValues as Values,
 		EnumProps as Props,
@@ -62,16 +56,16 @@ export namespace Enum {
 	};
 }
 
-type EnumVariants = Record<string, true | Record<string, unknown>>;
-type EnumDiscriminant = string;
-type EnumDiscriminantDefault = "is";
+export type EnumVariants = Record<string, true | Record<string, unknown>>;
+export type EnumDiscriminant = string;
+export type EnumDiscriminantDefault = "is";
 
-type EnumVariantUnit<
+export type EnumVariantUnit<
 	TKey extends string,
 	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
 > = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
 
-type EnumVariantStruct<
+export type EnumVariantStruct<
 	TKey extends string,
 	TStruct extends Record<string, unknown>,
 	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
