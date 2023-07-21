@@ -3,7 +3,7 @@ import type { Enum } from "./enum";
 
 const Empty = {};
 type None = typeof Empty;
-type Unit = { Unit: undefined };
+type Unit = { Unit: true };
 type Data = { Data: { value: unknown } };
 type Both = Unit & Data;
 type Generic<T> = { Generic: { value: T } };
@@ -70,14 +70,35 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Omit<EBoth, "Data">, EUnit>>,
 	Expect<Equal<Enum.Omit<EBoth, "Unit" | "Data">, never>>,
 	Expect<Equal<Enum.Omit<EGeneric<number>, never>, EGeneric<number>>>,
-	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>
+	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>,
+
+	Expect<
+		Equal<
+			Enum.Merge<
+				| Enum<{ A: true; B: true; C: { c1: string } }>
+				| Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
+			>,
+			Enum<{
+				A: true;
+				B: { b1: string };
+				C: { c1: string; c2: number };
+				D: true;
+			}>
+		>
+	>,
+
+	Expect<Equal<Enum.Unwrap<ENone>, never>>,
+	Expect<Equal<Enum.Unwrap<EUnit>, { Unit: true }>>,
+	Expect<Equal<Enum.Unwrap<EData>, { Data: { value: unknown } }>>,
+	Expect<Equal<Enum.Unwrap<EBoth>, { Unit: true; Data: { value: unknown } }>>,
+	Expect<Equal<Enum.Unwrap<EGeneric<number>>, { Generic: { value: number } }>>
 ];
 
 {
 	type State = Enum<{
 		Left: { value: string };
 		Right: { value: string };
-		None: undefined;
+		None: true;
 	}>;
 
 	const getState = (): State => {

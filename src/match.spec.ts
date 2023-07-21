@@ -3,7 +3,7 @@ import { match } from "./match";
 import type { Enum } from "./enum";
 
 describe("match", () => {
-	type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+	type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 	test("match", () => {
 		const doMatch = (foo: Foo) =>

@@ -5,53 +5,87 @@ Creates a union of mutually exclusive, discriminable variants.
 import "unenum/global.enum"; // global
 import type { Enum } from "unenum"; // imported
 
+// Default
 type Foo = Enum<{
-	A: undefined;
+	A: true;
 	B: { b: string };
 	C: { c: number };
 }>;
 -> | { is: "A" }
    | { is: "B"; b: string }
    | { is: "C"; c: number }
+
+// Enum with Custom Discriminant
+type MyFoo = Enum<{
+	A: true;
+	B: { b: string };
+	C: { c: number };
+}, "$key">;
+-> | { $key: "A" }
+   | { $key: "B"; b: string }
+   | { $key: "C"; c: number }
+
+// Reusable Custom Enum Type
+type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
 ```
- */
-// prettier-ignore
-export type Enum<TVariants extends Record<string, Record<string, unknown> | undefined>> = {
-	[Variant in keyof TVariants]-?: Identity<
-		& { is: Variant }
-		& (TVariants[Variant] extends undefined ? Empty : TVariants[Variant])
-	>;
+*/
+export type Enum<
+	TVariants extends Enum.Variants,
+	TDiscriminant extends Enum.Discriminant = Enum.DiscriminantDefault
+> = {
+	// prettier-ignore
+	[TVariantKey in keyof TVariants]-?:
+		TVariants[TVariantKey] extends true
+			? Enum.VariantUnit<TVariantKey & string, TDiscriminant>
+		: TVariants[TVariantKey] extends Record<string, unknown>
+			? Enum.VariantStruct<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
+		: never;
 }[keyof TVariants];
 
 export namespace Enum {
-	export type { EnumKeys as Keys };
-	export type { EnumValues as Values };
-	export type { EnumProps as Props };
-	export type { EnumPick as Pick };
-	export type { EnumOmit as Omit };
+	export type {
+		// consts
+		EnumVariants as Variants,
+		EnumDiscriminant as Discriminant,
+		EnumDiscriminantDefault as DiscriminantDefault,
+		// primitives
+		EnumVariantUnit as VariantUnit,
+		EnumVariantStruct as VariantStruct,
+		// utils
+		EnumKeys as Keys,
+		EnumValues as Values,
+		EnumProps as Props,
+		EnumPick as Pick,
+		EnumOmit as Omit,
+		EnumMerge as Merge,
+		EnumUnwrap as Unwrap,
+	};
 }
 
-// @ts-expect-error It's okay for this .d.ts file to have this const.
-const Empty = {};
-type Empty = typeof Empty;
+type EnumVariants = Record<string, true | Record<string, unknown>>;
+type EnumDiscriminant = string;
+type EnumDiscriminantDefault = "is";
 
-/**
- * Merges intersections.
- *
- * @example
- * ```
- * Identity<{ is: "Data" } & { value: string }>
- * -> { is: "Data"; value: string }
- * ```
- */
-// https://stackoverflow.com/a/49683575
-type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
+type EnumVariantUnit<
+	TKey extends string,
+	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
+> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
+
+type EnumVariantStruct<
+	TKey extends string,
+	TStruct extends Record<string, unknown>,
+	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
+> = Identity<
+	// prettier-ignore
+	& { [TDiscriminantKey in TDiscriminant]: TKey }
+	& (TStruct extends true ? Record<never, never> : TStruct)
+>;
 
 /**
 Infers all possible variants' keys of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Keys<Foo>
 -> "A" | "B" | "C"
@@ -63,7 +97,7 @@ type EnumKeys<TEnum> = TEnum extends { is: string } ? TEnum["is"] : never;
 Infers all possible variants' values of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Values<Foo>
 -> | { b: string }
@@ -83,7 +117,7 @@ Infers only _common_ variants' properties' names of the given Enum. If `All` is
 `true`, then _all_ variants' properties' names are inferred.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
+type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
 
 Enum.Props<Foo>
 -> "x"
@@ -103,33 +137,18 @@ type EnumProps<TEnum, TAll extends boolean = false> = [TEnum] extends [never]
 	: never;
 
 /**
- * Create an intersection of all union members.
- *
- * @example
- * ```
- * Intersect<{ A: string } | { B: string } | { C: string }>
- * -> { A: string, B: string, C: string }
- * ```
- */
-type Intersect<T> = (T extends unknown ? (t: T) => void : never) extends (
-	t: infer R
-) => void
-	? R
-	: never;
-
-/**
 Narrows a given Enum by including only the given variants by key.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Pick<Foo, "A" | "C">
 -> | { is: "A" }
    | { is: "C"; c: number }
 ```
  */
-type EnumPick<TEnum, TVariantKey extends EnumKeys<TEnum>> = TEnum extends {
-	is: TVariantKey;
+type EnumPick<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
+	is: TVariantKeys;
 }
 	? TEnum
 	: never;
@@ -138,14 +157,94 @@ type EnumPick<TEnum, TVariantKey extends EnumKeys<TEnum>> = TEnum extends {
 Narrows a given Enum by excluding only the given variants by key.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
 ```
  */
-type EnumOmit<TEnum, TVariantKey extends EnumKeys<TEnum>> = TEnum extends {
-	is: TVariantKey;
+type EnumOmit<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
+	is: TVariantKeys;
 }
 	? never
 	: TEnum;
+
+/**
+Infers an object mapping variant names to their unit or struct variant values.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Unwrap<Foo>
+-> | { A: true; B: { b: string }; C: { c: number } }
+```
+ */
+type EnumUnwrap<TEnum> = Identity<
+	Intersect<
+		TEnum extends { is: string }
+			? {
+					[key in TEnum["is"]]: Exclude<keyof TEnum, "is"> extends never
+						? true
+						: Identity<Omit<TEnum, "is">>;
+			  }
+			: never
+	>
+>;
+
+/**
+Merges a given union of Enums' variants and properties into a single Enum.
+
+```ts
+Enum.Merge<
+   | Enum<{ A: true; B: true; C: { c1: string } }>
+   | Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
+>
+-> Enum<{
+  A: true;
+  B: { b1: string };
+  C: { c1: string; c2: number };
+  D: true;
+}>
+```
+*/
+type EnumMerge<TEnums> = Enum<
+	TrueOrObj<
+		Intersect<TrueAsEmpty<TEnums extends unknown ? EnumUnwrap<TEnums> : never>>
+	>
+>;
+type TrueAsEmpty<T> = {
+	[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
+};
+type TrueOrObj<T> = {
+	[K in keyof T]: keyof T[K] extends never ? true : Identity<T[K]>;
+};
+
+/**
+@internal
+
+Merges intersections.
+
+@example
+```
+Identity<{ is: "Data" } & { value: string }>
+-> { is: "Data"; value: string }
+```
+ */
+// https://stackoverflow.com/a/49683575
+type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
+
+/**
+@internal
+
+Create an intersection of all union members.
+
+```
+Intersect<{ A: string } | { B: string } | { C: string }>
+-> { A: string, B: string, C: string }
+```
+ */
+type Intersect<T> = (T extends unknown ? (t: T) => void : never) extends (
+	t: infer R
+) => void
+	? R
+	: never;

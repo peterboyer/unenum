@@ -2,17 +2,14 @@ import type { Enum } from "unenum";
 import { safely, match } from "unenum";
 
 type WebEvent = Enum<{
-	// Unit
-	PageLoad: undefined;
-	PageUnload: undefined;
-	// Tuple (use object: not feasible)
+	PageLoad: true;
+	PageUnload: true;
 	KeyPress: { key: string };
 	Paste: { content: string };
-	// Object
 	Click: { x: number; y: number };
 }>;
 
-function getWebEvent(): WebEvent | Enum<{ None: undefined }> {
+function getWebEvent(): WebEvent | Enum<{ None: true }> {
 	if ("".toString()) return { is: "PageLoad" };
 	if ("".toString()) return { is: "PageUnload" };
 	if ("".toString()) return { is: "KeyPress", key: "x" };

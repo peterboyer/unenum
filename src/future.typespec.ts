@@ -24,7 +24,7 @@ import type { Result } from "./result";
 	>,
 	Expect<
 		Equal<
-			Future<Enum<{ Unit: undefined; Data: { data: unknown } }>>,
+			Future<Enum<{ Unit: true; Data: { data: unknown } }>>,
 			{ is: "Pending" } | { is: "Unit" } | { is: "Data"; data: unknown }
 		>
 	>,

@@ -5,7 +5,7 @@
 **A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
 requirements.**
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumvariants)
+[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants)
 • [Patterns](#patterns) • [`Result`](#resultvalue-error) •
 [`Future`](#futurevalueorenum) • [`match`](#matchvalue-matcher---) •
 [`safely`](#safelyfn---result)
@@ -48,7 +48,7 @@ pattern_, rather than a library:
 
 <br />
 
-Here's an example of `unenum`'s [`Enum`](#enumvariants) compared with Rust's
+Here's an example of `unenum`'s [`Enum`](#enumtvariants) compared with Rust's
 [`enum`](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html):
 
 <table width="100%">
@@ -57,8 +57,8 @@ Here's an example of `unenum`'s [`Enum`](#enumvariants) compared with Rust's
 <pre lang="ts">// TypeScript
  
 type WebEvent = Enum<{
-	PageLoad: undefined;
-	PageUnload: undefined;
+	PageLoad: true;
+	PageUnload: true;
 	KeyPress: { key: string };
 	Paste: { content: string };
 	Click: { x: number; y: number };
@@ -135,7 +135,7 @@ import type { Enum, ... } from "unenum";
 
 <br />
 
-## `Enum<Variants>`
+## `Enum<TVariants>`
 
 Creates a union of mutually exclusive, discriminable variants.
 
@@ -143,46 +143,60 @@ Creates a union of mutually exclusive, discriminable variants.
 import "unenum/global.enum"; // global
 import type { Enum } from "unenum"; // imported
 
+// Default
 type Foo = Enum<{
-	A: undefined;
+	A: true;
 	B: { b: string };
 	C: { c: number };
 }>;
 -> | { is: "A" }
    | { is: "B"; b: string }
    | { is: "C"; c: number }
+
+// Enum with Custom Discriminant
+type MyFoo = Enum<{
+	A: true;
+	B: { b: string };
+	C: { c: number };
+}, "$key">;
+-> | { $key: "A" }
+   | { $key: "B"; b: string }
+   | { $key: "C"; c: number }
+
+// Reusable Custom Enum Type
+type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
 ```
 
-### `Enum.Keys<Enum>`
+### `Enum.Keys<TEnum>`
 
 Infers all possible variants' keys of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Keys<Foo>
 -> "A" | "B" | "C"
 ```
 
-### `Enum.Values<Enum>`
+### `Enum.Values<TEnum>`
 
 Infers all possible variants' values of the given Enum.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Values<Foo>
 -> | { b: string }
    | { c: number }
 ```
 
-### `Enum.Props<Enum, All?>`
+### `Enum.Props<TEnum, TAll?>`
 
 Infers only _common_ variants' properties' names of the given Enum. If `All` is
 `true`, then _all_ variants' properties' names are inferred.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { x: string }; C: { x: string; y: number } }>;
+type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
 
 Enum.Props<Foo>
 -> "x"
@@ -191,27 +205,55 @@ Enum.Props<Foo, true>
 -> "x" | "y"
 ```
 
-### `Enum.Pick<Enum, VariantKeys>`
+### `Enum.Pick<TEnum, TVariantKeys>`
 
 Narrows a given Enum by including only the given variants by key.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Pick<Foo, "A" | "C">
 -> | { is: "A" }
    | { is: "C"; c: number }
 ```
 
-### `Enum.Omit<Enum, VariantKeys>`
+### `Enum.Omit<TEnum, TVariantKeys>`
 
 Narrows a given Enum by excluding only the given variants by key.
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
+```
+
+### `Enum.Unwrap<TEnum>`
+
+Infers an object mapping variant names to their unit or struct variant values.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Unwrap<Foo>
+-> | { A: true; B: { b: string }; C: { c: number } }
+```
+
+### `Enum.Merge<TEnums>`
+
+Merges a given union of Enums' variants and properties into a single Enum.
+
+```ts
+Enum.Merge<
+   | Enum<{ A: true; B: true; C: { c1: string } }>
+   | Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
+>
+-> Enum<{
+  A: true;
+  B: { b1: string };
+  C: { c1: string; c2: number };
+  D: true;
+}>
 ```
 
 <br />
@@ -236,7 +278,7 @@ returns a valid `Enum` variant and provides autocompletion to help instantiate
 ### With explicit return types (recommended)
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 function getFoo(value: string | number): Foo {
 	if (!value) {
@@ -255,13 +297,13 @@ function getFoo(value: string | number): Foo {
 >
 > If you _need_ to limit the range of possible `Enum` variants that can be
 > returned (or used as a value/parameter/etc), use
-> [`Enum.Pick`](#enumpickenum-variantkeys) or
-> [`Enum.Omit`](#enumomitenum-variantkeys).
+> [`Enum.Pick`](#enumpicktenum-tvariantkeys) or
+> [`Enum.Omit`](#enumomittenum-tvariantkeys).
 
 ### With `if` statements (recommended)
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
 if (foo.is === "A") {
@@ -285,7 +327,7 @@ return null;
 See [`match`](#matchvalue-matcher---).
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
 import { match } from "unenum";
@@ -308,7 +350,7 @@ match(foo, {
 ### With ternary expressions
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
 foo.is === "A"
@@ -328,7 +370,7 @@ foo.is === "A"
 ### With `switch` statements
 
 ```ts
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... }
 
 switch (foo.is) {
@@ -419,7 +461,7 @@ resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
 want to safely default to `undefined` if it is not available. If using with an
 `Enum` type, all its _common_ properties will be extended as `?: never`
 properties on the `Pending` variant to allow for shorthand `undefined` access
-also. (See [`Enum.Props`](#enumpropsenum-all).)
+also. (See [`Enum.Props`](#enumpropstenum-tall).)
 
 ```ts import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
