@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 target_base="$1"
-current_tag="$(git describe --tags --abbrev=0 2>/dev/null)"
+current_tag="$(git describe --tags --exclude="*sha*" --abbrev=0 2>/dev/null)"
 if [[ -z "$current_tag" ]]; then
 	echo "$target_base (first)"
 	exit
