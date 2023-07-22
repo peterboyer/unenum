@@ -26,28 +26,6 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<EGeneric<number>, { is: "Generic"; value: number }>>,
 	Expect<Equal<EGeneric<number>["is"], "Generic">>,
 
-	Expect<Equal<Enum.Keys<ENone>, never>>,
-	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
-	Expect<Equal<Enum.Keys<EData>, "Data">>,
-	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
-	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
-
-	Expect<Equal<Enum.Values<ENone>, never>>,
-	Expect<Equal<Enum.Values<EUnit>, never>>,
-	Expect<Equal<Enum.Values<EData>, { value: unknown }>>,
-	Expect<Equal<Enum.Values<EBoth>, { value: unknown }>>,
-	Expect<Equal<Enum.Values<EGeneric<number>>, { value: number }>>,
-
-	Expect<Equal<Enum.Props<ENone>, never>>,
-	Expect<Equal<Enum.Props<EUnit>, never>>,
-	Expect<Equal<Enum.Props<EData>, "value">>,
-	Expect<Equal<Enum.Props<EBoth>, never>>,
-	Expect<Equal<Enum.Props<EBoth, true>, "value">>,
-	Expect<Equal<Enum.Props<EBoth, false>, never>>,
-	Expect<Equal<Enum.Props<EGeneric<number>>, "value">>,
-	Expect<Equal<Enum.Props<EGeneric<number>, true>, "value">>,
-	Expect<Equal<Enum.Props<EGeneric<number>, false>, "value">>,
-
 	Expect<Equal<Enum.Pick<ENone, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, "Unit">, EUnit>>,
@@ -117,15 +95,39 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Unwrap<EUnit>, { Unit: true }>>,
 	Expect<Equal<Enum.Unwrap<EData>, { Data: { value: unknown } }>>,
 	Expect<Equal<Enum.Unwrap<EBoth>, { Unit: true; Data: { value: unknown } }>>,
-	Expect<Equal<Enum.Unwrap<EGeneric<number>>, { Generic: { value: number } }>>
+	Expect<Equal<Enum.Unwrap<EGeneric<number>>, { Generic: { value: number } }>>,
+
+	Expect<Equal<Enum.Keys<ENone>, never>>,
+	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
+	Expect<Equal<Enum.Keys<EData>, "Data">>,
+	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
+	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
+
+	Expect<Equal<Enum.Values<ENone>, never>>,
+	Expect<Equal<Enum.Values<EUnit>, never>>,
+	Expect<Equal<Enum.Values<EData>, { value: unknown }>>,
+	Expect<Equal<Enum.Values<EBoth>, { value: unknown }>>,
+	Expect<Equal<Enum.Values<EGeneric<number>>, { value: number }>>,
+
+	Expect<Equal<Enum.Props<ENone>, never>>,
+	Expect<Equal<Enum.Props<EUnit>, never>>,
+	Expect<Equal<Enum.Props<EData>, "value">>,
+	Expect<Equal<Enum.Props<EBoth>, never>>,
+	Expect<Equal<Enum.Props<EBoth, true>, "value">>,
+	Expect<Equal<Enum.Props<EBoth, false>, never>>,
+	Expect<Equal<Enum.Props<EGeneric<number>>, "value">>,
+	Expect<Equal<Enum.Props<EGeneric<number>, true>, "value">>,
+	Expect<Equal<Enum.Props<EGeneric<number>, false>, "value">>
 ];
 
 {
-	type State = Enum<{
-		Left: { value: string };
-		Right: { value: string };
-		None: true;
-	}>;
+	type State = Enum.Extend<
+		Enum<{
+			Left: { value: string };
+			Right: { value: string };
+		}>,
+		{ None: true }
+	>;
 
 	const getState = (): State => {
 		if ("".toString()) return { is: "Left", value: "" };

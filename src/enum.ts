@@ -46,14 +46,14 @@ export type Enum<
 export namespace Enum {
 	// @ts-expect-error Should work.
 	export type {
-		EnumKeys as Keys,
-		EnumValues as Values,
-		EnumProps as Props,
 		EnumPick as Pick,
 		EnumOmit as Omit,
 		EnumExtend as Extend,
 		EnumMerge as Merge,
 		EnumUnwrap as Unwrap,
+		EnumKeys as Keys,
+		EnumValues as Values,
+		EnumProps as Props,
 	};
 }
 
@@ -74,6 +74,108 @@ export type EnumVariantStruct<
 	// prettier-ignore
 	& { [TDiscriminantKey in TDiscriminant]: TKey }
 	& (TStruct extends true ? Record<never, never> : TStruct)
+>;
+
+/**
+Narrows a given Enum by including only the given variants by key.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Pick<Foo, "A" | "C">
+-> | { is: "A" }
+   | { is: "C"; c: number }
+```
+ */
+type EnumPick<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
+	is: TVariantKeys;
+}
+	? TEnum
+	: never;
+
+/**
+Narrows a given Enum by excluding only the given variants by key.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Omit<Foo, "A" | "C">
+-> | { is: "B"; b: string }
+```
+ */
+type EnumOmit<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
+	is: TVariantKeys;
+}
+	? never
+	: TEnum;
+
+/**
+Adds additional variants and merges additional properties into a new Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Extend<Foo, { D: true }>
+-> Enum<{
+	A: true;
+	B: { b: string };
+	C: { c: number };
+	D: true;
+}>
+```
+ */
+type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
+	TEnum | Enum<TVariants>
+>;
+
+/**
+Merges a given union of Enums' variants and properties into a single Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: true; C: { c1: string } }>;
+type Bar = Enum<{ B: { b1: string }; C: { c2: number }; D: true }>;
+
+Enum.Merge<Foo | Bar>
+-> Enum<{
+	A: true;
+	B: { b1: string };
+	C: { c1: string; c2: number };
+	D: true;
+}>
+```
+*/
+type EnumMerge<TEnums> = Enum<
+	TrueOrObj<
+		Intersect<TrueAsEmpty<TEnums extends unknown ? EnumUnwrap<TEnums> : never>>
+	>
+>;
+type TrueAsEmpty<T> = {
+	[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
+};
+type TrueOrObj<T> = {
+	[K in keyof T]: keyof T[K] extends never ? true : Identity<T[K]>;
+};
+
+/**
+Infers an object mapping variant names to their unit or struct variant values.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Unwrap<Foo>
+-> | { A: true; B: { b: string }; C: { c: number } }
+```
+ */
+type EnumUnwrap<TEnum> = Identity<
+	Intersect<
+		TEnum extends { is: string }
+			? {
+					[key in TEnum["is"]]: Exclude<keyof TEnum, "is"> extends never
+						? true
+						: Identity<Omit<TEnum, "is">>;
+			  }
+			: never
+	>
 >;
 
 /**
@@ -130,108 +232,6 @@ type EnumProps<TEnum, TAll extends boolean = false> = [TEnum] extends [never]
 	: [TEnum] extends [{ is: string }]
 	? keyof Intersect<Omit<TEnum, "is">>
 	: never;
-
-/**
-Narrows a given Enum by including only the given variants by key.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Pick<Foo, "A" | "C">
--> | { is: "A" }
-   | { is: "C"; c: number }
-```
- */
-type EnumPick<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
-	is: TVariantKeys;
-}
-	? TEnum
-	: never;
-
-/**
-Narrows a given Enum by excluding only the given variants by key.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Omit<Foo, "A" | "C">
--> | { is: "B"; b: string }
-```
- */
-type EnumOmit<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
-	is: TVariantKeys;
-}
-	? never
-	: TEnum;
-
-/**
-Infers an object mapping variant names to their unit or struct variant values.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Unwrap<Foo>
--> | { A: true; B: { b: string }; C: { c: number } }
-```
- */
-type EnumUnwrap<TEnum> = Identity<
-	Intersect<
-		TEnum extends { is: string }
-			? {
-					[key in TEnum["is"]]: Exclude<keyof TEnum, "is"> extends never
-						? true
-						: Identity<Omit<TEnum, "is">>;
-			  }
-			: never
-	>
->;
-
-/**
-Adds additional variants and merges additional properties into a new Enum.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Extend<Foo, { D: true }>
--> Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
-	D: true;
-}>
-```
- */
-type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
-	TEnum | Enum<TVariants>
->;
-
-/**
-Merges a given union of Enums' variants and properties into a single Enum.
-
-```ts
-type Foo = Enum<{ A: true; B: true; C: { c1: string } }>;
-type Bar = Enum<{ B: { b1: string }; C: { c2: number }; D: true }>;
-
-Enum.Merge<Foo | Bar>
--> Enum<{
-	A: true;
-	B: { b1: string };
-	C: { c1: string; c2: number };
-	D: true;
-}>
-```
-*/
-type EnumMerge<TEnums> = Enum<
-	TrueOrObj<
-		Intersect<TrueAsEmpty<TEnums extends unknown ? EnumUnwrap<TEnums> : never>>
-	>
->;
-type TrueAsEmpty<T> = {
-	[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
-};
-type TrueOrObj<T> = {
-	[K in keyof T]: keyof T[K] extends never ? true : Identity<T[K]>;
-};
 
 /**
 @internal
