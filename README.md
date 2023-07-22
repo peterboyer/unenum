@@ -57,11 +57,11 @@ Here's an example of `unenum`'s [`Enum`](#enumtvariants) compared with Rust's
 <pre lang="ts">// TypeScript
  
 type WebEvent = Enum<{
-	PageLoad: true;
-	PageUnload: true;
-	KeyPress: { key: string };
-	Paste: { content: string };
-	Click: { x: number; y: number };
+  PageLoad: true;
+  PageUnload: true;
+  KeyPress: { key: string };
+  Paste: { content: string };
+  Click: { x: number; y: number };
 }>
  
 const event: WebEvent = { is: "PageLoad" };
@@ -72,11 +72,11 @@ const event: WebEvent = { is: "Click", x: 10, y: 10 };
  
 function inspect(event: WebEvent) {
  
-	if (event.is === "PageLoad") console.log(event);
-	else if (event.is === "PageUnload") console.log(event);
-	else if (event.is === "KeyPress") console.log(event, event.key);
-	else if (event.is === "Paste") console.log(event, event.content);
-	else if (event.is === "Click") console.log(event, event.x, event.y);
+  if (event.is === "PageLoad") console.log(event);
+  else if (event.is === "PageUnload") console.log(event);
+  else if (event.is === "KeyPress") console.log(event, event.key);
+  else if (event.is === "Paste") console.log(event, event.content);
+  else if (event.is === "Click") console.log(event, event.x, event.y);
  
 }
 </pre></td>
@@ -85,11 +85,11 @@ function inspect(event: WebEvent) {
 <pre lang="rust">// Rust
  
 enum WebEvent {
-	PageLoad,
-	PageUnload,
-	KeyPress(char),
-	Paste(String),
-	Click { x: i64, y: i64 },
+  PageLoad,
+  PageUnload,
+  KeyPress(char),
+  Paste(String),
+  Click { x: i64, y: i64 },
 }
  
 let event = WebEvent::PageLoad;
@@ -99,13 +99,13 @@ let event = WebEvent::Paste("...".to_owned());
 let event = WebEvent::Click { x: 10, y: 10 };
  
 fn inspect(event: WebEvent) {
-	match event {
-		WebEvent::PageLoad => println!(event),
-		WebEvent::PageUnload => println!(event),
-		WebEvent::KeyPress(c) => println!(event, c),
-		WebEvent::Paste(s) => println!(event, s),
-		WebEvent::Click { x, y } => println!(event, x, y),
-	}
+  match event {
+    WebEvent::PageLoad => println!(event),
+    WebEvent::PageUnload => println!(event),
+    WebEvent::KeyPress(c) => println!(event, c),
+    WebEvent::Paste(s) => println!(event, s),
+    WebEvent::Click { x, y } => println!(event, x, y),
+  }
 }
 </pre></td>
 
@@ -145,9 +145,9 @@ import type { Enum } from "unenum"; // imported
 
 // Default
 type Foo = Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
+  A: true;
+  B: { b: string };
+  C: { c: number };
 }>;
 -> | { is: "A" }
    | { is: "B"; b: string }
@@ -155,9 +155,9 @@ type Foo = Enum<{
 
 // Enum with Custom Discriminant
 type MyFoo = Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
+  A: true;
+  B: { b: string };
+  C: { c: number };
 }, "$key">;
 -> | { $key: "A" }
    | { $key: "B"; b: string }
@@ -199,10 +199,10 @@ type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Extend<Foo, { D: true }>
 -> Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
-	D: true;
+  A: true;
+  B: { b: string };
+  C: { c: number };
+  D: true;
 }>
 ```
 
@@ -297,15 +297,15 @@ returns a valid `Enum` variant and provides autocompletion to help instantiate
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 function getFoo(value: string | number): Foo {
-	if (!value) {
-		return { is: "A" };
-	}
+  if (!value {
+    return { is: "A" };
+  }
 
-	if (typeof value === "string") {
-		return { is: "B", b: value };
-	}
+  if (typeof value === "string") {
+    return { is: "B", b: value };
+  }
 
-	return { is: "C", c: value };
+  return { is: "C", c: value };
 }
 ```
 
@@ -323,11 +323,11 @@ type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
 if (foo.is === "A") {
-	return 123;
+  return 123;
 }
 
 if (foo.is === "B") {
-	return foo.b === "" ? "empty" : "abc";
+  return foo.b === "" ? "empty" : "abc";
 }
 
 return null;
@@ -348,9 +348,9 @@ const foo: Foo = { ... };
 
 import { match } from "unenum";
 match(foo, {
-	A: () => 123,
-	B: ({ b }) => b === "" ? "empty" : "abc",
-	C: () => null,
+  A: () => 123,
+  B: ({ b }) => b === "" ? "empty" : "abc",
+  C: () => null,
 });
 ```
 
@@ -370,9 +370,9 @@ type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... };
 
 foo.is === "A"
-	? 123
+  ? 123
 : foo.is === "B"
-	? (foo.b === "" ? "empty" : "abc")
+  ? (foo.b === "" ? "empty" : "abc")
 : null;
 ```
 
@@ -390,15 +390,15 @@ type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 const foo: Foo = { ... }
 
 switch (foo.is) {
-	case "A": {
-		return 123;
-	}
-	case "B": {
-		return foo.b === "" ? "empty" : "abc";
-	}
-	default: {
-		return null;
-	}
+  case "A": {
+    return 123;
+  }
+  case "B": {
+    return foo.b === "" ? "empty" : "abc";
+  }
+  default: {
+    return null;
+  }
 }
 ```
 
@@ -439,8 +439,8 @@ Result<number, "FetchError">
 
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-	return { is: "Ok", value: user };
-	return { is: "Error", error: "NotFound" };
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
 }
 
 const $user = await getUser("foo");
@@ -498,9 +498,9 @@ Future<Result<number>>
 
 ```tsx
 const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
-	return { is: "Pending" };
-	return { is: "Ok", value: user };
-	return { is: "Error", error: "NotFound" };
+  return { is: "Pending" };
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
 };
 
 const $user = useRemoteUser("foo");
@@ -540,24 +540,24 @@ const foo: Foo = ...
 
 // all cases
 match(foo, {
-	A: () => null,
-	B: ({ b }) => b,
-	C: ({ c }) => c,
+  A: () => null,
+  B: ({ b }) => b,
+  C: ({ c }) => c,
 })
 -> null | string | number
 
 // some cases or undefined
 match.orUndefined(foo, {
-	A: () => null,
-	B: ({ b }) => b,
+  A: () => null,
+  B: ({ b }) => b,
 })
 -> null | string | undefined
 
 // some cases or default
 match.orDefault(
-	foo,
-	{ A: () => null },
-	($) => $.is === "B" ? true : false
+  foo,
+  { A: () => null },
+  ($) => $.is === "B" ? true : false
 )
 -> null | string | boolean
 ```

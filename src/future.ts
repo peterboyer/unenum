@@ -9,7 +9,7 @@ resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
 want to safely default to `undefined` if it is not available. If using with an
 `Enum` type, all its _common_ properties will be extended as `?: never`
 properties on the `Pending` variant to allow for shorthand `undefined` access
-also. (See [`Enum.Props`](#enumpropsenum-all).)
+also. (See [`Enum.Props`](#enumpropstenum-tall).)
 
 ```ts import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
@@ -30,9 +30,9 @@ Future<Result<number>>
 
 ```tsx
 const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
-	return { is: "Pending" };
-	return { is: "Ok", value: user };
-	return { is: "Error", error: "NotFound" };
+  return { is: "Pending" };
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
 };
 
 const $user = useRemoteUser("foo");

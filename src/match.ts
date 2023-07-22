@@ -1,34 +1,34 @@
 /**
-Uses a given `Enum` `value` to execute its corresponding variant's `matcher`
+Uses a given `Enum` `value` to execute its corresponding variants' `matcher`
 function and return its result. Use `match.orUndefined(...)` or
-`match.orDefault(...)` if you want to match with only a subset of variants.
+`match.orDefault(...)` if you want to match against only a subset of variants.
 
 ```ts
-import { match } from "unenum"; // runtime
+import { match } from "unenum"; // dependency
 
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = ...
 
 // all cases
 match(foo, {
-	A: () => null,
-	B: ({ b }) => b,
-	C: ({ c }) => c,
+  A: () => null,
+  B: ({ b }) => b,
+  C: ({ c }) => c,
 })
 -> null | string | number
 
 // some cases or undefined
 match.orUndefined(foo, {
-	A: () => null,
-	B: ({ b }) => b,
+  A: () => null,
+  B: ({ b }) => b,
 })
 -> null | string | undefined
 
 // some cases or default
 match.orDefault(
-	foo,
-	{ A: () => null },
-	($) => $.is === "B" ? true : false
+  foo,
+  { A: () => null },
+  ($) => $.is === "B" ? true : false
 )
 -> null | string | boolean
 ```

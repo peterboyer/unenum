@@ -117,10 +117,10 @@ type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
 Enum.Extend<Foo, { D: true }>
 -> Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
-	D: true;
+  A: true;
+  B: { b: string };
+  C: { c: number };
+  D: true;
 }>
 ```
  */
@@ -137,10 +137,10 @@ type Bar = Enum<{ B: { b1: string }; C: { c2: number }; D: true }>;
 
 Enum.Merge<Foo | Bar>
 -> Enum<{
-	A: true;
-	B: { b1: string };
-	C: { c1: string; c2: number };
-	D: true;
+  A: true;
+  B: { b1: string };
+  C: { c1: string; c2: number };
+  D: true;
 }>
 ```
 */

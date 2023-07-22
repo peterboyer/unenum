@@ -11,6 +11,10 @@ property is not available.
 import "unenum/global.result"; // global
 import type { Result } from "unenum"; // imported
 
+Result
+-> | { is: "Ok"; value: unknown; error?: never }
+   | { is: "Error"; error: unknown; value?: never }
+
 Result<number>
 -> | { is: "Ok"; value: number; error?: never }
    | { is: "Error"; error: unknown; value?: never }
@@ -22,8 +26,8 @@ Result<number, "FetchError">
 
 ```ts
 const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-	return { is: "Ok", value: user };
-	return { is: "Error", error: "NotFound" };
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
 }
 
 const $user = await getUser("foo");
