@@ -72,6 +72,32 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Omit<EGeneric<number>, never>, EGeneric<number>>>,
 	Expect<Equal<Enum.Omit<EGeneric<number>, "Generic">, never>>,
 
+	Expect<Equal<Enum.Extend<ENone, never>, ENone>>,
+	Expect<Equal<Enum.Extend<ENone, { A: true }>, Enum<{ A: true }>>>,
+	Expect<Equal<Enum.Extend<EUnit, never>, EUnit>>,
+	Expect<Equal<Enum.Extend<EUnit, { A: true }>, Enum<{ Unit: true; A: true }>>>,
+	Expect<Equal<Enum.Extend<EData, never>, EData>>,
+	Expect<
+		Equal<
+			Enum.Extend<EData, { A: true }>,
+			Enum<{ Data: { value: unknown }; A: true }>
+		>
+	>,
+	Expect<Equal<Enum.Extend<EBoth, never>, EBoth>>,
+	Expect<
+		Equal<
+			Enum.Extend<EBoth, { Unit: { value: unknown } }>,
+			Enum<{ Unit: { value: unknown }; Data: { value: unknown } }>
+		>
+	>,
+	Expect<Equal<Enum.Extend<EGeneric<number>, never>, EGeneric<number>>>,
+	Expect<
+		Equal<
+			Enum.Extend<EGeneric<number>, { Generic: { foo: null } }>,
+			Enum<{ Generic: { value: number; foo: null } }>
+		>
+	>,
+
 	Expect<
 		Equal<
 			Enum.Merge<

@@ -51,6 +51,7 @@ export namespace Enum {
 		EnumProps as Props,
 		EnumPick as Pick,
 		EnumOmit as Omit,
+		EnumExtend as Extend,
 		EnumMerge as Merge,
 		EnumUnwrap as Unwrap,
 	};
@@ -186,18 +187,37 @@ type EnumUnwrap<TEnum> = Identity<
 >;
 
 /**
+Adds additional variants and merges additional properties into a new Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Extend<Foo, { D: true }>
+-> Enum<{
+	A: true;
+	B: { b: string };
+	C: { c: number };
+	D: true;
+}>
+```
+ */
+type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
+	TEnum | Enum<TVariants>
+>;
+
+/**
 Merges a given union of Enums' variants and properties into a single Enum.
 
 ```ts
-Enum.Merge<
-   | Enum<{ A: true; B: true; C: { c1: string } }>
-   | Enum<{ B: { b1: string }; C: { c2: number }; D: true }>
->
+type Foo = Enum<{ A: true; B: true; C: { c1: string } }>;
+type Bar = Enum<{ B: { b1: string }; C: { c2: number }; D: true }>;
+
+Enum.Merge<Foo | Bar>
 -> Enum<{
-  A: true;
-  B: { b1: string };
-  C: { c1: string; c2: number };
-  D: true;
+	A: true;
+	B: { b1: string };
+	C: { c1: string; c2: number };
+	D: true;
 }>
 ```
 */

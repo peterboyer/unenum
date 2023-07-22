@@ -190,6 +190,22 @@ Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
 ```
 
+### `Enum.Extend<TEnum, TVariants>`
+
+Adds additional variants and merges additional properties into a new Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Extend<Foo, { D: true }>
+-> Enum<{
+	A: true;
+	B: { b: string };
+	C: { c: number };
+	D: true;
+}>
+```
+
 ### `Enum.Merge<TEnums>`
 
 Merges a given union of Enums' variants and properties into a single Enum.
