@@ -18,8 +18,10 @@ jobs:
       PUBLISH_CHANNEL: ${{ github.event.inputs.deploy == 'y' && 'latest' || 'sha' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+        with:
+          fetch-depth: 0
 
+      - uses: actions/setup-node@v3
       - run: yarn install --frozen-lockfile
       - run: |
           yarn concurrently \
@@ -42,25 +44,23 @@ jobs:
     concurrency:
       group: deploy
       cancel-in-progress: true
-    env:
-      # workaround https://github.com/JS-DevTools/npm-publish/issues/15
-      INPUT_TOKEN: ""
-      PUBLISH_CHANNEL: ${{ github.event.inputs.deploy == 'y' && 'latest' || 'sha' }}
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          package: ./dist/package.json
-          access: public
-          tag: ${{ env.PUBLISH_CHANNEL }}
+      - name: Publish
+        run: |
+          npm publish \
+            --access public \
+            --tag ${{ github.event.inputs.deploy == 'y' && 'latest' || 'sha' }}
+        working-directory: dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: git tag v$(cat dist/package.json | grep '"version"' | awk '{print$2}' | sed 's/[",]//g')
+      - name: Tag
+        run: git tag v$(cat dist/package.json | grep '"version"' | awk '{print$2}' | sed 's/[",]//g')
       - uses: ad-m/github-push-action@master
         with:
           tags: true
