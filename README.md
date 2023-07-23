@@ -67,16 +67,16 @@ type WebEvent = Enum<{
 const event: WebEvent = { is: "PageLoad" };
 const event: WebEvent = { is: "PageUnload" };
 const event: WebEvent = { is: "KeyPress", key: "x" };
-const event: WebEvent = { is: "Paste", content: "..." };
+const event: WebEvent = { is: "Paste", value: "..." };
 const event: WebEvent = { is: "Click", x: 10, y: 10 };
  
 function inspect(event: WebEvent) {
  
   if (event.is === "PageLoad") console.log(event);
   else if (event.is === "PageUnload") console.log(event);
-  else if (event.is === "KeyPress") console.log(event, event.key);
-  else if (event.is === "Paste") console.log(event, event.content);
-  else if (event.is === "Click") console.log(event, event.x, event.y);
+  else if (event.is === "KeyPress") console.log(event.key);
+  else if (event.is === "Paste") console.log(event.value);
+  else if (event.is === "Click") console.log(event.x, event.y);
  
 }
 </pre></td>
@@ -102,9 +102,9 @@ fn inspect(event: WebEvent) {
   match event {
     WebEvent::PageLoad => println!(event),
     WebEvent::PageUnload => println!(event),
-    WebEvent::KeyPress(c) => println!(event, c),
-    WebEvent::Paste(s) => println!(event, s),
-    WebEvent::Click { x, y } => println!(event, x, y),
+    WebEvent::KeyPress(key) => println!(key),
+    WebEvent::Paste(value) => println!(value),
+    WebEvent::Click { x, y } => println!(x, y),
   }
 }
 </pre></td>
