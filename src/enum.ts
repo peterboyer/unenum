@@ -7,9 +7,9 @@ import type { Enum } from "unenum"; // imported
 
 // Default
 type Foo = Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
+  A: true;
+  B: { b: string };
+  C: { c: number };
 }>;
 -> | { is: "A" }
    | { is: "B"; b: string }
@@ -17,16 +17,17 @@ type Foo = Enum<{
 
 // Enum with Custom Discriminant
 type MyFoo = Enum<{
-	A: true;
-	B: { b: string };
-	C: { c: number };
+  A: true;
+  B: { b: string };
+  C: { c: number };
 }, "$key">;
 -> | { $key: "A" }
    | { $key: "B"; b: string }
    | { $key: "C"; c: number }
 
-// Reusable Custom Enum Type
-type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
+// Enum Generic with Custom Discriminant
+import type { EnumVariants } from "unenum"
+type MyEnum<TVariants extends EnumVariants> = Enum<TVariants, "$key">
 ```
 */
 export type Enum<

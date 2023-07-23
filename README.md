@@ -115,6 +115,9 @@ fn inspect(event: WebEvent) {
 
 ## Installation
 
+[![Version](https://img.shields.io/npm/v/unenum?label=version)](https://www.npmjs.com/package/unenum/)
+[![License](https://img.shields.io/npm/l/unenum)](./LICENSE)
+
 ```sh
 npm install unenum
 ```
@@ -163,8 +166,9 @@ type MyFoo = Enum<{
    | { $key: "B"; b: string }
    | { $key: "C"; c: number }
 
-// Reusable Custom Enum Type
-type MyEnum<TVariants extends Enum.VariantsAny> = Enum<TVariants, "$key">
+// Enum Generic with Custom Discriminant
+import type { EnumVariants } from "unenum"
+type MyEnum<TVariants extends EnumVariants> = Enum<TVariants, "$key">
 ```
 
 ### `Enum.Pick<TEnum, TVariantKeys>`
