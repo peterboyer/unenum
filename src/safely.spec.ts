@@ -5,13 +5,13 @@ import type { Result } from "./result";
 describe("safely", () => {
 	it("should handle value", () => {
 		const $value = safely((): string => "foo");
-		({}) as [Expect<Equal<typeof $value, Result<string>>>];
+		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
 		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
 	it("should handle union value", () => {
 		const $value = safely(() => "foo" as string | undefined);
-		({}) as [Expect<Equal<typeof $value, Result<string | undefined>>>];
+		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
 		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
@@ -19,13 +19,13 @@ describe("safely", () => {
 		const $value = safely(() => {
 			throw new TypeError("bar");
 		});
-		({}) as [Expect<Equal<typeof $value, Result<never>>>];
+		({}) as [Expect<Equal<typeof $value, Result>>];
 		expect($value).toMatchObject({ is: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle promise value", async () => {
 		const $value = await safely(() => (async () => "foo")());
-		({}) as [Expect<Equal<typeof $value, Result<string>>>];
+		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
 		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
@@ -33,7 +33,7 @@ describe("safely", () => {
 		const $value = await safely(() =>
 			(async () => "foo" as string | undefined)()
 		);
-		({}) as [Expect<Equal<typeof $value, Result<string | undefined>>>];
+		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
 		expect($value).toMatchObject({ is: "Ok", value: "foo" });
 	});
 
@@ -43,12 +43,12 @@ describe("safely", () => {
 				throw new TypeError("bar");
 			})()
 		);
-		({}) as [Expect<Equal<typeof $value, Result<never>>>];
+		({}) as [Expect<Equal<typeof $value, Result<never, unknown>>>];
 		expect($value).toMatchObject({ is: "Error", error: { message: "bar" } });
 	});
 
 	it("should handle any as unknown", () => {
 		const $value = safely(() => JSON.parse(""));
-		({}) as [Expect<Equal<typeof $value, Result>>];
+		({}) as [Expect<Equal<typeof $value, Result<unknown, unknown>>>];
 	});
 });
