@@ -1,4 +1,4 @@
-import type { Enum } from "unenum";
+import type { Enum, Result, Future } from "unenum";
 import { safely, match } from "unenum";
 
 type WebEvent = Enum<{
@@ -38,7 +38,22 @@ function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
 	);
 }
 
+function useFutureResult(): Future.FromEnum<Result<string, "FooError">> {
+	return { is: "Pending" };
+}
+
 function app() {
+	const result = useFutureResult();
+	if (result.is === "Pending") {
+		return;
+	} else if (result.is === "Ok") {
+		console.log(result.value);
+		return;
+	} else if (result.is === "Error") {
+		console.log(result.error);
+		return;
+	}
+
 	const event = getWebEvent();
 	if (event.is === "None") {
 		return;

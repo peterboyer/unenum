@@ -7,7 +7,7 @@ requirements.**
 
 [Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants)
 • [Patterns](#patterns) • [`Result`](#resulttvalue-terror) •
-[`Future`](#futuretvalueorenum) • [`match`](#matchvalue-matcher---) •
+[`Future`](#futuretvalue) • [`match`](#matchvalue-matcher---) •
 [`safely`](#safelyfn---result)
 
 </div>
@@ -194,22 +194,6 @@ Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
 ```
 
-### `Enum.Extend<TEnum, TVariants>`
-
-Adds additional variants and merges additional properties into a new Enum.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Extend<Foo, { D: true }>
--> Enum<{
-  A: true;
-  B: { b: string };
-  C: { c: number };
-  D: true;
-}>
-```
-
 ### `Enum.Merge<TEnums>`
 
 Merges a given union of Enums' variants and properties into a single Enum.
@@ -223,6 +207,22 @@ Enum.Merge<
   A: true;
   B: { b1: string };
   C: { c1: string; c2: number };
+  D: true;
+}>
+```
+
+### `Enum.Extend<TEnum, TVariants>`
+
+Adds additional variants and merges additional properties into a new Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Extend<Foo, { D: true }>
+-> Enum<{
+  A: true;
+  B: { b: string };
+  C: { c: number };
   D: true;
 }>
 ```
@@ -295,6 +295,13 @@ returns a valid `Enum` variant and provides autocompletion to help instantiate
 `Enum` variants with all their properties (e.g. `return { is: "B", b: "..."
 }`).
 
+> **Note**
+>
+> If you _need_ to limit the range of possible `Enum` variants that can be
+> returned (or used as a value/parameter/etc), use
+> [`Enum.Pick`](#enumpicktenum-tvariantkeys) or
+> [`Enum.Omit`](#enumomittenum-tvariantkeys).
+
 ### With explicit return types (recommended)
 
 ```ts
@@ -315,10 +322,9 @@ function getFoo(value: string | number): Foo {
 
 > **Note**
 >
-> If you _need_ to limit the range of possible `Enum` variants that can be
-> returned (or used as a value/parameter/etc), use
-> [`Enum.Pick`](#enumpicktenum-tvariantkeys) or
-> [`Enum.Omit`](#enumomittenum-tvariantkeys).
+> You may find it useful to name variables for container-like `Enum`s (like
+> `Result`s and `Future`s) with a `$` prefix (e.g. `$user`) before unwrapping
+> the desired value into non-prefixed value (e.g. `const user = $user.value`).
 
 ### With `if` statements (recommended)
 
@@ -420,25 +426,21 @@ switch (foo.is) {
 
 Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
 
-`Result` uses `value?: never` and `error?: never` to allow for shorthand access
-to `.value` or `.error` if you want to safely default to `undefined` if either
-property is not available.
-
 ```ts
 import "unenum/global.result"; // global
 import type { Result } from "unenum"; // imported
 
 Result
--> | { is: "Ok"; value: unknown; error?: never }
-   | { is: "Error"; error: unknown; value?: never }
+-> | { is: "Ok" }
+   | { is: "Error" }
 
 Result<number>
--> | { is: "Ok"; value: number; error?: never }
-   | { is: "Error"; error: unknown; value?: never }
+-> | { is: "Ok"; value: number }
+   | { is: "Error" }
 
-Result<number, "FetchError">
--> | { is: "Ok"; value: number; error?: never }
-   | { is: "Error"; error: "FetchError"; value?: never }
+Result<number, "FetchError" | "ConnectionError">
+-> | { is: "Ok"; value: number }
+   | { is: "Error"; error: "FetchError" | "ConnectionError" }
 ```
 
 ```ts
@@ -452,56 +454,47 @@ if ($user.is === "Error") { return ... }
 const user = $user.value;
 
 const $user = await getUser("foo");
-const userOrUndefined = $user.value;
 const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 
 const $user = await getUser("foo");
-const userOrDefault = $user.value ?? defaultUser;
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 
 Based on Rust's
 [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-> **Note**
->
-> You may find it useful to name variables for container-like `Enum`s (like
-> `Result`s and `Future`s) with a `$` prefix (e.g. `$user`) before unwrapping
-> the desired value into non-prefixed value (e.g. `const user = $user.value`).
-
 <br />
 
-### `Future<TValueOrEnum?>`
+### `Future<TValue?>`
 
 Represents an asynchronous `value` that is either loading (`Pending`) or
-resolved (`Ready`). If defined with an `Enum` type, `Future` will omit its
-`Ready` variant in favour of the "non-pending" `Enum`'s variants.
+resolved (`Ready`).
 
-`Future` uses `value?: never` to allow for shorthand access to `.value` if you
-want to safely default to `undefined` if it is not available. If using with an
-`Enum` type, all its _common_ properties will be extended as `?: never`
-properties on the `Pending` variant to allow for shorthand `undefined` access
-also. (See [`Enum.Props`](#enumpropstenum-tall).)
-
-```ts import "unenum/global.future"; // global
+```ts
+import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
 
 Future
--> | { is: "Pending"; value?: never }
+-> | { is: "Pending" }
    | { is: "Ready"; value: unknown }
 
 Future<string>
--> | { is: "Pending"; value?: never }
+-> | { is: "Pending" }
    | { is: "Ready"; value: string }
 
 Future<Result<number>>
--> | { is: "Pending"; value?: never; error?: never }
-   | { is: "Ok"; value: number; error?: never }
-   | { is: "Error"; error: unknown; value?: never }
+-> | { is: "Pending" }
+   | { is: "Ready"; value: | { is: "Ok"; value: number }
+                           | { is: "Error" } }
+
+Future.FromEnum<Result<number>>
+-> | { is: "Pending" }
+   | { is: "Ok"; value: number }
+   | { is: "Error" }
 ```
 
 ```tsx
-const useRemoteUser = (name: string): Future<Result<User, "NotFound">> => {
+const useRemoteUser = (name: string): Future.FromEnum<Result<User, "NotFound">> => {
   return { is: "Pending" };
   return { is: "Ok", value: user };
   return { is: "Error", error: "NotFound" };
@@ -514,11 +507,9 @@ const user = $user.value;
 return <View user={user} />;
 
 const $user = useRemoteUser("foo");
-const userOrUndefined = $user.value;
 const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 
 const $user = useRemoteUser("foo");
-const userOrDefault = $user.value ?? defaultUser;
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 

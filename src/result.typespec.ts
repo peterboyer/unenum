@@ -5,36 +5,37 @@ import type { Result } from "./result";
 	Expect<
 		Equal<
 			Result,
-			| { is: "Ok"; value: unknown; error?: never }
-			| { is: "Error"; error: unknown; value?: never }
-		>
-	>,
-	Expect<
-		Equal<
-			Result<never>,
-			| { is: "Ok"; value: never; error?: never }
-			| { is: "Error"; error: unknown; value?: never }
+			| {
+					is: "Ok";
+			  }
+			| {
+					is: "Error";
+			  }
 		>
 	>,
 	Expect<
 		Equal<
 			Result<unknown>,
-			| { is: "Ok"; value: unknown; error?: never }
-			| { is: "Error"; error: unknown; value?: never }
-		>
-	>,
-	Expect<
-		Equal<
-			Result<never, never>,
-			| { is: "Ok"; value: never; error?: never }
-			| { is: "Error"; error: never; value?: never }
+			| {
+					is: "Ok";
+					value: unknown;
+			  }
+			| {
+					is: "Error";
+			  }
 		>
 	>,
 	Expect<
 		Equal<
 			Result<unknown, unknown>,
-			| { is: "Ok"; value: unknown; error?: never }
-			| { is: "Error"; error: unknown; value?: never }
+			| {
+					is: "Ok";
+					value: unknown;
+			  }
+			| {
+					is: "Error";
+					error: unknown;
+			  }
 		>
 	>
 ];

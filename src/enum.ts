@@ -49,8 +49,8 @@ export namespace Enum {
 	export type {
 		EnumPick as Pick,
 		EnumOmit as Omit,
-		EnumExtend as Extend,
 		EnumMerge as Merge,
+		EnumExtend as Extend,
 		EnumUnwrap as Unwrap,
 		EnumKeys as Keys,
 		EnumValues as Values,
@@ -111,25 +111,6 @@ type EnumOmit<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
 	: TEnum;
 
 /**
-Adds additional variants and merges additional properties into a new Enum.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Extend<Foo, { D: true }>
--> Enum<{
-  A: true;
-  B: { b: string };
-  C: { c: number };
-  D: true;
-}>
-```
- */
-type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
-	TEnum | Enum<TVariants>
->;
-
-/**
 Merges a given union of Enums' variants and properties into a single Enum.
 
 ```ts
@@ -156,6 +137,25 @@ type TrueAsEmpty<T> = {
 type TrueOrObj<T> = {
 	[K in keyof T]: keyof T[K] extends never ? true : Identity<T[K]>;
 };
+
+/**
+Adds additional variants and merges additional properties into a new Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Extend<Foo, { D: true }>
+-> Enum<{
+  A: true;
+  B: { b: string };
+  C: { c: number };
+  D: true;
+}>
+```
+ */
+type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
+	TEnum | Enum<TVariants>
+>;
 
 /**
 Infers an object mapping variant names to their unit or struct variant values.

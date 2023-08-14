@@ -1,39 +1,61 @@
 import type { Expect, Equal } from "./testutils";
 import type { Future } from "./future";
-import type { Enum } from "./enum";
 import type { Result } from "./result";
 
 ({}) as [
 	Expect<
 		Equal<
 			Future,
-			{ is: "Pending"; value?: never } | { is: "Ready"; value: unknown }
-		>
-	>,
-	Expect<
-		Equal<
-			Future<never>,
-			{ is: "Pending"; value?: never } | { is: "Ready"; value: never }
+			| {
+					is: "Pending";
+			  }
+			| {
+					is: "Ready";
+			  }
 		>
 	>,
 	Expect<
 		Equal<
 			Future<unknown>,
-			{ is: "Pending"; value?: never } | { is: "Ready"; value: unknown }
+			| {
+					is: "Pending";
+			  }
+			| {
+					is: "Ready";
+					value: unknown;
+			  }
 		>
 	>,
 	Expect<
 		Equal<
-			Future<Enum<{ Unit: true; Data: { data: unknown } }>>,
-			{ is: "Pending" } | { is: "Unit" } | { is: "Data"; data: unknown }
+			Future<Result>,
+			| {
+					is: "Pending";
+			  }
+			| {
+					is: "Ready";
+					value:
+						| {
+								is: "Ok";
+						  }
+						| {
+								is: "Error";
+						  };
+			  }
 		>
 	>,
 	Expect<
 		Equal<
-			Future<Result<string>>,
-			| { is: "Pending"; value?: never; error?: never }
-			| { is: "Ok"; value: string; error?: never }
-			| { is: "Error"; error: unknown; value?: never }
+			Future.FromEnum<Result>,
+			| {
+					is: "Pending";
+			  }
+			| {
+					is: "Ok";
+			  }
+			| {
+					is: "Error";
+			  }
 		>
 	>
 ];
