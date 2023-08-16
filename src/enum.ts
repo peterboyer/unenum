@@ -39,7 +39,7 @@ export type Enum<
 		TVariants[TVariantKey] extends true
 			? EnumVariantUnit<TVariantKey & string, TDiscriminant>
 		: TVariants[TVariantKey] extends Record<string, unknown>
-			? EnumVariantStruct<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
+			? EnumVariantData<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
 		: never;
 }[keyof TVariants];
 
@@ -67,15 +67,11 @@ export type EnumVariantUnit<
 	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
 > = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
 
-export type EnumVariantStruct<
+export type EnumVariantData<
 	TKey extends string,
-	TStruct extends Record<string, unknown>,
+	TData extends Record<string, unknown>,
 	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = Identity<
-	// prettier-ignore
-	& { [TDiscriminantKey in TDiscriminant]: TKey }
-	& (TStruct extends true ? Record<never, never> : TStruct)
->;
+> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey } & TData>;
 
 /**
 Narrows a given Enum by including only the given variants by key.
