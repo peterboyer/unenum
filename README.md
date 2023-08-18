@@ -5,10 +5,10 @@
 **A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
 requirements.**
 
-[Overview](#overview) • [Installation](#installation) • [`Enum`](#enumtvariants)
-• [Patterns](#patterns) • [`Result`](#resulttvalue-terror) •
-[`Future`](#futuretvalue) • [`match`](#matchvalue-matcher---) •
-[`safely`](#safelyfn---result)
+[Overview](#overview) • [Installation](#installation) •
+    [`Enum`](#enumtvariants) • [Patterns](#patterns) •
+    [`Result`](#resulttvalue-terror) • [`Future`](#futuretvalue) •
+    [`safely`](#safelyfn---result) • [`match`](#matchvalue-matcher---)
 
 </div>
 
@@ -213,7 +213,7 @@ Enum.Merge<
 
 ### `Enum.Extend<TEnum, TVariants>`
 
-Adds additional variants and merges additional properties into a new Enum.
+Merges additional variants and properties into a single Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -229,7 +229,7 @@ Enum.Extend<Foo, { D: true }>
 
 ### `Enum.Unwrap<TEnum>`
 
-Infers an object mapping variant names to their unit or struct variant values.
+Infers all variants' unit and data definitions of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -240,7 +240,7 @@ Enum.Unwrap<Foo>
 
 ### `Enum.Keys<TEnum>`
 
-Infers all possible variants' keys of the given Enum.
+Infers all variants' keys of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -251,7 +251,7 @@ Enum.Keys<Foo>
 
 ### `Enum.Values<TEnum>`
 
-Infers all possible variants' values of the given Enum.
+Infers all variants' values of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -263,17 +263,17 @@ Enum.Values<Foo>
 
 ### `Enum.Props<TEnum, TAll?>`
 
-Infers only _common_ variants' properties' names of the given Enum. If `All` is
-`true`, then _all_ variants' properties' names are inferred.
+Infers only mutual variants' properties' names of the given Enum. If `TAll` is
+`true`, then all variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
 
 Enum.Props<Foo>
--> "x"
+-> "x" // only `x` is mutual in both B and C
 
 Enum.Props<Foo, true>
--> "x" | "y"
+-> "x" | "y" // now `y` is included because `TAll` is `true`
 ```
 
 <br />
@@ -282,10 +282,10 @@ Enum.Props<Foo, true>
 
 `Enum`s are [disciminated
 unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
-that use `is` as a property to differentiate between variants. TypeScript
-supports [type
-narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) by
-analysing control flow statements like `if` and `return` to determine when
+that uses a discriminant (default `is`) as a property to differentiate between
+variants. TypeScript uses [type
+narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) to
+analyse control flow statements like `if` and `return` to determine when
 certain `Enum` variants are accessible, allowing for safe property access.
 
 If a function's return type is not explicitly annotated it will be inferred
@@ -297,8 +297,8 @@ returns a valid `Enum` variant and provides autocompletion to help instantiate
 
 > **Note**
 >
-> If you _need_ to limit the range of possible `Enum` variants that can be
-> returned (or used as a value/parameter/etc), use
+> If you want to annotate only a subset of possible `Enum` variants of an
+> existing `Enum` type, use
 > [`Enum.Pick`](#enumpicktenum-tvariantkeys) or
 > [`Enum.Omit`](#enumomittenum-tvariantkeys).
 
@@ -348,7 +348,7 @@ return null;
 > `if` statements are the most universal and native way to handle `Enum`
 > variants without any dependencies.
 
-### With `match` function (dependency)
+### With `match` function (runtime dependency)
 
 See [`match`](#matchvalue-matcher---).
 
@@ -441,6 +441,18 @@ Result<number>
 Result<number, "FetchError" | "ConnectionError">
 -> | { is: "Ok"; value: number }
    | { is: "Error"; error: "FetchError" | "ConnectionError" }
+
+Result<
+  number,
+  Enum<{
+    "FetchError": true;
+    "ConnectionError": true;
+    "FormFieldsError": { fieldErrors: Record<string, string> };
+  }>
+-> | { is: "Ok"; value: number }
+   | { is: "Error"; error: | { is: "FetchError" }
+                           | { is: "ConnectionError" }
+                           | { is: "FormFieldsError"; fieldErrors: ... }}
 ```
 
 ```ts
@@ -470,6 +482,9 @@ Based on Rust's
 Represents an asynchronous `value` that is either loading (`Pending`) or
 resolved (`Ready`).
 
+Consider using [`Future.Enum<TEnum>`](#futureenumtenum) to when interacting with
+other "wrapper" Enums like [`Result`](#resulttvalue-terror) to avoid nesting.
+
 ```ts
 import "unenum/global.future"; // global
 import type { Future } from "unenum"; // imported
@@ -487,14 +502,56 @@ Future<Result<number>>
    | { is: "Ready"; value: | { is: "Ok"; value: number }
                            | { is: "Error" } }
 
-Future.FromEnum<Result<number>>
+Future.Enum<Result<number>>
 -> | { is: "Pending" }
    | { is: "Ok"; value: number }
    | { is: "Error" }
 ```
 
 ```tsx
-const useRemoteUser = (name: string): Future.FromEnum<Result<User, "NotFound">> => {
+const useRemoteUser = (name: string): Future<User | undefined> => {
+  return { is: "Pending" };
+  return { is: "Ready", value: user };
+  return { is: "Ready", value: undefined };
+};
+
+const $user = useRemoteUser("foo");
+if ($user.is === "Pending") { return <Loading />; }
+const user = $user.value;
+return <View optionalUser={user} />;
+
+const $user = useRemoteUser("foo");
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+
+const $user = useRemoteUser("foo");
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
+```
+
+Based on Rust's
+[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
+[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
+
+#### `Future.Enum<TEnum>`
+
+Helper for adding only the `Future` "Pending" variant to a given Enum that may
+already have its own "Ready" state, e.g. `Result`'s `Ok` and `Error` states'.
+
+The same can be achieved with `Enum.Extend<TEnum, { Pending: true }>`.
+
+```ts
+Future.Enum<Enum<{ A: true, B: { b: string } }>>
+-> | { is: "Pending" }
+   | { is: "A" }
+   | { is: "B", b: string }
+
+Future.Enum<Result<boolean>>
+-> | { is: "Pending" }
+   | { is: "Ok", value: boolean }
+   | { is: "Error" }
+```
+
+```ts
+const useRemoteUser = (name: string): Future.Enum<Result<User, "NotFound">> => {
   return { is: "Pending" };
   return { is: "Ok", value: user };
   return { is: "Error", error: "NotFound" };
@@ -513,13 +570,28 @@ const $user = useRemoteUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
-
 <br />
 
 ## Utils
+
+### `safely(fn) -> Result`
+
+Executes a given function and returns a `Result` that wraps its normal return
+value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
+returns.
+
+```ts
+import { safely } from "unenum"; // dependency
+
+safely(() => JSON.stringify(...))
+-> Result<string>
+
+safely(() => JSON.parse(...))
+-> Result<unknown>
+
+safely(() => fetch("/endpoint").then(res => res.json() as Data))
+-> Promise<Result<Data>>
+```
 
 ### `match(value, matcher) -> ...`
 
@@ -555,23 +627,4 @@ match.orDefault(
   ($) => $.is === "B" ? true : false
 )
 -> null | string | boolean
-```
-
-### `safely(fn) -> Result`
-
-Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
-returns.
-
-```ts
-import { safely } from "unenum"; // dependency
-
-safely(() => JSON.stringify(...))
--> Result<string>
-
-safely(() => JSON.parse(...))
--> Result<unknown>
-
-safely(() => fetch("/endpoint").then(res => res.json() as Data))
--> Promise<Result<Data>>
 ```

@@ -18,6 +18,18 @@ Result<number>
 Result<number, "FetchError" | "ConnectionError">
 -> | { is: "Ok"; value: number }
    | { is: "Error"; error: "FetchError" | "ConnectionError" }
+
+Result<
+  number,
+  Enum<{
+    "FetchError": true;
+    "ConnectionError": true;
+    "FormFieldsError": { fieldErrors: Record<string, string> };
+  }>
+-> | { is: "Ok"; value: number }
+   | { is: "Error"; error: | { is: "FetchError" }
+                           | { is: "ConnectionError" }
+                           | { is: "FormFieldsError"; fieldErrors: ... }}
 ```
 
 ```ts

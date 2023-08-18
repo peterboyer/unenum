@@ -38,7 +38,7 @@ function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
 	);
 }
 
-function useFutureResult(): Future.FromEnum<Result<string, "FooError">> {
+function useFutureResult(): Future.Enum<Result<string, "FooError">> {
 	return { is: "Pending" };
 }
 

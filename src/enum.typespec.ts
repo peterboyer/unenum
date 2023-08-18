@@ -1,8 +1,7 @@
 import type { Expect, Equal } from "./testutils";
 import type { Enum } from "./enum";
 
-const Empty = {};
-type None = typeof Empty;
+type None = Record<never, never>;
 type Unit = { Unit: true };
 type Data = { Data: { value: unknown } };
 type Both = Unit & Data;
