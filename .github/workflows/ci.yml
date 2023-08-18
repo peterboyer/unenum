@@ -62,7 +62,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Tag
+        if: ${{ github.event.inputs.deploy == 'y' }}
         run: git tag v$(cat dist/package.json | grep '"version"' | awk '{print$2}' | sed 's/[",]//g')
       - uses: ad-m/github-push-action@master
+        if: ${{ github.event.inputs.deploy == 'y' }}
         with:
           tags: true
