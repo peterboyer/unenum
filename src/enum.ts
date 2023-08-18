@@ -107,7 +107,7 @@ type EnumOmit<TEnum, TVariantKeys extends EnumKeys<TEnum>> = TEnum extends {
 	: TEnum;
 
 /**
-Merges a given union of Enums' variants and properties into a single Enum.
+Merges a union of Enums' variants and properties into a new Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: true; C: { c1: string } }>;
@@ -135,7 +135,7 @@ type TrueOrObj<T> = {
 };
 
 /**
-Adds additional variants and merges additional properties into a new Enum.
+Merges new additional variants and properties into a new Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -154,7 +154,7 @@ type EnumExtend<TEnum, TVariants extends EnumVariants> = EnumMerge<
 >;
 
 /**
-Infers an object mapping variant names to their unit or struct variant values.
+Infers all variants' unit and data definitions of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -176,7 +176,7 @@ type EnumUnwrap<TEnum> = Identity<
 >;
 
 /**
-Infers all possible variants' keys of the given Enum.
+Infers all variants' keys of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -188,7 +188,7 @@ Enum.Keys<Foo>
 type EnumKeys<TEnum> = TEnum extends { is: string } ? TEnum["is"] : never;
 
 /**
-Infers all possible variants' values of the given Enum.
+Infers all variants' values of the given Enum.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -207,17 +207,17 @@ type EnumValues<TEnum> = TEnum extends { is: string }
 	: never;
 
 /**
-Infers only _common_ variants' properties' names of the given Enum. If `All` is
-`true`, then _all_ variants' properties' names are inferred.
+Infers only mutual variants' properties' names of the given Enum. If `TAll` is
+`true`, then all variants' properties' names are inferred.
 
 ```ts
 type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
 
 Enum.Props<Foo>
--> "x"
+-> "x" // only `x` is mutual in both B and C
 
 Enum.Props<Foo, true>
--> "x" | "y"
+-> "x" | "y" // now `y` is included because `TAll` is `true`
 ```
  */
 type EnumProps<TEnum, TAll extends boolean = false> = [TEnum] extends [never]

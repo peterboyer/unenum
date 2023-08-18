@@ -46,7 +46,7 @@ import type { Result } from "./result";
 	>,
 	Expect<
 		Equal<
-			Future.FromEnum<Result>,
+			Future.Enum<Result>,
 			| {
 					is: "Pending";
 			  }
