@@ -57,7 +57,6 @@ export type Future<TValue = never> = Future.Enum<
 	Enum<{ Ready: [TValue] extends [never] ? true : { value: TValue } }>
 >;
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Future {
 	/**
 Helper for adding only the `Future` "Pending" variant to a given Enum that may
