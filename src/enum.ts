@@ -43,7 +43,6 @@ export type Enum<
 		: never;
 }[keyof TVariants];
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Enum {
 	// @ts-expect-error Should work.
 	export type {
