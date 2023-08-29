@@ -52,8 +52,6 @@ export namespace Enum {
 		EnumExtend as Extend,
 		EnumUnwrap as Unwrap,
 		EnumKeys as Keys,
-		EnumValues as Values,
-		EnumProps as Props,
 	};
 }
 
@@ -185,49 +183,6 @@ Enum.Keys<Foo>
 ```
  */
 type EnumKeys<TEnum> = TEnum extends { is: string } ? TEnum["is"] : never;
-
-/**
-Infers all variants' values of the given Enum.
-
-```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
-
-Enum.Values<Foo>
--> | { b: string }
-   | { c: number }
-```
- */
-type EnumValues<TEnum> = TEnum extends { is: string }
-	? Omit<TEnum, "is"> extends infer Values
-		? keyof Values extends never
-			? never
-			: Values
-		: never
-	: never;
-
-/**
-Infers only mutual variants' properties' names of the given Enum. If `TAll` is
-`true`, then all variants' properties' names are inferred.
-
-```ts
-type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
-
-Enum.Props<Foo>
--> "x" // only `x` is mutual in both B and C
-
-Enum.Props<Foo, true>
--> "x" | "y" // now `y` is included because `TAll` is `true`
-```
- */
-type EnumProps<TEnum, TAll extends boolean = false> = [TEnum] extends [never]
-	? never
-	: TAll extends true
-	? TEnum extends unknown
-		? keyof Omit<TEnum, "is">
-		: never
-	: [TEnum] extends [{ is: string }]
-	? keyof Intersect<Omit<TEnum, "is">>
-	: never;
 
 /**
 @internal
