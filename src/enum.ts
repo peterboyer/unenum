@@ -16,44 +16,32 @@ type Foo = Enum<{
    | { is: "C"; c: number }
 ```
 */
+// prettier-ignore
 export type Enum<
-	TVariants extends EnumVariants,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = {
-	// prettier-ignore
-	[TVariantKey in keyof TVariants]-?:
-		TVariants[TVariantKey] extends true
-			? EnumVariantUnit<TVariantKey & string, TDiscriminant>
-		: TVariants[TVariantKey] extends Record<string, unknown>
-			? EnumVariantData<TVariantKey & string, TVariants[TVariantKey], TDiscriminant>
-		: never;
-}[keyof TVariants];
-
-export namespace Enum {
-	// @ts-expect-error Should work.
-	export type {
-		EnumKeys as Keys,
-		EnumUnwrap as Unwrap,
-		EnumPick as Pick,
-		EnumOmit as Omit,
-		EnumMerge as Merge,
-		EnumExtend as Extend,
-	};
-}
+	TDiscriminant extends EnumDiscriminant,
+	TVariants extends EnumVariants
+> =
+	{
+		[TVariantKey in keyof TVariants]-?:
+			TVariants[TVariantKey] extends true
+				? EnumVariantUnit<TDiscriminant, TVariantKey & string>
+			: TVariants[TVariantKey] extends Record<string, unknown>
+				? EnumVariantData<TDiscriminant, TVariantKey & string, TVariants[TVariantKey]>
+			: never;
+	}[keyof TVariants];
 
 export type EnumVariants = Record<string, true | Record<string, unknown>>;
 export type EnumDiscriminant = string;
-export type EnumDiscriminantDefault = "is";
 
 export type EnumVariantUnit<
-	TKey extends string,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
+	TDiscriminant extends EnumDiscriminant,
+	TKey extends string
 > = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
 
 export type EnumVariantData<
+	TDiscriminant extends EnumDiscriminant,
 	TKey extends string,
-	TData extends Record<string, unknown>,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
+	TData extends Record<string, unknown>
 > = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey } & TData>;
 
 /**
@@ -67,10 +55,11 @@ Enum.Keys<Foo>
 -> "A" | "B" | "C"
 ```
  */
-type EnumKeys<
-	TEnum,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = TEnum extends Record<TDiscriminant, string> ? TEnum[TDiscriminant] : never;
+// prettier-ignore
+export type EnumKeys<TDiscriminant extends EnumDiscriminant, TEnum> =
+	TEnum extends Record<TDiscriminant, string>
+		? TEnum[TDiscriminant]
+		: never;
 
 /**
 Infers all variants' unit and data definitions of the given Enum.
@@ -83,23 +72,23 @@ Enum.Unwrap<Foo>
 -> | { A: true; B: { b: string }; C: { c: number } }
 ```
  */
-type EnumUnwrap<
-	TEnum,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = Identity<
-	Intersect<
-		TEnum extends Record<TDiscriminant, string>
-			? {
-					[key in TEnum[TDiscriminant]]: Exclude<
-						keyof TEnum,
-						TDiscriminant
-					> extends never
-						? true
-						: Identity<Omit<TEnum, TDiscriminant>>;
-			  }
-			: never
-	>
->;
+// prettier-ignore
+export type EnumUnwrap<
+	TDiscriminant extends EnumDiscriminant,
+	TEnum
+> =
+	Identity<
+		Intersect<
+			TEnum extends Record<TDiscriminant, string>
+				? {
+						[key in TEnum[TDiscriminant]]:
+							Exclude<keyof TEnum, TDiscriminant> extends never
+								? true
+								: Identity<Omit<TEnum, TDiscriminant>>;
+					}
+				: never
+		>
+	>;
 
 /**
 Narrows a given Enum by including only the given variants by key.
@@ -113,11 +102,15 @@ Enum.Pick<Foo, "A" | "C">
    | { is: "C"; c: number }
 ```
  */
-type EnumPick<
+// prettier-ignore
+export type EnumPick<
+	TDiscriminant extends EnumDiscriminant,
 	TEnum,
-	TKeys extends EnumKeys<TEnum, TDiscriminant>,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = TEnum extends Record<TDiscriminant, TKeys> ? TEnum : never;
+	TKeys extends EnumKeys<TDiscriminant, TEnum>
+> =
+	TEnum extends Record<TDiscriminant, TKeys>
+		? TEnum
+		: never;
 
 /**
 Narrows a given Enum by excluding only the given variants by key.
@@ -130,11 +123,15 @@ Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
 ```
  */
-type EnumOmit<
+// prettier-ignore
+export type EnumOmit<
+	TDiscriminant extends EnumDiscriminant,
 	TEnum,
-	TKeys extends EnumKeys<TEnum, TDiscriminant>,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = TEnum extends Record<TDiscriminant, TKeys> ? never : TEnum;
+	TKeys extends EnumKeys<TDiscriminant, TEnum>
+> =
+	TEnum extends Record<TDiscriminant, TKeys>
+		? never
+		: TEnum;
 
 /**
 Merges a union of Enums' variants and properties into a new Enum.
@@ -153,33 +150,37 @@ Enum.Merge<Foo | Bar>
 }>
 ```
 */
-type EnumMerge<
-	TEnums,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = Enum<
-	TrueOrObj<
-		Intersect<
-			TrueAsEmpty<
-				TEnums extends unknown ? EnumUnwrap<TEnums, TDiscriminant> : never
-			>
-		>
-	>,
-	TDiscriminant
->;
+// prettier-ignore
+export type EnumMerge<
+	TDiscriminant extends EnumDiscriminant,
+	TEnums
+> =
+	Enum<
+		TDiscriminant,
+		TrueOrObj<Intersect<TrueAsEmpty<TEnums extends unknown ? EnumUnwrap<TDiscriminant, TEnums> : never>>>
+	>;
 
 /**
 @internal
  */
-type TrueOrObj<T> = {
-	[K in keyof T]: keyof T[K] extends never ? true : Identity<T[K]>;
-};
+// prettier-ignore
+type TrueOrObj<T> =
+	{
+		[K in keyof T]: keyof T[K] extends never
+			? true
+			: Identity<T[K]>
+	};
 
 /**
 @internal
  */
-type TrueAsEmpty<T> = {
-	[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
-};
+// prettier-ignore
+type TrueAsEmpty<T> =
+	{
+		[K in keyof T]: T[K] extends true
+			? Record<never, never>
+			: T[K]
+	};
 
 /**
 Merges new additional variants and properties into a new Enum.
@@ -197,11 +198,16 @@ Enum.Extend<Foo, { D: true }>
 }>
 ```
  */
-type EnumExtend<
+// prettier-ignore
+export type EnumExtend<
+	TDiscriminant extends EnumDiscriminant,
 	TEnum,
-	TVariants extends EnumVariants,
-	TDiscriminant extends EnumDiscriminant = EnumDiscriminantDefault
-> = EnumMerge<TEnum | Enum<TVariants, TDiscriminant>, TDiscriminant>;
+	TVariants extends EnumVariants
+> =
+	EnumMerge<
+		TDiscriminant,
+		TEnum | Enum<TDiscriminant, TVariants>
+	>;
 
 /**
 Merges intersections.
@@ -215,6 +221,7 @@ Identity<{ is: "Data" } & { value: string }>
 ```
  */
 // https://stackoverflow.com/a/49683575
+// prettier-ignore
 type Identity<T> = T extends object ? { [K in keyof T]: T[K] } : never;
 
 /**
@@ -228,8 +235,5 @@ Intersect<{ A: string } | { B: string } | { C: string }>
 -> { A: string, B: string, C: string }
 ```
  */
-type Intersect<T> = (T extends unknown ? (t: T) => void : never) extends (
-	t: infer R
-) => void
-	? R
-	: never;
+// prettier-ignore
+type Intersect<T> = (T extends unknown ? (t: T) => void : never) extends (t: infer R) => void ? R : never;
