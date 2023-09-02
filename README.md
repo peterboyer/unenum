@@ -54,6 +54,16 @@ type Option = Enum<{
 const none: Option = { is: "None" };
 const some: Option = { is: "Some", data: "foobar" }; // able to include option data
 
+- function getOption(): [Option, unknown] {
+-   return [Option.None, undefined];
+-   return [Option.Some, "foobar"];
+- }
+
+function getOption(): Option {
+  return { is: "None" };
+  return { is: "Some", data: "foobar" };
+}
+
 - const option: Option = ...;
 - if (option === Option.None) { ... }
 - if (option === Option.Some && someData) { use(someData) } // ! hanging data value
