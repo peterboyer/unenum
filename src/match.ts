@@ -1,7 +1,9 @@
+import type { EnumDiscriminant } from "./enum";
+
 /**
 Uses a given `Enum` `value` to execute its corresponding variants' `matcher`
-function and return its result. Use `match.orUndefined(...)` or
-`match.orDefault(...)` if you want to match against only a subset of variants.
+function and return its result. Use `match.partial(...)` if you want to match
+against only a subset of variants.
 
 ```ts
 import { match } from "unenum"; // dependency
@@ -9,7 +11,7 @@ import { match } from "unenum"; // dependency
 type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
 const foo: Foo = ...
 
-// all cases
+// exhaustive
 match(foo, {
   A: () => null,
   B: ({ b }) => b,
@@ -17,89 +19,64 @@ match(foo, {
 })
 -> null | string | number
 
-// some cases or undefined
-match.orUndefined(foo, {
+// default case
+match.partial(foo, {
   A: () => null,
   B: ({ b }) => b,
+  _: () => undefined,
 })
 -> null | string | undefined
-
-// some cases or default
-match.orDefault(
-  foo,
-  { A: () => null },
-  ($) => $.is === "B" ? true : false
-)
--> null | string | boolean
 ```
  */
-export function match<
-	TEnum extends { is: string },
-	TMatcher extends Matcher<TEnum>
->(
-	value: TEnum,
-	matcher: TMatcher
-): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> {
-	const { is } = value;
-	const matcherValue = matcher[is as keyof TMatcher & string];
-	if (!matcherValue) {
-		throw TypeError(
-			`Given Enum value has no matching variants: ${JSON.stringify(value)}`
-		);
-	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return matcherValue(value as any) as ReturnType<
-		NonNullable<TMatcher[keyof TMatcher]>
-	>;
-}
-
-match.orUndefined = <
-	TEnum extends { is: string },
-	TMatcher extends Partial<Matcher<TEnum>>
->(
-	value: TEnum,
-	matcher: TMatcher
-): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> | undefined => {
-	const { is } = value;
-	const matcherValue = matcher[is as keyof TMatcher & string];
-	if (!matcherValue) {
-		return undefined;
-	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return matcherValue(value as any) as ReturnType<
-		NonNullable<TMatcher[keyof TMatcher]>
-	>;
-};
-
-match.orDefault = <
-	TEnum extends { is: string },
-	TMatcher extends Partial<Matcher<TEnum>>,
-	TDefaultMatch extends (
-		value: NeverAsUnknown<TEnum extends { is: keyof TMatcher } ? never : TEnum>
-	) => unknown
->(
-	value: TEnum,
-	matcher: TMatcher,
-	defaultMatch: TDefaultMatch
-):
-	| ReturnType<NonNullable<TMatcher[keyof TMatcher]>>
-	| ReturnType<TDefaultMatch> => {
-	const { is } = value;
-	const valueMatch = matcher[is as keyof TMatcher & string];
-	if (!valueMatch) {
+export const match = <TDiscriminant extends EnumDiscriminant>(
+	discriminant: TDiscriminant
+) => {
+	const fn = <
+		TEnum extends Record<TDiscriminant, string>,
+		TMatcher extends Matcher<TDiscriminant, TEnum>
+	>(
+		value: TEnum,
+		matcher: TMatcher
+	): ReturnType<NonNullable<TMatcher[keyof TMatcher]>> => {
+		const key = value[discriminant];
+		const matcherValue = matcher[key as keyof TMatcher & string];
+		if (!matcherValue) {
+			throw TypeError(`unhandled enum variant: ${JSON.stringify(value)}`);
+		}
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		return defaultMatch(value as any) as ReturnType<TDefaultMatch>;
-	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return valueMatch(value as any) as ReturnType<
-		NonNullable<TMatcher[keyof TMatcher]>
-	>;
+		return matcherValue(value as any) as ReturnType<
+			NonNullable<TMatcher[keyof TMatcher]>
+		>;
+	};
+
+	fn.partial = <
+		TEnum extends Record<TDiscriminant, string>,
+		TMatcher extends Partial<Matcher<TDiscriminant, TEnum>> & {
+			_: () => unknown;
+		}
+	>(
+		value: TEnum,
+		matcher: TMatcher
+	):
+		| ReturnType<NonNullable<TMatcher[keyof TMatcher]>>
+		| ReturnType<TMatcher["_"]> => {
+		const key = value[discriminant];
+		const match = matcher[key as keyof TMatcher & string];
+		if (!match) {
+			return matcher["_"]() as ReturnType<typeof fn>;
+		}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return match(value as any) as ReturnType<typeof fn>;
+	};
+
+	return fn;
 };
 
-type Matcher<TEnum extends { is: string }> = {
-	[TVariant in TEnum["is"]]: (
-		value: TEnum extends { is: TVariant } ? TEnum : never
+type Matcher<
+	TDiscriminant extends EnumDiscriminant,
+	TEnum extends Record<TDiscriminant, string>
+> = {
+	[TKey in TEnum[TDiscriminant]]: (
+		value: TEnum extends Record<TDiscriminant, TKey> ? TEnum : never
 	) => unknown;
 };
-
-type NeverAsUnknown<T> = [T] extends [never] ? unknown : T;

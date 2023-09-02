@@ -1,6 +1,5 @@
 import type { Expect, Equal } from "./testutils";
-import { safely } from "./safely";
-import type { Result } from "./result";
+import { safely, type Result } from "./default";
 
 describe("safely", () => {
 	it("should handle value", () => {

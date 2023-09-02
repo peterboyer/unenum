@@ -1,4 +1,4 @@
-import type { Enum } from "./enum";
+import type { Enum, EnumDiscriminant } from "./enum";
 
 /**
 Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
@@ -52,7 +52,14 @@ const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 Based on Rust's
 [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
  */
-export type Result<TValue = never, TError = never> = Enum<{
-	Ok: [TValue] extends [never] ? true : { value: TValue };
-	Error: [TError] extends [never] ? true : { error: TError };
-}>;
+export type Result<
+	TDiscriminant extends EnumDiscriminant,
+	TValue = never,
+	TError = never
+> = Enum<
+	TDiscriminant,
+	{
+		Ok: [TValue] extends [never] ? true : { value: TValue };
+		Error: [TError] extends [never] ? true : { error: TError };
+	}
+>;

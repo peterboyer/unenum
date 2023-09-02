@@ -1,6 +1,6 @@
-import type { Result as _Result } from "./result";
+import type { Result as _Result } from "./default";
 
 declare global {
-	// @ts-expect-error Clash with global.d.ts.
+	// @ts-expect-error Duplicates don't exist for consumer.
 	export { _Result as Result };
 }

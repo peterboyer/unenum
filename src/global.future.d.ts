@@ -1,6 +1,6 @@
-import type { Future as _Future } from "./future";
+import type { Future as _Future } from "./default";
 
 declare global {
-	// @ts-expect-error Clash with global.d.ts.
+	// @ts-expect-error Duplicates don't exist for consumer.
 	export { _Future as Future };
 }

@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"author": "Peter Boyer <https://github.com/peterboyer>",
 	"repository": "github:peterboyer/unenum",
-	"description": "0kb, Rust-like Enums for TypeScript.",
+	"description": "0kb Rust-like ADT/Enums for TypeScript.",
 	"scripts": {
 		"test": "./scripts/test.sh",
 		"test:e2e": "./scripts/test-e2e.sh",
@@ -13,35 +13,17 @@
 		"build": "./scripts/build.sh",
 		"all": "yarn lint && yarn lint:ts && yarn build && yarn test && yarn test:e2e"
 	},
-	"main": "./cjs/index.js",
-	"module": "./mjs/index.js",
+	"type": "module",
+	"main": "./index.js",
+	"module": "./index.js",
 	"types": "./index.d.ts",
 	"exports": {
-		".": {
-			"types": "./index.d.ts",
-			"import": "./mjs/index.js",
-			"default": "./cjs/index.js"
-		},
-		"./global": {
-			"types": "./global.d.ts",
-			"import": "./mjs/global.js",
-			"default": "./cjs/global.js"
-		},
-		"./global.enum": {
-			"types": "./global.enum.d.ts",
-			"import": "./mjs/global.js",
-			"default": "./cjs/global.js"
-		},
-		"./global.result": {
-			"types": "./global.result.d.ts",
-			"import": "./mjs/global.js",
-			"default": "./cjs/global.js"
-		},
-		"./global.future": {
-			"types": "./global.future.d.ts",
-			"import": "./mjs/global.js",
-			"default": "./cjs/global.js"
-		}
+		".": "./index.js",
+		"./enum": "./enum.d.ts",
+		"./result": "./result.d.ts",
+		"./future": "./future.d.ts",
+		"./match": "./match.js",
+		"./safely": "./safely.js"
 	},
 	"devDependencies": {
 		"@tsconfig/esm": "^1.0.2",
@@ -62,19 +44,21 @@
 		"typescript": "^5.0.3"
 	},
 	"keywords": [
-		"es",
+		"ts",
+		"typescript",
+		"adt",
 		"enum",
+		"union",
+		"variant",
 		"result",
 		"future",
 		"match",
 		"ok",
 		"error",
-		"async",
-		"promise",
-		"monad",
 		"fp",
-		"functional",
-		"ts",
-		"typescript"
+		"sum",
+		"box",
+		"boxed",
+		"monad"
 	]
 }
