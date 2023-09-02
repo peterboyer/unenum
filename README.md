@@ -2,13 +2,12 @@
 
 # unenum
 
-**A 0kb, Rust-like Enum/ADT mechanism for TypeScript with zero runtime
-requirements.**
+**A type-only Enum/ADT mechanism for TypeScript with no runtime requirements.**
 
 [Overview](#overview) • [Installation](#installation) •
-    [`Enum`](#enumtvariants) • [Patterns](#patterns) •
-    [`Result`](#resulttvalue-terror) • [`Future`](#futuretvalue) •
-    [`safely`](#safelyfn---result) • [`match`](#matchvalue-matcher---)
+    [`Enum`](#enumtvariants) • [`Result`](#resulttvalue-terror) •
+    [`Future`](#futuretvalue) • [`match`](#matchvalue-matcher---) •
+    [`safely`](#safelyfn---result) • [Patterns](#patterns)
 
 </div>
 
@@ -16,37 +15,64 @@ requirements.**
 
 ## Overview
 
-TypeScript should have a more versitile and ergonomic Enum/ADT mechanism that
-_feels_ like native utility, as opposed its
-[limited](https://www.typescriptlang.org/docs/handbook/enums.html#const-enum-pitfalls),
-[misused](https://bluepnume.medium.com/nine-terrible-ways-to-use-typescript-enums-and-one-good-way-f9c7ec68bf15),
-and [redundant](https://www.youtube.com/watch?v=jjMbPt_H3RQ) built-in `enum`
-keyword which can be mostly replaced with a plain key-value mapping object
-using `as const`.
+- TypeScript's native `enum` keyword is:
+    - [**limited**](https://www.typescriptlang.org/docs/handbook/enums.html#const-enum-pitfalls)
+        (Enums | Const/Enum Pitfalls | TypeScript Handbook);
+    - [**misused**](https://bluepnume.medium.com/nine-terrible-ways-to-use-typescript-enums-and-one-good-way-f9c7ec68bf15)
+        (Nine terrible ways to use TypeScript enums, and one good way. | Daniel Brain | Medium);
+    - [**redundant**](https://www.youtube.com/watch?v=jjMbPt_H3RQ)
+        (Enums considered harmful | Matt Pocock | YouTube);
+    - [**replaceable**](https://www.typescriptlang.org/docs/handbook/enums.html#objects-vs-enums)
+        with an object with `as const`.
+
+- **Introducing `unenum`**, TypeScript's missing enum mechanism that:
+    - feels like a native [utility
+        type](https://www.typescriptlang.org/docs/handbook/utility-types.html);
+    - has no dependencies (extremely lightweight);
+    - has no runtime impact (completely compiled away, no runtime or bundle size cost);
+    - can express enums as [algebraic data
+        types](https://en.wikipedia.org/wiki/Comparison_of_programming_languages_(algebraic_data_type))
+        (ADTs) with data per variants;
+
+```diff ts
+- enum Option {
+-   None = "None", // ! unit-only variant
+-   Some = "Some", // ! unit-only variant
+- }
+
+import type { Enum } from "unenum";
+
+type Option = Enum<{
+  None: true;              // unit variant
+  Some: { data: unknown }; // data variant
+}>
+
+- const none: Option = Option.None;
+- const some: Option = Option.Some;
+- const someData: unknown = "foobar"; // ! unable to include data within option
+
+const none: Option = { is: "None" };
+const some: Option = { is: "Some", data: "foobar" }; // able to include option data
+
+- const option: Option = ...;
+- if (option === Option.None) { ... }
+- if (option === Option.Some && someData) { use(someData) } // ! hanging data value
+
+const option: Option = ...;
+if (option.is === "None") { ... }
+if (option.is === "Some") { use(option.data) } // access option data after narrowing
+```
 
 <br />
 
-Introducing `unenum`; a Rust-inspired, discriminable Enum/ADT type generic,
-featuring:
+`unenum`'s `Enum` is a type generic for building [discriminated
+unions](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions)
+that feels _like a pattern_ rather than a _library_:
 
-- **Zero dependencies**; `unenum` is extremely lightweight.
-- **Zero runtime requirements**; `unenum` can be completely compiled away -- no
-  runtime or bundle size cost.
-- **`Enum` variants can define custom per-instance data**; impossible with
-  native TypeScript `enum`s.
-
-<br />
-
-`unenum` aims to _feel_ like a native TypeScript utility type, _like a
-pattern_, rather than a library:
-
-- **`Enum`s are defined as `type` statements**; instead of factory functions.
-- **`Enum`s are instantiated with plain object `{ ... }` syntax**; instead of
-  constructors.
-- **`Enum`s can be consumed (and narrowed) with plain `if` statements**;
-  instead of imported match utilities.
-
-<br />
+- **`Enum`s are defined as `type` statements**; no factory functions.
+- **`Enum`s are instantiated as plain objects `{ ... }`**; no constructors.
+- **`Enum`s can be consumed (and narrowed) with plain control flow
+statements**; no runtime utilities needed.
 
 Here's an example of `unenum`'s [`Enum`](#enumtvariants) compared with Rust's
 [`enum`](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html):
@@ -122,31 +148,42 @@ fn inspect(event: WebEvent) {
 npm install unenum
 ```
 
-For Applications
-([Global](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html)):
+### For Applications ([Global](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html)):
+
+- Use `Enum` and other type primitives from your project's global namespace.
+- Optional runtime utilities will need to be imported as needed, as per below.
+- You can add only certain type primitives by suffixing the `global.*` as needed.
 
 ```ts
-import "unenum/global";
+import "unenum/global";        // all
+import "unenum/global.enum";   // only Enum
+import "unenum/global.result"; // only Result
+import "unenum/global.future"; // only Future
 ```
 
-For Libraries
-([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
+### For Libraries ([Imported](https://www.typescriptlang.org/docs/handbook/2/modules.html#import-type)):
+
+- Use `Enum`, other type primitives, and optional runtime utilities by
+importing as needed.
 
 ```ts
-import type { Enum, ... } from "unenum";
+import type { Enum, Result, Future } from "unenum"; // zero bundle impact
+import { match, safely } from "unenum";             // non-zero bundle impact
 ```
 
 <br />
 
-## `Enum<TVariants>`
+## API
+
+### `Enum<TVariants>`
 
 Creates a union of mutually exclusive, discriminable variants.
 
 ```ts
-import "unenum/global.enum"; // global
-import type { Enum } from "unenum"; // imported
+import "unenum/global";
+import "unenum/global.enum";
+import type { Enum } from "unenum";
 
-// Default
 type Foo = Enum<{
   A: true;
   B: { b: string };
@@ -155,23 +192,31 @@ type Foo = Enum<{
 -> | { is: "A" }
    | { is: "B"; b: string }
    | { is: "C"; c: number }
-
-// Enum with Custom Discriminant
-type MyFoo = Enum<{
-  A: true;
-  B: { b: string };
-  C: { c: number };
-}, "$key">;
--> | { $key: "A" }
-   | { $key: "B"; b: string }
-   | { $key: "C"; c: number }
-
-// Enum Generic with Custom Discriminant
-import type { EnumVariants } from "unenum"
-type MyEnum<TVariants extends EnumVariants> = Enum<TVariants, "$key">
 ```
 
-### `Enum.Pick<TEnum, TVariantKeys>`
+#### `Enum.Keys<TEnum>`
+
+Infers all variants' keys of the given Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Keys<Foo>
+-> "A" | "B" | "C"
+```
+
+#### `Enum.Infer<TEnum>`
+
+Infers all variants' unit and data definitions of the given Enum.
+
+```ts
+type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+
+Enum.Infer<Foo>
+-> { A: true; B: { b: string }; C: { c: number } }
+```
+
+#### `Enum.Pick<TEnum, TVariantKeys>`
 
 Narrows a given Enum by including only the given variants by key.
 
@@ -183,7 +228,7 @@ Enum.Pick<Foo, "A" | "C">
    | { is: "C"; c: number }
 ```
 
-### `Enum.Omit<TEnum, TVariantKeys>`
+#### `Enum.Omit<TEnum, TVariantKeys>`
 
 Narrows a given Enum by excluding only the given variants by key.
 
@@ -194,7 +239,7 @@ Enum.Omit<Foo, "A" | "C">
 -> | { is: "B"; b: string }
 ```
 
-### `Enum.Merge<TEnums>`
+#### `Enum.Merge<TEnums>`
 
 Merges a given union of Enums' variants and properties into a single Enum.
 
@@ -211,9 +256,11 @@ Enum.Merge<
 }>
 ```
 
-### `Enum.Extend<TEnum, TVariants>`
+#### `Enum.Extend<TEnum, TVariants>`
 
 Merges additional variants and properties into a single Enum.
+
+Equivalent to `Enum.Merge<TEnum | Enum<TVariants>>`.
 
 ```ts
 type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
@@ -227,53 +274,212 @@ Enum.Extend<Foo, { D: true }>
 }>
 ```
 
-### `Enum.Unwrap<TEnum>`
+<br />
 
-Infers all variants' unit and data definitions of the given Enum.
+### `Result<TValue?, TError?>`
+
+Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
 
 ```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+import "unenum/global.result"; // global
+import type { Result } from "unenum"; // imported
 
-Enum.Unwrap<Foo>
--> | { A: true; B: { b: string }; C: { c: number } }
+Result
+-> | { is: "Ok" }
+   | { is: "Error" }
+
+Result<number>
+-> | { is: "Ok"; value: number }
+   | { is: "Error" }
+
+Result<number, "FetchError" | "ConnectionError">
+-> | { is: "Ok"; value: number }
+   | { is: "Error"; error: "FetchError" | "ConnectionError" }
+
+Result<
+  number,
+  Enum<{
+    "FetchError": true;
+    "ConnectionError": true;
+    "FormFieldsError": { fieldErrors: Record<string, string> };
+  }>
+-> | { is: "Ok"; value: number }
+   | { is: "Error"; error: | { is: "FetchError" }
+                           | { is: "ConnectionError" }
+                           | { is: "FormFieldsError"; fieldErrors: ... }}
 ```
 
-### `Enum.Keys<TEnum>`
-
-Infers all variants' keys of the given Enum.
+#### Example
 
 ```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
+}
 
-Enum.Keys<Foo>
--> "A" | "B" | "C"
+const $user = await getUser("foo");
+if ($user.is === "Error") { return ... }
+const user = $user.value;
+
+const $user = await getUser("foo");
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+
+const $user = await getUser("foo");
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 
-### `Enum.Values<TEnum>`
+Based on Rust's
+[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
 
-Infers all variants' values of the given Enum.
+<br />
+
+### `Future<TValue?>`
+
+Represents an asynchronous `value` that is either loading (`Pending`) or
+resolved (`Ready`).
+
+Consider using [`Future.Enum<TEnum>`](#futureenumtenum) to when interacting with
+other "wrapper" Enums like [`Result`](#resulttvalue-terror) to avoid nesting.
 
 ```ts
-type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
+import "unenum/global.future"; // global
+import type { Future } from "unenum"; // imported
 
-Enum.Values<Foo>
--> | { b: string }
-   | { c: number }
+Future
+-> | { is: "Pending" }
+   | { is: "Ready"; value: unknown }
+
+Future<string>
+-> | { is: "Pending" }
+   | { is: "Ready"; value: string }
+
+Future<Result<number>>
+-> | { is: "Pending" }
+   | { is: "Ready"; value: | { is: "Ok"; value: number }
+                           | { is: "Error" } }
+
+Future.Enum<Result<number>>
+-> | { is: "Pending" }
+   | { is: "Ok"; value: number }
+   | { is: "Error" }
 ```
 
-### `Enum.Props<TEnum, TAll?>`
+#### Example
 
-Infers only mutual variants' properties' names of the given Enum. If `TAll` is
-`true`, then all variants' properties' names are inferred.
+```tsx
+const useRemoteUser = (name: string): Future<User | undefined> => {
+  return { is: "Pending" };
+  return { is: "Ready", value: user };
+  return { is: "Ready", value: undefined };
+};
+
+const $user = useRemoteUser("foo");
+if ($user.is === "Pending") { return <Loading />; }
+const user = $user.value;
+return <View optionalUser={user} />;
+
+const $user = useRemoteUser("foo");
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+
+const $user = useRemoteUser("foo");
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
+```
+
+Based on Rust's
+[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
+[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
+
+#### `Future.Enum<TEnum>`
+
+Helper for adding only the `Future` "Pending" variant to a given Enum that may
+already have its own "Ready" state, e.g. `Result`'s `Ok` and `Error` states'.
+
+The same can be achieved with `Enum.Extend<TEnum, { Pending: true }>`.
 
 ```ts
-type Foo = Enum<{ A: true; B: { x: string }; C: { x: string; y: number } }>;
+Future.Enum<Enum<{ A: true, B: { b: string } }>>
+-> | { is: "Pending" }
+   | { is: "A" }
+   | { is: "B", b: string }
 
-Enum.Props<Foo>
--> "x" // only `x` is mutual in both B and C
+Future.Enum<Result<boolean>>
+-> | { is: "Pending" }
+   | { is: "Ok", value: boolean }
+   | { is: "Error" }
+```
 
-Enum.Props<Foo, true>
--> "x" | "y" // now `y` is included because `TAll` is `true`
+#### Example
+
+```ts
+const useRemoteUser = (name: string): Future.Enum<Result<User, "NotFound">> => {
+  return { is: "Pending" };
+  return { is: "Ok", value: user };
+  return { is: "Error", error: "NotFound" };
+};
+
+const $user = useRemoteUser("foo");
+if ($user.is === "Pending") { return <Loading />; }
+if ($user.is === "Error") { return <Error />; }
+const user = $user.value;
+return <View user={user} />;
+
+const $user = useRemoteUser("foo");
+const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
+
+const $user = useRemoteUser("foo");
+const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
+```
+
+<br />
+
+### `match(value, matcher) -> ...`
+
+Uses a given `Enum` `value` to execute its corresponding variants' `matcher`
+function and return its result. Use `match.partial(...)` if you want to match
+against only a subset of variants.
+
+```ts
+import { match } from "unenum"; // dependency
+
+type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
+const foo: Foo = ...
+
+// exhaustive
+match(foo, {
+  A: () => null,
+  B: ({ b }) => b,
+  C: ({ c }) => c,
+})
+-> null | string | number
+
+// default case
+match.partial(foo, {
+  A: () => null,
+  B: ({ b }) => b,
+  _: () => undefined,
+})
+-> null | string | undefined
+```
+
+<br />
+
+### `safely(fn) -> Result`
+
+Executes a given function and returns a `Result` that wraps its normal return
+value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
+returns.
+
+```ts
+import { safely } from "unenum"; // dependency
+
+safely(() => JSON.stringify(...))
+-> Result<string>
+
+safely(() => JSON.parse(...))
+-> Result<unknown>
+
+safely(() => fetch("/endpoint").then(res => res.json() as Data))
+-> Promise<Result<Data>>
 ```
 
 <br />
@@ -348,7 +554,7 @@ return null;
 > `if` statements are the most universal and native way to handle `Enum`
 > variants without any dependencies.
 
-### With `match` function (runtime dependency)
+### With `match` function (optional)
 
 See [`match`](#matchvalue-matcher---).
 
@@ -419,212 +625,3 @@ switch (foo.is) {
 > versitile conditional expressions that may accomodate evaluating other
 > variables or even properties on the `Enum` variant itself (e.g. `if (foo.is
 > === "B" && foo.b === "hello") ...`).
-
-## Included Enums
-
-### `Result<TValue?, TError?>`
-
-Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
-
-```ts
-import "unenum/global.result"; // global
-import type { Result } from "unenum"; // imported
-
-Result
--> | { is: "Ok" }
-   | { is: "Error" }
-
-Result<number>
--> | { is: "Ok"; value: number }
-   | { is: "Error" }
-
-Result<number, "FetchError" | "ConnectionError">
--> | { is: "Ok"; value: number }
-   | { is: "Error"; error: "FetchError" | "ConnectionError" }
-
-Result<
-  number,
-  Enum<{
-    "FetchError": true;
-    "ConnectionError": true;
-    "FormFieldsError": { fieldErrors: Record<string, string> };
-  }>
--> | { is: "Ok"; value: number }
-   | { is: "Error"; error: | { is: "FetchError" }
-                           | { is: "ConnectionError" }
-                           | { is: "FormFieldsError"; fieldErrors: ... }}
-```
-
-```ts
-const getUser = async (name: string): Promise<Result<User, "NotFound">> => {
-  return { is: "Ok", value: user };
-  return { is: "Error", error: "NotFound" };
-}
-
-const $user = await getUser("foo");
-if ($user.is === "Error") { return ... }
-const user = $user.value;
-
-const $user = await getUser("foo");
-const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
-
-const $user = await getUser("foo");
-const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
-```
-
-Based on Rust's
-[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
-
-<br />
-
-### `Future<TValue?>`
-
-Represents an asynchronous `value` that is either loading (`Pending`) or
-resolved (`Ready`).
-
-Consider using [`Future.Enum<TEnum>`](#futureenumtenum) to when interacting with
-other "wrapper" Enums like [`Result`](#resulttvalue-terror) to avoid nesting.
-
-```ts
-import "unenum/global.future"; // global
-import type { Future } from "unenum"; // imported
-
-Future
--> | { is: "Pending" }
-   | { is: "Ready"; value: unknown }
-
-Future<string>
--> | { is: "Pending" }
-   | { is: "Ready"; value: string }
-
-Future<Result<number>>
--> | { is: "Pending" }
-   | { is: "Ready"; value: | { is: "Ok"; value: number }
-                           | { is: "Error" } }
-
-Future.Enum<Result<number>>
--> | { is: "Pending" }
-   | { is: "Ok"; value: number }
-   | { is: "Error" }
-```
-
-```tsx
-const useRemoteUser = (name: string): Future<User | undefined> => {
-  return { is: "Pending" };
-  return { is: "Ready", value: user };
-  return { is: "Ready", value: undefined };
-};
-
-const $user = useRemoteUser("foo");
-if ($user.is === "Pending") { return <Loading />; }
-const user = $user.value;
-return <View optionalUser={user} />;
-
-const $user = useRemoteUser("foo");
-const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
-
-const $user = useRemoteUser("foo");
-const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
-```
-
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
-
-#### `Future.Enum<TEnum>`
-
-Helper for adding only the `Future` "Pending" variant to a given Enum that may
-already have its own "Ready" state, e.g. `Result`'s `Ok` and `Error` states'.
-
-The same can be achieved with `Enum.Extend<TEnum, { Pending: true }>`.
-
-```ts
-Future.Enum<Enum<{ A: true, B: { b: string } }>>
--> | { is: "Pending" }
-   | { is: "A" }
-   | { is: "B", b: string }
-
-Future.Enum<Result<boolean>>
--> | { is: "Pending" }
-   | { is: "Ok", value: boolean }
-   | { is: "Error" }
-```
-
-```ts
-const useRemoteUser = (name: string): Future.Enum<Result<User, "NotFound">> => {
-  return { is: "Pending" };
-  return { is: "Ok", value: user };
-  return { is: "Error", error: "NotFound" };
-};
-
-const $user = useRemoteUser("foo");
-if ($user.is === "Pending") { return <Loading />; }
-if ($user.is === "Error") { return <Error />; }
-const user = $user.value;
-return <View user={user} />;
-
-const $user = useRemoteUser("foo");
-const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
-
-const $user = useRemoteUser("foo");
-const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
-```
-
-<br />
-
-## Utils
-
-### `safely(fn) -> Result`
-
-Executes a given function and returns a `Result` that wraps its normal return
-value as `Ok` and any thrown errors as `Error`. Supports async/`Promise`
-returns.
-
-```ts
-import { safely } from "unenum"; // dependency
-
-safely(() => JSON.stringify(...))
--> Result<string>
-
-safely(() => JSON.parse(...))
--> Result<unknown>
-
-safely(() => fetch("/endpoint").then(res => res.json() as Data))
--> Promise<Result<Data>>
-```
-
-### `match(value, matcher) -> ...`
-
-Uses a given `Enum` `value` to execute its corresponding variants' `matcher`
-function and return its result. Use `match.orUndefined(...)` or
-`match.orDefault(...)` if you want to match against only a subset of variants.
-
-```ts
-import { match } from "unenum"; // dependency
-
-type Foo = Enum<{ A: undefined; B: { b: string }; C: { c: number } }>;
-const foo: Foo = ...
-
-// all cases
-match(foo, {
-  A: () => null,
-  B: ({ b }) => b,
-  C: ({ c }) => c,
-})
--> null | string | number
-
-// some cases or undefined
-match.orUndefined(foo, {
-  A: () => null,
-  B: ({ b }) => b,
-})
--> null | string | undefined
-
-// some cases or default
-match.orDefault(
-  foo,
-  { A: () => null },
-  ($) => $.is === "B" ? true : false
-)
--> null | string | boolean
-```

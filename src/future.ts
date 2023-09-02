@@ -1,4 +1,4 @@
-import type { Enum } from "./enum";
+import type { Enum, EnumDiscriminant, EnumExtend } from "./enum";
 
 /**
 Represents an asynchronous `value` that is either loading (`Pending`) or
@@ -53,12 +53,18 @@ Based on Rust's
 [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
 [`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
  */
-export type Future<TValue = never> = Future.Enum<
-	Enum<{ Ready: [TValue] extends [never] ? true : { value: TValue } }>
+export type Future<
+	TDiscriminant extends EnumDiscriminant,
+	TValue = never
+> = FutureEnum<
+	TDiscriminant,
+	Enum<
+		TDiscriminant,
+		{ Ready: [TValue] extends [never] ? true : { value: TValue } }
+	>
 >;
 
-export namespace Future {
-	/**
+/**
 Helper for adding only the `Future` "Pending" variant to a given Enum that may
 already have its own "Ready" state, e.g. `Result`'s `Ok` and `Error` states'.
 
@@ -95,6 +101,8 @@ const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 const $user = useRemoteUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
-	 */
-	export type Enum<TEnum> = Enum.Extend<TEnum, { Pending: true }>;
-}
+ */
+export type FutureEnum<
+	TDiscriminant extends EnumDiscriminant,
+	TEnum
+> = EnumExtend<TDiscriminant, TEnum, { Pending: true }>;

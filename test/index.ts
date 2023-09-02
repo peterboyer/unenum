@@ -28,14 +28,11 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return match.orDefault(
-		event,
-		{
-			PageLoad: () => "load" as const,
-			PageUnload: () => "unload" as const,
-		},
-		() => undefined
-	);
+	return match(event, {
+		PageLoad: () => "load" as const,
+		PageUnload: () => "unload" as const,
+		_: () => undefined,
+	});
 }
 
 function useFutureResult(): Future.Enum<Result<string, "FooError">> {

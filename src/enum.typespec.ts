@@ -1,5 +1,5 @@
 import type { Expect, Equal } from "./testutils";
-import type { Enum } from "./enum.default";
+import type { Enum } from "./default";
 
 type None = Record<never, never>;
 type Unit = { Unit: true };

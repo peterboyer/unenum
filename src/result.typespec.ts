@@ -1,5 +1,5 @@
 import type { Expect, Equal } from "./testutils";
-import type { Result } from "./result";
+import type { Result } from "./default";
 
 ({}) as [
 	Expect<

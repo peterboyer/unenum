@@ -1,6 +1,7 @@
 {
 	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
 	"include": ["src"],
+	"exclude": ["src/global.*"],
 	"compilerOptions": {
 		"noEmit": true,
 		"skipLibCheck": false,

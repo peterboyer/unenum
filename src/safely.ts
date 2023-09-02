@@ -1,3 +1,4 @@
+import type { EnumDiscriminant } from "./enum";
 import type { Result } from "./result";
 
 /**
@@ -18,34 +19,34 @@ safely(() => fetch("/endpoint").then(res => res.json() as Data))
 -> Promise<Result<Data, unknown>>
 ```
  */
-export function safely<T>(fn: () => T): Safe<T> {
-	type ResultAny = Result<unknown, unknown>;
-	try {
-		const value = fn();
-		if (value && value instanceof Promise) {
-			const result = value
-				.then((value: unknown): ResultAny => ({ is: "Ok", value }))
-				.catch((error: unknown): ResultAny => ({ is: "Error", error }));
-			return result as Safe<T>;
+export const safely =
+	<TDiscriminant extends EnumDiscriminant>(discriminant: TDiscriminant) =>
+	<T>(fn: () => T): Safely<TDiscriminant, T> => {
+		type Return = Safely<TDiscriminant, T>;
+
+		try {
+			const value = fn();
+			if (value instanceof Promise) {
+				return value
+					.then((value) => ({ [discriminant]: "Ok", value }))
+					.catch((error) => ({ [discriminant]: "Error", error })) as Return;
+			}
+			return { [discriminant]: "Ok", value } as Return;
+		} catch (error) {
+			return { [discriminant]: "Error", error } as Return;
 		}
-		const result: ResultAny = { is: "Ok", value };
-		return result as Safe<T>;
-	} catch (error) {
-		const result: ResultAny = { is: "Error", error };
-		return result as Safe<T>;
-	}
-}
+	};
 
 // prettier-ignore
-type Safe<T> =
+type Safely<TDiscriminant extends EnumDiscriminant, T> =
 	// handle never
 	[T] extends [never]
-		? Result
+		? Result<TDiscriminant>
  	// handle any
 	: 0 extends 1 & T
-		? Result<unknown, unknown>
+		? Result<TDiscriminant, unknown, unknown>
  	// handle promise
 	: [T] extends [Promise<unknown>]
-		? Promise<Result<Awaited<T>, unknown>>
+		? Promise<Result<TDiscriminant, Awaited<T>, unknown>>
  	// default
-	: Result<T, unknown>;
+	: Result<TDiscriminant, T, unknown>;

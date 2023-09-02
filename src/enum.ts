@@ -22,11 +22,11 @@ export type Enum<
 	TVariants extends EnumVariants
 > =
 	{
-		[TVariantKey in keyof TVariants]-?:
-			TVariants[TVariantKey] extends true
-				? EnumVariantUnit<TDiscriminant, TVariantKey & string>
-			: TVariants[TVariantKey] extends Record<string, unknown>
-				? EnumVariantData<TDiscriminant, TVariantKey & string, TVariants[TVariantKey]>
+		[TKey in keyof TVariants]-?:
+			TVariants[TKey] extends true
+				? EnumVariantUnit<TDiscriminant, TKey & string>
+			: TVariants[TKey] extends Record<string, unknown>
+				? EnumVariantData<TDiscriminant, TKey & string, TVariants[TKey]>
 			: never;
 	}[keyof TVariants];
 
