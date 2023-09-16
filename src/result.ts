@@ -48,9 +48,6 @@ const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 const $user = await getUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
-
-Based on Rust's
-[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
  */
 export type Result<
 	TDiscriminant extends EnumDiscriminant,
