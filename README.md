@@ -338,9 +338,6 @@ const $user = await getUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
 
-Based on Rust's
-[`Result`](https://doc.rust-lang.org/std/result/enum.Result.html) enum.
-
 <br />
 
 ### `Future<TValue?>`
@@ -394,10 +391,6 @@ const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 const $user = useRemoteUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
-
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
 
 #### `Future.Enum<TEnum>`
 

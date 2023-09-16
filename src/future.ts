@@ -48,10 +48,6 @@ const userOrUndefined = $user.is === "Ok" ? $user.value : undefined;
 const $user = useRemoteUser("foo");
 const userOrDefault = $user.is === "Ok" ? $user.value : defaultUser;
 ```
-
-Based on Rust's
-[`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) trait and
-[`Poll`](https://doc.rust-lang.org/std/task/enum.Poll.html) enum.
  */
 export type Future<
 	TDiscriminant extends EnumDiscriminant,
