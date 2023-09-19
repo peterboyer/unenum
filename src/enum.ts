@@ -108,9 +108,7 @@ export type EnumPick<
 	TEnum,
 	TKeys extends EnumKeys<TDiscriminant, TEnum>
 > =
-	TEnum extends Record<TDiscriminant, TKeys>
-		? TEnum
-		: never;
+	Extract<TEnum, Record<TDiscriminant, TKeys>>
 
 /**
 Narrows a given Enum by excluding only the given variants by key.
@@ -129,9 +127,7 @@ export type EnumOmit<
 	TEnum,
 	TKeys extends EnumKeys<TDiscriminant, TEnum>
 > =
-	TEnum extends Record<TDiscriminant, TKeys>
-		? never
-		: TEnum;
+	Exclude<TEnum, Record<TDiscriminant, TKeys>>;
 
 /**
 Merges a union of Enums' variants and properties into a new Enum.
