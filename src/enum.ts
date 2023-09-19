@@ -1,48 +1,36 @@
-/**
-Creates a union of mutually exclusive, discriminable variants.
+export type Enum<TEnum extends Record<string, unknown>> = {
+	[Type in keyof TEnum]: Identity<
+		{ type: Type } & (TEnum[Type] extends true
+			? { data?: never }
+			: { data: TEnum[Type] })
+	>;
+}[keyof TEnum];
 
-@example
-```ts
-import "unenum/global.enum"; // global
-import type { Enum } from "unenum"; // imported
+import type { Equal } from "./testutils";
 
-type Foo = Enum<{
-  A: true;
-  B: { b: string };
-  C: { c: number };
-}>;
--> | { is: "A" }
-   | { is: "B"; b: string }
-   | { is: "C"; c: number }
-```
-*/
-// prettier-ignore
-export type Enum<
-	TDiscriminant extends EnumDiscriminant,
-	TVariants extends EnumVariants
-> =
-	{
-		[TKey in keyof TVariants]-?:
-			TVariants[TKey] extends true
-				? EnumVariantUnit<TDiscriminant, TKey & string>
-			: TVariants[TKey] extends Record<string, unknown>
-				? EnumVariantData<TDiscriminant, TKey & string, TVariants[TKey]>
-			: never;
-	}[keyof TVariants];
-
-export type EnumVariants = Record<string, true | Record<string, unknown>>;
-export type EnumDiscriminant = string;
-
-export type EnumVariantUnit<
-	TDiscriminant extends EnumDiscriminant,
-	TKey extends string
-> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
-
-export type EnumVariantData<
-	TDiscriminant extends EnumDiscriminant,
-	TKey extends string,
-	TData extends Record<string, unknown>
-> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey } & TData>;
+export function Enum<
+	TType extends TEnum extends { type: string } ? TEnum["type"] : string,
+	TData extends TEnum extends { type: TType; data: unknown }
+		? TEnum["data"]
+		: never,
+	TDataUnknown = undefined,
+	TEnum = Identity<
+		{ type: TType } & (TDataUnknown extends undefined
+			? { data?: TDataUnknown }
+			: { data: TDataUnknown })
+	>
+>(
+	type: TType,
+	...args: Equal<TData, never> extends true
+		? Equal<TDataUnknown, undefined> extends true
+			? []
+			: [data?: TDataUnknown]
+		: [data: TData]
+): TEnum {
+	const [data] = args;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return { type, data } as any;
+}
 
 /**
 Infers all variants' keys of the given Enum.
@@ -56,7 +44,7 @@ Enum.Keys<Foo>
 ```
  */
 // prettier-ignore
-export type EnumKeys<TDiscriminant extends EnumDiscriminant, TEnum> =
+export type EnumKeys<TDiscriminant extends string, TEnum> =
 	TEnum extends Record<TDiscriminant, string>
 		? TEnum[TDiscriminant]
 		: never;
@@ -74,7 +62,7 @@ Enum.Unwrap<Foo>
  */
 // prettier-ignore
 export type EnumUnwrap<
-	TDiscriminant extends EnumDiscriminant,
+	TDiscriminant extends string,
 	TEnum
 > =
 	Identity<
