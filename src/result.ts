@@ -9,8 +9,8 @@ export type Result<TValue = never, TError = never> = Enum<{
 		: { value?: never; error: TError };
 }>;
 
-import { from } from "./result/from";
+import { try as _try } from "./result/try";
 
 export const Result = {
-	from,
+	try: _try,
 };
