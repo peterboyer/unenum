@@ -1,4 +1,4 @@
 export { Enum as default } from "./enum";
-export * from "./enum";
-export * from "./async";
-export * from "./result";
+export { Enum } from "./enum";
+export type { Async } from "./async";
+export { Result } from "./result";
