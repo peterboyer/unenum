@@ -1,6 +1,6 @@
-import type { Enum as _Enum } from "./enum";
+import type { Async as _Async } from "./async";
 
 declare global {
 	// @ts-expect-error Duplicates don't exist for consumer.
-	export { _Enum as Enum };
+	export { _Async as Async };
 }

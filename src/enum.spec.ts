@@ -1,13 +1,13 @@
-import type { Expect, Equal } from "./testutils";
-import { match, type Enum } from "./default";
+import type { Expect, Equal } from "./shared/tests";
+import { Enum } from "./enum";
 
 describe("match", () => {
 	type Foo = Enum<{ A: true; B: { b: string }; C: { c: number } }>;
 
-	test("match", () => {
+	test("full", () => {
 		const doMatch = (foo: Foo) =>
-			match(foo, {
-				A: ({ is }) => is === "A",
+			Enum.match(foo, {
+				A: () => true,
 				B: ({ b }) => b,
 				C: ({ c }) => c,
 			});
@@ -17,15 +17,15 @@ describe("match", () => {
 			({}) as [Expect<Equal<typeof result, boolean | number | string>>];
 		};
 
-		expect(doMatch({ is: "A" })).toBe(true);
-		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
-		expect(doMatch({ is: "C", c: 12345 })).toBe(12345);
+		expect(doMatch({ _type: "A" })).toBe(true);
+		expect(doMatch({ _type: "B", b: "abc" })).toBe("abc");
+		expect(doMatch({ _type: "C", c: 12345 })).toBe(12345);
 		expect(() => doMatch({} as Foo)).toThrow();
 	});
 
-	test("match.partial", () => {
+	test("partial", () => {
 		const doMatch = (foo: Foo) =>
-			match.partial(foo, {
+			Enum.match(foo, {
 				B: ({ b }) => b,
 				C: ({ c }) => c,
 				_: () => undefined,
@@ -38,9 +38,9 @@ describe("match", () => {
 			];
 		};
 
-		expect(doMatch({ is: "A" })).toBeUndefined();
-		expect(doMatch({ is: "B", b: "abc" })).toBe("abc");
-		expect(doMatch({ is: "C", c: 12345 })).toBe(12345);
+		expect(doMatch({ _type: "A" })).toBeUndefined();
+		expect(doMatch({ _type: "B", b: "abc" })).toBe("abc");
+		expect(doMatch({ _type: "C", c: 12345 })).toBe(12345);
 		expect(doMatch({} as Foo)).toBeUndefined();
 	});
 });
