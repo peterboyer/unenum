@@ -1,41 +1,26 @@
-import type { Expect, Equal } from "./testutils";
-import type { Result } from "./default";
+import type { Expect, Equal } from "./shared/tests";
+import type { Result } from "./result";
 
 ({}) as [
 	Expect<
 		Equal<
 			Result,
-			| {
-					is: "Ok";
-			  }
-			| {
-					is: "Error";
-			  }
+			| { _type: "Ok"; value?: never; error?: never }
+			| { _type: "Error"; value?: never; error?: never }
 		>
 	>,
 	Expect<
 		Equal<
 			Result<unknown>,
-			| {
-					is: "Ok";
-					value: unknown;
-			  }
-			| {
-					is: "Error";
-			  }
+			| { _type: "Ok"; value: unknown; error?: never }
+			| { _type: "Error"; value?: never; error?: never }
 		>
 	>,
 	Expect<
 		Equal<
 			Result<unknown, unknown>,
-			| {
-					is: "Ok";
-					value: unknown;
-			  }
-			| {
-					is: "Error";
-					error: unknown;
-			  }
+			| { _type: "Ok"; value: unknown; error?: never }
+			| { _type: "Error"; value?: never; error: unknown }
 		>
 	>
 ];

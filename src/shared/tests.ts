@@ -7,7 +7,4 @@ export type Equal<A, B> = (
 	? true
 	: false;
 
-// prettier-ignore
-export type NotEqual<A, B> = Equal<A, B> extends true
-	? false
-	: true;
+export type NotEqual<A, B> = Equal<A, B> extends true ? false : true;

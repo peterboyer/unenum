@@ -1,6 +1,7 @@
 {
 	"private": true,
 	"name": "unenum-test",
+	"type": "module",
 	"devDependencies": {
 		"@tsconfig/recommended": "^1.0.2",
 		"unenum": "file:../dist",

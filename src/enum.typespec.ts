@@ -1,5 +1,5 @@
-import type { Expect, Equal } from "./testutils";
-import type { Enum } from "./default";
+import type { Expect, Equal } from "./shared/tests";
+import type { Enum } from "./enum";
 
 type None = Record<never, never>;
 type Unit = { Unit: true };
@@ -16,15 +16,15 @@ type EGeneric<T> = Enum<Generic<T>>;
 // prettier-ignore
 ({}) as [
 	Expect<Equal<ENone, never>>,
-	Expect<Equal<ENone["is"], never>>,
-	Expect<Equal<EUnit, { is: "Unit" }>>,
-	Expect<Equal<EUnit["is"], "Unit">>,
-	Expect<Equal<EData, { is: "Data"; value: unknown }>>,
-	Expect<Equal<EData["is"], "Data">>,
-	Expect<Equal<EBoth, { is: "Unit" } | { is: "Data"; value: unknown }>>,
-	Expect<Equal<EBoth["is"], "Unit" | "Data">>,
-	Expect<Equal<EGeneric<number>, { is: "Generic"; value: number }>>,
-	Expect<Equal<EGeneric<number>["is"], "Generic">>,
+	Expect<Equal<ENone["_type"], never>>,
+	Expect<Equal<EUnit, { _type: "Unit" }>>,
+	Expect<Equal<EUnit["_type"], "Unit">>,
+	Expect<Equal<EData, { _type: "Data"; value: unknown }>>,
+	Expect<Equal<EData["_type"], "Data">>,
+	Expect<Equal<EBoth, { _type: "Unit" } | { _type: "Data"; value: unknown }>>,
+	Expect<Equal<EBoth["_type"], "Unit" | "Data">>,
+	Expect<Equal<EGeneric<number>, { _type: "Generic"; value: number }>>,
+	Expect<Equal<EGeneric<number>["_type"], "Generic">>,
 
 	Expect<Equal<Enum.Keys<ENone>, never>>,
 	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
@@ -32,11 +32,11 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
 	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
 
-	Expect<Equal<Enum.Unwrap<ENone>, never>>,
-	Expect<Equal<Enum.Unwrap<EUnit>, { Unit: true }>>,
-	Expect<Equal<Enum.Unwrap<EData>, { Data: { value: unknown } }>>,
-	Expect<Equal<Enum.Unwrap<EBoth>, { Unit: true; Data: { value: unknown } }>>,
-	Expect<Equal<Enum.Unwrap<EGeneric<number>>, { Generic: { value: number } }>>,
+	Expect<Equal<Enum.Infer<ENone>, never>>,
+	Expect<Equal<Enum.Infer<EUnit>, { Unit: true }>>,
+	Expect<Equal<Enum.Infer<EData>, { Data: { value: unknown } }>>,
+	Expect<Equal<Enum.Infer<EBoth>, { Unit: true; Data: { value: unknown } }>>,
+	Expect<Equal<Enum.Infer<EGeneric<number>>, { Generic: { value: number } }>>,
 
 	Expect<Equal<Enum.Pick<ENone, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, never>, never>>,
@@ -92,24 +92,24 @@ type EGeneric<T> = Enum<Generic<T>>;
 	>;
 
 	const getState = (): State => {
-		if ("".toString()) return { is: "Left", value: "" };
-		if ("".toString()) return { is: "Right", value: "" };
-		return { is: "None" };
+		if ("".toString()) return { _type: "Left", value: "" };
+		if ("".toString()) return { _type: "Right", value: "" };
+		return { _type: "None" };
 	};
 
 	() => {
 		const $state = getState();
 
-		if ($state.is === "Left") {
-			({}) as [Expect<Equal<typeof $state, { is: "Left"; value: string }>>];
+		if ($state._type === "Left") {
+			({}) as [Expect<Equal<typeof $state, { _type: "Left"; value: string }>>];
 			return;
 		}
-		if ($state.is === "Right") {
-			({}) as [Expect<Equal<typeof $state, { is: "Right"; value: string }>>];
+		if ($state._type === "Right") {
+			({}) as [Expect<Equal<typeof $state, { _type: "Right"; value: string }>>];
 			return;
 		}
-		if ($state.is === "None") {
-			({}) as [Expect<Equal<typeof $state, { is: "None" }>>];
+		if ($state._type === "None") {
+			({}) as [Expect<Equal<typeof $state, { _type: "None" }>>];
 			return;
 		}
 

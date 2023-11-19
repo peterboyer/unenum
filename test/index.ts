@@ -1,5 +1,4 @@
-import type { Enum, Result, Future } from "unenum";
-import { safely, match } from "unenum";
+import { Enum, type Async, Result } from "unenum";
 
 type WebEvent = Enum<{
 	PageLoad: true;
@@ -10,57 +9,57 @@ type WebEvent = Enum<{
 }>;
 
 function getWebEvent(): WebEvent | Enum<{ None: true }> {
-	if ("".toString()) return { is: "PageLoad" };
-	if ("".toString()) return { is: "PageUnload" };
-	if ("".toString()) return { is: "KeyPress", key: "x" };
-	if ("".toString()) return { is: "Paste", content: "..." };
-	if ("".toString()) return { is: "Click", x: 10, y: 10 };
-	return { is: "None" };
+	if ("".toString()) return { _type: "PageLoad" };
+	if ("".toString()) return { _type: "PageUnload" };
+	if ("".toString()) return { _type: "KeyPress", key: "x" };
+	if ("".toString()) return { _type: "Paste", content: "..." };
+	if ("".toString()) return { _type: "Click", x: 10, y: 10 };
+	return { _type: "None" };
 }
 
 function inspect(event: WebEvent): string | undefined {
-	if (event.is === "PageLoad") console.log(event);
-	else if (event.is === "PageUnload") console.log(event);
-	else if (event.is === "KeyPress") console.log(event, event.key);
-	else if (event.is === "Paste") console.log(event, event.content);
-	else if (event.is === "Click") console.log(event, event.x, event.y);
+	if (event._type === "PageLoad") console.log(event);
+	else if (event._type === "PageUnload") console.log(event);
+	else if (event._type === "KeyPress") console.log(event, event.key);
+	else if (event._type === "Paste") console.log(event, event.content);
+	else if (event._type === "Click") console.log(event, event.x, event.y);
 	return "foo";
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return match.partial(event, {
+	return Enum.match(event, {
 		PageLoad: () => "load" as const,
 		PageUnload: () => "unload" as const,
 		_: () => undefined,
 	});
 }
 
-function useFutureResult(): Future.Enum<Result<string, "FooError">> {
-	return { is: "Pending" };
+function useFutureResult(): Async.Enum<Result<string, "FooError">> {
+	return { _type: "Pending" };
 }
 
 function app() {
 	const result = useFutureResult();
-	if (result.is === "Pending") {
+	if (result._type === "Pending") {
 		return;
-	} else if (result.is === "Ok") {
+	} else if (result._type === "Ok") {
 		console.log(result.value);
 		return;
-	} else if (result.is === "Error") {
+	} else if (result._type === "Error") {
 		console.log(result.error);
 		return;
 	}
 
 	const event = getWebEvent();
-	if (event.is === "None") {
+	if (event._type === "None") {
 		return;
 	}
 
 	const eventPageType = getEventPageType(event);
 	console.log(eventPageType);
 
-	const $inspect = safely(() => inspect(event));
-	if ($inspect.is === "Error") {
+	const $inspect = Result.from(() => inspect(event));
+	if ($inspect._type === "Error") {
 		return console.log($inspect.error);
 	}
 	console.log();
