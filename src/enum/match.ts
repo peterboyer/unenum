@@ -5,12 +5,10 @@ import type { Infer } from "./infer";
 
 export const match = <
 	TEnum extends Record<TDiscriminant, DiscriminantAny>,
-	TMatcher extends Partial<{
-		[Key in keyof Infer<TEnum>]: (value: Infer<TEnum>[Key]) => unknown;
-	}>,
-	TDefault extends ((...args: any[]) => any) | ((...args: any[]) => never) = (
-		...args: any[]
-	) => never,
+	TMatcher extends {
+		[Key in keyof Infer<TEnum>]?: (value: Infer<TEnum>[Key]) => unknown;
+	},
+	TDefault extends (() => any) | (() => never) = () => never,
 	TDiscriminant extends DiscriminantAny = DiscriminantDefault
 >(
 	value: TEnum | [TEnum, TDiscriminant],

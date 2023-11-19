@@ -58,7 +58,7 @@ function app() {
 	const eventPageType = getEventPageType(event);
 	console.log(eventPageType);
 
-	const $inspect = Result.from(() => inspect(event));
+	const $inspect = Result.try(() => inspect(event));
 	if ($inspect._type === "Error") {
 		return console.log($inspect.error);
 	}

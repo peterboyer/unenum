@@ -1,24 +1,24 @@
 import type { Result } from "../result";
 
-export const from = <TReturnType>(
-	fn: () => TReturnType
-): Safely<TReturnType> => {
-	type Return = Safely<TReturnType>;
+const _try = <TReturnType>(fn: () => TReturnType): TryResult<TReturnType> => {
+	type TryReturn = TryResult<TReturnType>;
 
 	try {
 		const value = fn();
 		if (value instanceof Promise) {
 			return value
 				.then((value) => ({ _type: "Ok", value }))
-				.catch((error) => ({ _type: "Error", error })) as Return;
+				.catch((error) => ({ _type: "Error", error })) as TryReturn;
 		}
-		return { _type: "Ok", value } as unknown as Return;
+		return { _type: "Ok", value } as unknown as TryReturn;
 	} catch (error) {
-		return { _type: "Error", error } as unknown as Return;
+		return { _type: "Error", error } as unknown as TryReturn;
 	}
 };
 
-type Safely<TReturnType> = [TReturnType] extends [never]
+export { _try as try };
+
+type TryResult<TReturnType> = [TReturnType] extends [never]
 	? Result // when never
 	: 0 extends 1 & TReturnType
 	? Result<unknown, unknown> // when any
