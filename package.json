@@ -20,11 +20,9 @@
 	"types": "./index.d.ts",
 	"exports": {
 		".": "./index.js",
-		"./enum": "./enum.d.ts",
-		"./result": "./result.d.ts",
-		"./future": "./future.d.ts",
-		"./match": "./match.js",
-		"./safely": "./safely.js"
+		"./enum": "./enum.js",
+		"./async": "./async.js",
+		"./result": "./result.js"
 	},
 	"devDependencies": {
 		"@tsconfig/esm": "^1.0.2",
