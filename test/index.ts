@@ -1,4 +1,4 @@
-import { Enum, type Async, Result } from "unenum";
+import { type Enum, match, type Async, type Result, ResultTry } from "unenum";
 
 type WebEvent = Enum<{
 	PageLoad: true;
@@ -27,19 +27,19 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return Enum.match(event, {
+	return match(event)({
 		PageLoad: () => "load" as const,
 		PageUnload: () => "unload" as const,
 		_: () => undefined,
 	});
 }
 
-function useFutureResult(): Async.Enum<Result<string, "FooError">> {
+function useAsyncResult(): Async.Enum<Result<string, "FooError">> {
 	return { _type: "Pending" };
 }
 
 function app() {
-	const result = useFutureResult();
+	const result = useAsyncResult();
 	if (result._type === "Pending") {
 		return;
 	} else if (result._type === "Ok") {
@@ -58,7 +58,7 @@ function app() {
 	const eventPageType = getEventPageType(event);
 	console.log(eventPageType);
 
-	const $inspect = Result.try(() => inspect(event));
+	const $inspect = ResultTry(() => inspect(event));
 	if ($inspect._type === "Error") {
 		return console.log($inspect.error);
 	}

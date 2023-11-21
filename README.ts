@@ -31,6 +31,9 @@
 // Usage
 // =====
 
+// Enum
+// ====
+
 import { type Enum } from "unenum";
 
 // Defining an Enum type.
@@ -127,3 +130,88 @@ const formatFileInformation = (file: File) =>
 void formatFileInformation(fileTextPlain);
 void formatFileInformation(fileImageJpeg);
 void formatFileInformation(fileApplicationJson);
+
+// Result
+// ======
+
+import { type Result } from "unenum";
+
+// Result =>
+// | { _type: "Ok", value?: never, error?: never }
+// | { _type: "Error", value?: never, error?: never }
+
+// Result<User, "NotFound"> =>
+// | { _type: "Ok", value: User, error?: never }
+// | { _type: "Error", value?: never, error: "NotFound" }
+
+// Instantiating a `Result` value.
+// -------------------------------
+// - You may create a `Result` value as an object.
+// - Or you may choose to use the `ResultOk` and `ResultError` helpers.
+
+import { ResultOk, ResultError } from "unenum";
+
+// raw
+void ((): Result => ({ _type: "Ok" }));
+void ((): Result => ({ _type: "Error" }));
+void ((): Result<User, "NotFound"> => ({ _type: "Ok", value: userAnonymous }));
+void ((): Result<User, "NotFound"> => ({ _type: "Error", error: "NotFound" }));
+
+// with helper
+void ((): Result => ResultOk());
+void ((): Result => ResultError());
+void ((): Result<User, "NotFound"> => ResultOk(userAnonymous));
+void ((): Result<User, "NotFound"> => ResultError("NotFound"));
+
+// Return `Result` values instead of throwing.
+// -------------------------------------------
+// - Thrown errors are not type-safe, and aren't part of a function's signature.
+// - Returning an "Error" allows the function's caller to handle it safely.
+
+async function getUser(userId: number): Promise<Result<User, "NotFound">> {
+	const db = {} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+	const user = (await db.query("...", [userId])) as User | undefined;
+
+	if (!user) {
+		return ResultError("NotFound");
+	}
+
+	return ResultOk(user);
+}
+
+// Unwrapping a `Result`.
+// ----------------------
+// - Sometimes I like to prefix `Result` values with $ to reserve the
+//   non-prefixed name, e.g. `$user` (the wrapper) and `user` (the user object).
+
+void (async () => {
+	const $user = await getUser(1);
+
+	// deal with the error
+	if ($user.error) {
+		return;
+	}
+
+	// safely access the narrowed value
+	const { value: user } = $user;
+	void user;
+});
+
+// Usage with `match`.
+// -------------------
+
+void (async () => {
+	const $user = await getUser(1);
+
+	void match($user)({
+		Ok: ({ value: user }) => {
+			const message = match(user)({
+				Authenticated: ({ userId }) => `Hello, user ${userId}!`,
+				_: () => "Hello, stranger!",
+			});
+			console.log(message);
+		},
+		Error: ({ error }) => console.error(error),
+	});
+});
