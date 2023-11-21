@@ -51,3 +51,63 @@ describe("Result.try", () => {
 		({}) as [Expect<Equal<typeof $value, Result<unknown, unknown>>>];
 	});
 });
+
+test("Ok/Error", () => {
+	void function getFoo(): Result<string, "ParseError"> {
+		if (Math.random() === 1) {
+			// @ts-expect-error "1" is not assignable to "ParseError".
+			return Result.Error("1");
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error Expecting an arg.
+			return Result.Error();
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error 1 is not assignable to `string`.
+			return Result.Ok(1);
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error Expecting an arg.
+			return Result.Ok();
+		}
+		if (Math.random() === 1) {
+			return Result.Error("ParseError");
+		}
+		return Result.Ok("1");
+	};
+
+	void async function getFooAsync(): Promise<Result<string, "ParseError">> {
+		if (Math.random() === 1) {
+			// @ts-expect-error "1" is not assignable to "ParseError".
+			return Result.Error("1");
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error Expecting an arg.
+			return Result.Error();
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error 1 is not assignable to `string`.
+			return Result.Ok(1);
+		}
+		if (Math.random() === 1) {
+			// @ts-expect-error Expecting an arg.
+			return Result.Ok();
+		}
+		if (Math.random() === 1) {
+			return Result.Error("ParseError");
+		}
+		return Result.Ok("");
+	};
+
+	void function getResult(): Result {
+		if (Math.random() === 1) {
+			return Result.Error();
+		}
+		return Result.Ok();
+	};
+
+	void function getAnything(): string {
+		// @ts-expect-error Not assignable to return type.
+		return Result.Ok();
+	};
+});
