@@ -28,9 +28,6 @@
 // 2. Install dependencies: `npm install` or `yarn install`.
 // 3. Jump in!
 
-// Usage
-// =====
-
 // Enum
 // ====
 
@@ -43,10 +40,8 @@ type User = Enum<{
 	Anonymous: true;
 	Authenticated: { userId: string };
 }>;
-
-// User =
-//   | { _type: "Anonymous" }
-//   | { _type: "Authenticated", userId: string }
+// | { _type: "Anonymous" }
+// | { _type: "Authenticated", userId: string }
 
 // Using an `Enum` type.
 // ---------------------
@@ -106,11 +101,9 @@ type File = Enum<
 	},
 	"mime" // <-- custom discriminant
 >;
-
-// File =
-//   | { "mime": "text/plain", ... }
-//   | { "mime": "image/jpeg", ... }
-//   | { "mime": "application/json", ... }
+// | { "mime": "text/plain", ... }
+// | { "mime": "image/jpeg", ... }
+// | { "mime": "application/json", ... }
 
 const fileTextPlain: File = { mime: "text/plain", data: "..." };
 const fileImageJpeg: File = { mime: "image/jpeg", data: Buffer.from("...") };
@@ -136,11 +129,11 @@ void formatFileInformation(fileApplicationJson);
 
 import { type Result } from "unenum";
 
-// Result =>
+// Result
 // | { _type: "Ok", value?: never, error?: never }
 // | { _type: "Error", value?: never, error?: never }
 
-// Result<User, "NotFound"> =>
+// Result<User, "NotFound">
 // | { _type: "Ok", value: User, error?: never }
 // | { _type: "Error", value?: never, error: "NotFound" }
 
@@ -182,8 +175,8 @@ async function getUser(userId: number): Promise<Result<User, "NotFound">> {
 
 // Unwrapping a `Result`.
 // ----------------------
-// - Sometimes I like to prefix `Result` values with $ to reserve the
-//   non-prefixed name, e.g. `$user` (the wrapper) and `user` (the user object).
+// - Often I like to prefix `Result` values with $ to reserve the non-prefixed
+//   name, e.g. `$user` (the wrapper) and `user` (the user object).
 
 void (async () => {
 	const $user = await getUser(1);
