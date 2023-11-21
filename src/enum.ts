@@ -15,6 +15,7 @@ export type Enum<
 // Primitives
 
 export type {
+	EnumAny,
 	VariantKeyAny,
 	VariantUnitValueAny,
 	VariantDataValueAny,
@@ -43,9 +44,3 @@ export namespace Enum {
 	export type Omit<TEnum, TKeys extends Keys<TEnum, TDiscriminant>, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Omit<TEnum, TKeys, TDiscriminant>
 	export type Pick<TEnum, TKeys extends Keys<TEnum, TDiscriminant>, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Pick<TEnum, TKeys, TDiscriminant>
 }
-
-import { match } from "./enum/match";
-
-export const Enum = {
-	match,
-};

@@ -24,12 +24,14 @@
 // ==========
 
 // This README is a valid TypeScript file!
-// Clone this repo, `npm install | yarn install` the dependencies and jump in!
+// 1. Clone this repo: `git clone git@github.com:peterboyer/unenum.git`.
+// 2. Install dependencies: `npm install` or `yarn install`.
+// 3. Jump in!
 
 // Usage
 // =====
 
-import { Enum } from "unenum";
+import { type Enum } from "unenum";
 
 // Defining an Enum type.
 // ----------------------
@@ -43,8 +45,8 @@ type User = Enum<{
 //   | { _type: "Anonymous" }
 //   | { _type: "Authenticated", userId: string }
 
-// Using an Enum type.
-// -------------------
+// Using an `Enum` type.
+// ---------------------
 
 function formatUserStatus(user: User): string {
 	if (user._type === "Authenticated") {
@@ -53,8 +55,8 @@ function formatUserStatus(user: User): string {
 	return "User is not logged in.";
 }
 
-// Instantiating an Enum value.
-// ----------------------------
+// Instantiating an `Enum` value.
+// ------------------------------
 
 const userAnonymous: User = { _type: "Anonymous" };
 const userAuthenticated: User = { _type: "Authenticated", userId: "1" };
@@ -62,11 +64,13 @@ const userAuthenticated: User = { _type: "Authenticated", userId: "1" };
 void formatUserStatus(userAnonymous);
 void formatUserStatus(userAuthenticated);
 
-// Using the Enum.match utility.
-// -----------------------------
+// Using the `match` utility.
+// --------------------------
+
+import { match } from "unenum";
 
 const formatUserStatusWithMatch = (user: User): string =>
-	Enum.match(user)({
+	match(user)({
 		// case
 		Authenticated: ({ userId }) => `User is logged in as ${userId}.`,
 		// default
@@ -76,12 +80,12 @@ const formatUserStatusWithMatch = (user: User): string =>
 void formatUserStatusWithMatch(userAnonymous);
 void formatUserStatusWithMatch(userAuthenticated);
 
-// Strict Enum.match.
-// ------------------
+// Strict `match`.
+// ---------------
 // - Useful if you want to ensure that all future cases are explicitly handled.
 
 void ((user: User): string =>
-	Enum.match(user)({
+	match(user)({
 		Anonymous: () => "User is not logged in.",
 		Authenticated: ({ userId }) => `User is logged in as ${userId}.`,
 		// annotate that the fallback case is not wanted
@@ -110,7 +114,7 @@ const fileImageJpeg: File = { mime: "image/jpeg", data: Buffer.from("...") };
 const fileApplicationJson: File = { mime: "application/json", object: {} };
 
 const formatFileInformation = (file: File) =>
-	Enum.match(
+	match(
 		file,
 		"mime" // <-- custom discriminant
 	)({

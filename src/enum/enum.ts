@@ -11,6 +11,11 @@ export type Enum<
 		: never;
 }[keyof TVariants];
 
+export type EnumAny<TDiscriminant extends DiscriminantAny> = Record<
+	TDiscriminant,
+	string
+>;
+
 export type VariantKeyAny = string;
 
 export type VariantUnitValueAny = true;
