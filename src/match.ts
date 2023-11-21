@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { DiscriminantAny, DiscriminantDefault } from "./enum";
-import type { Infer } from "./infer";
-
-// ---
-
-type EnumAny<TDiscriminant extends DiscriminantAny> = Record<
-	TDiscriminant,
-	string
->;
+import type { EnumAny, DiscriminantDefault } from "./enum";
+import type { Enum } from "./enum";
 
 export const match =
 	<
@@ -21,12 +14,12 @@ export const match =
 	) =>
 	<
 		TEnumMatcher extends {
-			[Key in keyof Infer<TEnum, TDiscriminant>]: Infer<
+			[Key in keyof Enum.Infer<TEnum, TDiscriminant>]: Enum.Infer<
 				TEnum,
 				TDiscriminant
 			>[Key] extends true
 				? () => unknown
-				: (value: Infer<TEnum, TDiscriminant>[Key]) => unknown;
+				: (value: Enum.Infer<TEnum, TDiscriminant>[Key]) => unknown;
 		},
 		TMatcher extends TFallback extends () => unknown
 			? [ReturnType<TFallback>] extends [never]
@@ -37,15 +30,25 @@ export const match =
 	>(
 		matcher: TMatcher & { _?: TFallback }
 	): {
-		_: {
-			[Key in keyof TMatcher]: TMatcher[Key] extends (...args: any[]) => any
-				? ReturnType<TMatcher[Key]>
-				: never;
-		}[keyof TMatcher];
+		_:
+			| (undefined extends TMatcher[Exclude<keyof TMatcher, "_">]
+					? never
+					: {
+							[Key in keyof TMatcher]: TMatcher[Key] extends (
+								...args: any[]
+							) => any
+								? ReturnType<TMatcher[Key]>
+								: never;
+					  }[keyof TMatcher])
+			| (TFallback extends (...args: any[]) => any
+					? ReturnType<TFallback>
+					: never);
+		// debug
 		$: {
 			matcher: TMatcher;
 			fallback: TFallback;
-			keyofTEnum: keyof Infer<TEnum, TDiscriminant>;
+			discriminant: TDiscriminant;
+			keyofTEnum: keyof TEnum;
 			keyofTEnumMatcher: keyof TEnumMatcher;
 			keyofTMatcher: keyof TMatcher;
 		};
