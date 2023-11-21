@@ -13,7 +13,7 @@ tsc --project tsconfig.build.json \
 	--outDir dist
 
 # package
-cp package.json LICENSE README.md dist
+cp package.json LICENSE README.ts dist
 dot-json dist/package.json scripts --delete
 dot-json dist/package.json devDependencies --delete
 
