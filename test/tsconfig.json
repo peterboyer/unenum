@@ -2,6 +2,9 @@
 	"extends": "@tsconfig/recommended",
 	"include": ["index.ts"],
 	"compilerOptions": {
-		"noEmit": true
+		"noEmit": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"verbatimModuleSyntax": true
 	}
 }

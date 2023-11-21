@@ -11,19 +11,13 @@
 		"lint": "./scripts/lint.sh",
 		"lint:ts": "./scripts/lint-ts.sh",
 		"build": "./scripts/build.sh",
-		"all": "yarn lint && yarn lint:ts && yarn build && yarn test && yarn test:e2e",
+		"all": "yarn lint && yarn lint:ts && yarn test && yarn build && yarn test:e2e",
 		"docs": "npx markserv README.md"
 	},
 	"type": "module",
 	"main": "./index.js",
-	"module": "./index.js",
 	"types": "./index.d.ts",
-	"exports": {
-		".": "./index.js",
-		"./enum": "./enum.js",
-		"./async": "./async.js",
-		"./result": "./result.js"
-	},
+	"exports": "./index.js",
 	"devDependencies": {
 		"@tsconfig/esm": "^1.0.2",
 		"@tsconfig/strictest": "^2.0.0",
