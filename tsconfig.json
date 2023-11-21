@@ -1,10 +1,13 @@
 {
 	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
-	"include": ["src"],
+	"include": ["src", "README.ts"],
 	"exclude": ["src/global.*"],
 	"compilerOptions": {
 		"noEmit": true,
 		"skipLibCheck": false,
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"paths": {
+			"unenum": ["./src/index.ts"]
+		}
 	}
 }
