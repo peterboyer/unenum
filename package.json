@@ -12,7 +12,9 @@
 		"lint:ts": "./scripts/lint-ts.sh",
 		"build": "./scripts/build.sh",
 		"all": "yarn lint && yarn lint:ts && yarn test && yarn build && yarn test:e2e",
-		"docs": "npx markserv README.md"
+		"docs": "concurrently \"npx markserv README.md\" \"yarn docs:watch\"",
+		"docs:build": "./scripts/docs-build.sh",
+		"docs:watch": "chokidar README.ts -c \"yarn docs:build\""
 	},
 	"type": "module",
 	"main": "./index.js",
@@ -24,6 +26,7 @@
 		"@types/jest": "^29.4.1",
 		"@typescript-eslint/eslint-plugin": "^5.57.1",
 		"@typescript-eslint/parser": "^5.57.1",
+		"chokidar-cli": "^3.0.0",
 		"concurrently": "^8.0.1",
 		"dot-json": "^1.2.2",
 		"esbuild": "^0.17.15",
