@@ -3,8 +3,8 @@ import type { Infer as _Infer } from "./enum/infer";
 import type { Keys as _Keys } from "./enum/keys";
 import type { Pick as _Pick } from "./enum/pick";
 import type { Omit as _Omit } from "./enum/omit";
-import type { Merge as _Merge } from "./enum/merge";
 import type { Extend as _Extend } from "./enum/extend";
+import type { Merge as _Merge } from "./enum/merge";
 
 export type Enum<
 	TVariants extends Enum.Variants,
@@ -52,35 +52,35 @@ export namespace Enum {
 	}
 
 	export type Infer<
-		TEnum,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TDiscriminant extends Discriminant = Discriminant.Default
 	> = _Infer<TEnum, TDiscriminant>;
 
 	export type Keys<
-		TEnum,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TDiscriminant extends Discriminant = Discriminant.Default
 	> = _Keys<TEnum, TDiscriminant>;
 
 	export type Pick<
-		TEnum,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TKeys extends Keys<TEnum, TDiscriminant>,
 		TDiscriminant extends Discriminant = Discriminant.Default
 	> = _Pick<TEnum, TKeys, TDiscriminant>;
 
 	export type Omit<
-		TEnum,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TKeys extends Keys<TEnum, TDiscriminant>,
 		TDiscriminant extends Discriminant = Discriminant.Default
 	> = _Omit<TEnum, TKeys, TDiscriminant>;
 
-	export type Merge<
-		TEnums,
-		TDiscriminant extends Discriminant = Discriminant.Default
-	> = _Merge<TEnums, TDiscriminant>;
-
 	export type Extend<
-		TEnum,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TVariants extends Variants,
 		TDiscriminant extends Discriminant = Discriminant.Default
 	> = _Extend<TEnum, TVariants, TDiscriminant>;
+
+	export type Merge<
+		TEnums extends Enum.Any<TDiscriminant>,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Merge<TEnums, TDiscriminant>;
 }

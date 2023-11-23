@@ -26,17 +26,17 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<EGeneric<number>, { _type: "Generic"; value: number }>>,
 	Expect<Equal<EGeneric<number>["_type"], "Generic">>,
 
-	Expect<Equal<Enum.Keys<ENone>, never>>,
-	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
-	Expect<Equal<Enum.Keys<EData>, "Data">>,
-	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
-	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
-
 	Expect<Equal<Enum.Infer<ENone>, never>>,
 	Expect<Equal<Enum.Infer<EUnit>, { Unit: true }>>,
 	Expect<Equal<Enum.Infer<EData>, { Data: { value: unknown } }>>,
 	Expect<Equal<Enum.Infer<EBoth>, { Unit: true; Data: { value: unknown } }>>,
 	Expect<Equal<Enum.Infer<EGeneric<number>>, { Generic: { value: number } }>>,
+
+	Expect<Equal<Enum.Keys<ENone>, never>>,
+	Expect<Equal<Enum.Keys<EUnit>, "Unit">>,
+	Expect<Equal<Enum.Keys<EData>, "Data">>,
+	Expect<Equal<Enum.Keys<EBoth>, "Unit" | "Data">>,
+	Expect<Equal<Enum.Keys<EGeneric<number>>, "Generic">>,
 
 	Expect<Equal<Enum.Pick<ENone, never>, never>>,
 	Expect<Equal<Enum.Pick<EUnit, never>, never>>,

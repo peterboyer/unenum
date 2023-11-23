@@ -1,15 +1,16 @@
 import type { Enum } from "../enum";
-import type { Infer } from "./infer";
 import type { Identity } from "./shared/identity";
 import type { Intersect } from "./shared/intersect";
 
 export type Merge<
-	TEnums,
+	TEnums extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
 > = Enum<
 	TrueOrObj<
 		Intersect<
-			TrueAsEmpty<TEnums extends unknown ? Infer<TEnums, TDiscriminant> : never>
+			TrueAsEmpty<
+				TEnums extends unknown ? Enum.Infer<TEnums, TDiscriminant> : never
+			>
 		>
 	>,
 	TDiscriminant

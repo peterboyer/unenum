@@ -1,6 +1,6 @@
 import type { Enum } from "../enum";
 
 export type Keys<
-	TEnum,
+	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
-> = TEnum extends Record<TDiscriminant, string> ? TEnum[TDiscriminant] : never;
+> = TEnum[TDiscriminant];
