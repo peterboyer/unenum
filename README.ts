@@ -3,7 +3,18 @@
  * | | |   | -_|   | | |     |
  * |___|_|_|___|_|_|___|_|_|_|
  *
- * A TypeScript ADT utility that can be completely compiled away.
+ * Universal ADT utilities for TypeScript.
+ *
+ * - produces simple and portable discriminated union types.
+ * - all types can be compiled away, with zero-cost to bundle size.
+ * - includes primitives like `Result` to improve function error-handling.
+ * - includes general helpers to pick/omit/merge/extend/infer variants.
+ * - *includes optional runtime helpers like `match` and `ResultTry`.
+ *
+ * Read more:
+ * - wikipedia.org/wiki/Tagged_union
+ * - wikipedia.org/wiki/Algebraic_data_type
+ * - wikipedia.org/wiki/Comparison_of_programming_languages_(algebraic_data_type)
  *
  */
 
