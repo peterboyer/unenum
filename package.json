@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"author": "Peter Boyer <https://github.com/peterboyer>",
 	"repository": "github:peterboyer/unenum",
-	"description": "0kb Rust-like ADT/Enums for TypeScript.",
+	"description": "Universal ADT utilities for TypeScript.",
 	"scripts": {
 		"test": "./scripts/test.sh",
 		"test:e2e": "./scripts/test-e2e.sh",
