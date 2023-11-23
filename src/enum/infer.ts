@@ -1,10 +1,10 @@
-import type { DiscriminantAny, DiscriminantDefault } from "./enum";
+import type { Enum } from "../enum";
 import type { Identity } from "./shared/identity";
 import type { Intersect } from "./shared/intersect";
 
 export type Infer<
 	TEnum,
-	TDiscriminant extends DiscriminantAny = DiscriminantDefault
+	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
 > = Identity<
 	Intersect<
 		TEnum extends Record<TDiscriminant, string>

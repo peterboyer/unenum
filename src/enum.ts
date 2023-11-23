@@ -1,46 +1,86 @@
-import type {
-	Enum as _Enum,
-	VariantsAny,
-	DiscriminantAny,
-	DiscriminantDefault,
-} from "./enum/enum";
-
-// Enum
-
-export type Enum<
-	TVariants extends VariantsAny,
-	TDiscriminant extends DiscriminantAny = DiscriminantDefault
-> = _Enum<TVariants, TDiscriminant>;
-
-// Primitives
-
-export type {
-	EnumAny,
-	VariantKeyAny,
-	VariantUnitValueAny,
-	VariantDataValueAny,
-	VariantsAny,
-	DiscriminantAny,
-	DiscriminantDefault,
-	VariantUnit,
-	VariantData,
-} from "./enum/enum";
-
-import type { Extend as _Extend } from "./enum/extend";
+import type { Identity } from "./enum/shared/identity";
 import type { Infer as _Infer } from "./enum/infer";
 import type { Keys as _Keys } from "./enum/keys";
-import type { Merge as _Merge } from "./enum/merge";
-import type { Omit as _Omit } from "./enum/omit";
 import type { Pick as _Pick } from "./enum/pick";
+import type { Omit as _Omit } from "./enum/omit";
+import type { Merge as _Merge } from "./enum/merge";
+import type { Extend as _Extend } from "./enum/extend";
 
-// Utils
+export type Enum<
+	TVariants extends Enum.Variants,
+	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
+> = {
+	[TKey in keyof TVariants]-?: TVariants[TKey] extends Enum.Variants.VariantUnitValueAny
+		? Enum.Variants.VariantUnit<TKey & string, TDiscriminant>
+		: TVariants[TKey] extends Enum.Variants.VariantDataValueAny
+		? Enum.Variants.VariantData<TKey & string, TVariants[TKey], TDiscriminant>
+		: never;
+}[keyof TVariants];
 
-// prettier-ignore
 export namespace Enum {
-	export type Extend<TEnum, TVariants extends VariantsAny, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Extend<TEnum, TVariants, TDiscriminant>
-	export type Infer<TEnum, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Infer<TEnum, TDiscriminant>;
-	export type Keys<TEnum, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Keys<TEnum, TDiscriminant>;
-	export type Merge<TEnums, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Merge<TEnums, TDiscriminant>
-	export type Omit<TEnum, TKeys extends Keys<TEnum, TDiscriminant>, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Omit<TEnum, TKeys, TDiscriminant>
-	export type Pick<TEnum, TKeys extends Keys<TEnum, TDiscriminant>, TDiscriminant extends DiscriminantAny = DiscriminantDefault> = _Pick<TEnum, TKeys, TDiscriminant>
+	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
+		Record<TDiscriminant, string>;
+
+	export type Discriminant = string;
+
+	export namespace Discriminant {
+		export type Default = "_type";
+	}
+
+	export type Variants = Record<
+		Variants.VariantKeyAny,
+		Variants.VariantUnitValueAny | Variants.VariantDataValueAny
+	>;
+
+	export namespace Variants {
+		export type VariantKeyAny = string;
+
+		export type VariantUnitValueAny = true;
+
+		export type VariantDataValueAny = Record<string, unknown>;
+
+		export type VariantUnit<
+			TKey extends VariantKeyAny,
+			TDiscriminant extends Enum.Discriminant
+		> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
+
+		export type VariantData<
+			TKey extends VariantKeyAny,
+			TData extends VariantDataValueAny,
+			TDiscriminant extends Enum.Discriminant
+		> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey } & TData>;
+	}
+
+	export type Infer<
+		TEnum,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Infer<TEnum, TDiscriminant>;
+
+	export type Keys<
+		TEnum,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Keys<TEnum, TDiscriminant>;
+
+	export type Pick<
+		TEnum,
+		TKeys extends Keys<TEnum, TDiscriminant>,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Pick<TEnum, TKeys, TDiscriminant>;
+
+	export type Omit<
+		TEnum,
+		TKeys extends Keys<TEnum, TDiscriminant>,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Omit<TEnum, TKeys, TDiscriminant>;
+
+	export type Merge<
+		TEnums,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Merge<TEnums, TDiscriminant>;
+
+	export type Extend<
+		TEnum,
+		TVariants extends Variants,
+		TDiscriminant extends Discriminant = Discriminant.Default
+	> = _Extend<TEnum, TVariants, TDiscriminant>;
 }

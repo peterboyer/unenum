@@ -1,11 +1,11 @@
-import type { Enum, DiscriminantAny, DiscriminantDefault } from "./enum";
+import type { Enum } from "../enum";
 import type { Infer } from "./infer";
 import type { Identity } from "./shared/identity";
 import type { Intersect } from "./shared/intersect";
 
 export type Merge<
 	TEnums,
-	TDiscriminant extends DiscriminantAny = DiscriminantDefault
+	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
 > = Enum<
 	TrueOrObj<
 		Intersect<
