@@ -1,4 +1,4 @@
-import type { Enum, EnumAny } from "./enum";
+import type { Enum } from "./enum";
 
 export type Async<TValue = never> = Enum<{
 	Pending: true;
@@ -6,7 +6,7 @@ export type Async<TValue = never> = Enum<{
 }>;
 
 export namespace Async {
-	export type Enum<TEnum extends EnumAny> = Enum.Extend<
+	export type Enum<TEnum extends Enum.Any> = Enum.Extend<
 		TEnum,
 		{ Pending: true }
 	>;

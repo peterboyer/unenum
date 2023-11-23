@@ -1,8 +1,8 @@
-import type { DiscriminantAny, DiscriminantDefault } from "./enum";
+import type { Enum } from "../enum";
 import type { Keys } from "./keys";
 
 export type Pick<
 	TEnum,
 	TKeys extends Keys<TEnum, TDiscriminant>,
-	TDiscriminant extends DiscriminantAny = DiscriminantDefault
+	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
 > = Extract<TEnum, Record<TDiscriminant, TKeys>>;

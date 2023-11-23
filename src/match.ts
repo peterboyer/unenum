@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { EnumAny, DiscriminantDefault } from "./enum";
 import type { Enum } from "./enum";
 
 export const match =
 	<
-		TEnum extends EnumAny<TDiscriminant>,
+		TEnum extends Enum.Any<TDiscriminant>,
 		TDiscriminant extends keyof TEnum & string = keyof TEnum &
-			DiscriminantDefault
+			Enum.Discriminant.Default
 	>(
 		value: TEnum,
 		discriminant: TDiscriminant = "_type" as TDiscriminant
