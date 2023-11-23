@@ -3,16 +3,15 @@ import type { Identity } from "./shared/identity";
 import type { Intersect } from "./shared/intersect";
 
 export type Infer<
-	TEnum,
+	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
 > = Identity<
 	Intersect<
-		TEnum extends Record<TDiscriminant, string>
+		TEnum extends unknown
 			? {
-					[key in TEnum[TDiscriminant]]: Exclude<
-						keyof TEnum,
-						TDiscriminant
-					> extends never
+					[Key in TEnum[TDiscriminant]]: [
+						Exclude<keyof TEnum, TDiscriminant>
+					] extends [never]
 						? true
 						: Identity<Omit<TEnum, TDiscriminant>>;
 			  }

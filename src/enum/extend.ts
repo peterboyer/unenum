@@ -1,8 +1,7 @@
 import type { Enum } from "../enum";
-import type { Merge } from "./merge";
 
 export type Extend<
-	TEnum,
+	TEnum extends Enum.Any<TDiscriminant>,
 	TVariants extends Enum.Variants,
 	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
-> = Merge<TEnum | Enum<TVariants, TDiscriminant>, TDiscriminant>;
+> = Enum.Merge<TEnum | Enum<TVariants, TDiscriminant>, TDiscriminant>;
