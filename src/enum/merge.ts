@@ -1,6 +1,6 @@
 import type { Enum } from "../enum";
-import type { Identity } from "./shared/identity";
-import type { Intersect } from "./shared/intersect";
+import type { Identity } from "../shared/identity";
+import type { Intersect } from "../shared/intersect";
 
 export type Merge<
 	TEnums extends Enum.Any<TDiscriminant>,

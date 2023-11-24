@@ -1,4 +1,4 @@
-import type { Identity } from "./enum/shared/identity";
+import type { Identity } from "./shared/identity";
 import type { Infer as _Infer } from "./enum/infer";
 import type { Keys as _Keys } from "./enum/keys";
 import type { Pick as _Pick } from "./enum/pick";
