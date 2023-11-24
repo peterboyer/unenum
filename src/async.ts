@@ -1,7 +1,7 @@
 import type { Enum } from "./enum";
 
 export type Async<TValue = never> = Enum<{
-	Pending: true;
+	Pending: [TValue] extends [never] ? true : { value?: never };
 	Ready: [TValue] extends [never] ? true : { value: TValue };
 }>;
 
