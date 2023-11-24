@@ -11,3 +11,15 @@ export namespace Async {
 		{ Pending: true }
 	>;
 }
+
+export const AsyncPending = <TAsync>(): [
+	Extract<TAsync, { _type: "Pending" }>
+] extends [never]
+	? { _type: "Pending" }
+	: TAsync => ({ _type: "Pending" } as any);
+
+export const AsyncReady = <TAsync>(
+	...args: TAsync extends { error: unknown } ? [TAsync["error"]] : never
+): [Extract<TAsync, { _type: "Ready" }>] extends [never]
+	? { _type: "Ready" }
+	: TAsync => ({ _type: "Ready", value: args[0] } as any);
