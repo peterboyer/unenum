@@ -7,7 +7,7 @@ import type { Result } from "./result";
 	Expect<
 		Equal<
 			Async<boolean>,
-			{ _type: "Pending" } | { _type: "Ready"; value: boolean }
+			{ _type: "Pending"; value?: never } | { _type: "Ready"; value: boolean }
 		>
 	>,
 	Expect<
