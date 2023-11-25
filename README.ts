@@ -91,18 +91,18 @@ void ({} as [
 	Enum.Root<Signal>, // { Red: true, Yellow: true; Green: true }
 
 	// Keys of variants
-	Enum.Keys<Signal>, // "Red" | "Green" | "Blue"
+	Enum.Keys<Signal>, // "Red" | "Yellow" | "Green"
 
 	// Pick subset of variants
 	Enum.Pick<Signal, "Red">, // Red
-	Enum.Pick<Signal, "Red" | "Green">, // Red | Green
+	Enum.Pick<Signal, "Red" | "Yellow">, // Red | Yellow
 
 	// Omit subset of variants
-	Enum.Omit<Signal, "Red">, // Green | Blue
-	Enum.Omit<Signal, "Red" | "Green">, // Blue
+	Enum.Omit<Signal, "Red">, // Yellow | Green
+	Enum.Omit<Signal, "Red" | "Yellow">, // Green
 
 	// Extend with new variants
-	Enum.Extend<Signal, { Yellow: true }>, // Red | Green | Blue | Yellow
+	Enum.Extend<Signal, { Flashing: true }>, // Red | Yellow | Green | Flashing
 
 	// Root definition of variants
 	Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>> // Left | Right
