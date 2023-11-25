@@ -5,12 +5,12 @@ import type { Enum } from "./enum";
 export const match = <
 	TEnum extends Enum.Any<TDiscriminant>,
 	TEnumMatcher extends {
-		[Key in keyof Enum.Infer<TEnum, TDiscriminant>]: Enum.Infer<
+		[Key in keyof Enum.Root<TEnum, TDiscriminant>]: Enum.Root<
 			TEnum,
 			TDiscriminant
 		>[Key] extends true
 			? () => unknown
-			: (value: Enum.Infer<TEnum, TDiscriminant>[Key]) => unknown;
+			: (value: Enum.Root<TEnum, TDiscriminant>[Key]) => unknown;
 	},
 	TMatcher extends TFallback extends () => unknown
 		? [ReturnType<TFallback>] extends [never]

@@ -1,21 +1,21 @@
 import type { Expect, Equal } from "./shared/tests";
-import { type Result, ResultTry, ResultOk, ResultError } from "./result";
+import { Result } from "./result";
 
-describe("ResultTry", () => {
+describe("Result.try", () => {
 	it("should handle value", () => {
-		const $value = ResultTry((): string => "foo");
+		const $value = Result.try((): string => "foo");
 		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle union value", () => {
-		const $value = ResultTry(() => "foo" as string | undefined);
+		const $value = Result.try(() => "foo" as string | undefined);
 		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle error", () => {
-		const $value = ResultTry(() => {
+		const $value = Result.try(() => {
 			throw new TypeError("bar");
 		});
 		({}) as [Expect<Equal<typeof $value, Result>>];
@@ -23,13 +23,13 @@ describe("ResultTry", () => {
 	});
 
 	it("should handle promise value", async () => {
-		const $value = await ResultTry(() => (async () => "foo")());
+		const $value = await Result.try(() => (async () => "foo")());
 		({}) as [Expect<Equal<typeof $value, Result<string, unknown>>>];
 		expect($value).toMatchObject({ _type: "Ok", value: "foo" });
 	});
 
 	it("should handle promise union value", async () => {
-		const $value = await ResultTry(() =>
+		const $value = await Result.try(() =>
 			(async () => "foo" as string | undefined)()
 		);
 		({}) as [Expect<Equal<typeof $value, Result<string | undefined, unknown>>>];
@@ -37,7 +37,7 @@ describe("ResultTry", () => {
 	});
 
 	it("should handle promise error", async () => {
-		const $value = await ResultTry(() =>
+		const $value = await Result.try(() =>
 			(async () => {
 				throw new TypeError("bar");
 			})()
@@ -47,7 +47,7 @@ describe("ResultTry", () => {
 	});
 
 	it("should handle any as unknown", () => {
-		const $value = ResultTry(() => JSON.parse(""));
+		const $value = Result.try(() => JSON.parse(""));
 		({}) as [Expect<Equal<typeof $value, Result<unknown, unknown>>>];
 	});
 });
@@ -56,58 +56,58 @@ test("Ok/Error", () => {
 	void function getFoo(): Result<string, "ParseError"> {
 		if (Math.random() === 1) {
 			// @ts-expect-error "1" is not assignable to "ParseError".
-			return ResultError("1");
+			return Result.Error("1");
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error Expecting an arg.
-			return ResultError();
+			return Result.Error();
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error 1 is not assignable to `string`.
-			return ResultOk(1);
+			return Result.Ok(1);
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error Expecting an arg.
-			return ResultOk();
+			return Result.Ok();
 		}
 		if (Math.random() === 1) {
-			return ResultError("ParseError");
+			return Result.Error("ParseError");
 		}
-		return ResultOk("1");
+		return Result.Ok("1");
 	};
 
 	void async function getFooAsync(): Promise<Result<string, "ParseError">> {
 		if (Math.random() === 1) {
 			// @ts-expect-error "1" is not assignable to "ParseError".
-			return ResultError("1");
+			return Result.Error("1");
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error Expecting an arg.
-			return ResultError();
+			return Result.Error();
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error 1 is not assignable to `string`.
-			return ResultOk(1);
+			return Result.Ok(1);
 		}
 		if (Math.random() === 1) {
 			// @ts-expect-error Expecting an arg.
-			return ResultOk();
+			return Result.Ok();
 		}
 		if (Math.random() === 1) {
-			return ResultError("ParseError");
+			return Result.Error("ParseError");
 		}
-		return ResultOk("");
+		return Result.Ok("");
 	};
 
 	void function getResult(): Result {
 		if (Math.random() === 1) {
-			return ResultError();
+			return Result.Error();
 		}
-		return ResultOk();
+		return Result.Ok();
 	};
 
 	void function getAnything(): string {
 		// @ts-expect-error Not assignable to return type.
-		return ResultOk();
+		return Result.Ok();
 	};
 });

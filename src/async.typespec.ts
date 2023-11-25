@@ -12,7 +12,7 @@ import type { Result } from "./result";
 	>,
 	Expect<
 		Equal<
-			Async.Enum<Result>,
+			Async<Result>,
 			| { _type: "Pending" }
 			| { _type: "Ok"; value?: never; error?: never }
 			| { _type: "Error"; value?: never; error?: never }
