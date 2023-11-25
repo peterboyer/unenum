@@ -69,31 +69,16 @@ type User = Enum<{
 
 /*
  *
- * Creating an Enum value.
+ * Instantiating an Enum value.
  *
  * - Enum values are simple objects.
- * - You may write them explicitly with `{ ... }` object notation.
  *
  */
 
 {
 	const userAnonymous: User = { _type: "Anonymous" };
 	const userAuthenticated: User = { _type: "Authenticated", userId: "1" };
-	void [userAnonymous, userAuthenticated];
-}
 
-/*
- *
- * Using `Value`.
- *
- * - Or you may prefer the `Value` Enum value builder.
- *
- */
-
-import { Value } from "unenum";
-{
-	const userAnonymous: User = Value("Anonymous");
-	const userAuthenticated: User = Value("Authenticated", { userId: "1" });
 	void [userAnonymous, userAuthenticated];
 }
 
@@ -113,6 +98,7 @@ import { Value } from "unenum";
 		}
 		return "User is not logged in.";
 	};
+
 	void [formatUserStatus];
 }
 
@@ -127,12 +113,13 @@ import { Value } from "unenum";
 import { match } from "unenum";
 {
 	const formatUserStatus = (user: User): string =>
-		match(user)({
+		match(user, {
 			// case
 			Authenticated: ({ userId }) => `User is logged in as ${userId}.`,
 			// fallback
 			_: () => "User is not logged in.",
 		});
+
 	void [formatUserStatus];
 }
 
@@ -145,12 +132,16 @@ import { match } from "unenum";
  *
  */
 
-void ((user: User): string =>
-	match(user)({
-		Anonymous: () => "User is not logged in.",
-		Authenticated: ({ userId }) => `User is logged in as ${userId}.`,
-		_: undefined,
-	}));
+{
+	const formatUserStatus = (user: User): string =>
+		match(user, {
+			Anonymous: () => "User is not logged in.",
+			Authenticated: ({ userId }) => `User is logged in as ${userId}.`,
+			_: undefined,
+		});
+
+	void [formatUserStatus];
+}
 
 /*
  *
@@ -163,10 +154,10 @@ void ((user: User): string =>
 type File = Enum<
 	{
 		"text/plain": { data: string };
-		"image/jpeg": { data: unknown; compression?: number };
+		"image/jpeg": { data: Buffer; compression?: number };
 		"application/json": { object: unknown };
 	},
-	"mime" // <-- custom discriminant
+	"mime" /* <-- custom discriminant */
 >;
 // ^
 // | { "mime": "text/plain", ... }
@@ -177,22 +168,40 @@ type File = Enum<
 	const fileTextPlain: File = { mime: "text/plain", data: "..." };
 	const fileImageJpeg: File = { mime: "image/jpeg", data: Buffer.from("...") };
 	const fileApplicationJson: File = { mime: "application/json", object: {} };
-	void [fileTextPlain, fileImageJpeg, fileApplicationJson];
 
+	void [fileTextPlain, fileImageJpeg, fileApplicationJson];
+}
+
+{
+	const formatFileInformation = (file: File) => {
+		if (file.mime === "text/plain") {
+			return "Text";
+		}
+
+		if (file.mime === "image/jpeg") {
+			return "Image";
+		}
+
+		return "Unsupported";
+	};
+
+	void [formatFileInformation];
+}
+
+{
 	const formatFileInformation = (file: File) =>
-		match(
-			file,
-			"mime" // <-- custom discriminant
-		)({
+		match([file, "mime"], {
 			"text/plain": () => "Text",
 			"image/jpeg": () => "Image",
 			_: () => "Unsupported",
 		});
+
+	void [formatFileInformation];
 }
 
 /*
  *
- * Creating `Enum` sub-types with Enum.Pick and Enum.Omit.
+ * Creating Enum sub-types with Enum.Pick and Enum.Omit.
  *
  */
 
@@ -242,7 +251,7 @@ export type FileInferred = Enum.Infer<File, "mime">;
 
 /*
  *
- * Extend existing `Enum` types with new variants with `Enum.Extend`.
+ * Extend existing Enum types with new variants with `Enum.Extend`.
  *
  */
 
@@ -259,7 +268,7 @@ export type FileWithHTML = Enum.Extend<File, { "text/html": true }, "mime">;
 
 /*
  *
- * Merge two or more existing `Enum` types with `Enum.Merge`.
+ * Merge two or more existing Enum types with `Enum.Merge`.
  * - This also merges the properties of variants of the same key.
  *
  */
@@ -281,10 +290,12 @@ export type Merged = Enum.Merge<SetA | SetB>;
 
 import { type Result } from "unenum";
 
-// Result
+export type ExampleResult = Result;
+// ^
 // | { _type: "Ok", value?: never, error?: never }
 // | { _type: "Error", value?: never, error?: never }
 
+export type ExampleUserResult = Result<User, "NotFound">;
 // Result<User, "NotFound">
 // | { _type: "Ok", value: User, error?: never }
 // | { _type: "Error", value?: never, error: "NotFound" }
@@ -300,22 +311,29 @@ import { type Result } from "unenum";
 
 import { ResultOk, ResultError } from "unenum";
 
-// raw
-void ((): Result => ({ _type: "Ok" }));
-void ((): Result => ({ _type: "Error" }));
-void ((): Result<User, "NotFound"> => ({ _type: "Ok", value: userAnonymous }));
-void ((): Result<User, "NotFound"> => ({ _type: "Error", error: "NotFound" }));
+{
+	const getResult = (): Result => {
+		if (Math.random()) {
+			return { _type: "Error" };
+		}
 
-// with helper
-void ((): Result => ResultOk());
-void ((): Result => ResultError());
-void ((): Result<User, "NotFound"> => ResultOk(userAnonymous));
-void ((): Result<User, "NotFound"> => ResultError("NotFound"));
+		return { _type: "Ok" };
+	};
+	void [getResult];
+}
 
-void ((): Result => Value("Ok"));
-void ((): Result => Value("Error"));
-void ((): Result<User, "NotFound"> => Value("Ok", { value: userAnonymous }));
-void ((): Result<User, "NotFound"> => Value("Error", { error: "NotFound" }));
+{
+	const getUser = (): Result<User, "NotFound"> => {
+		if (Math.random()) {
+			return { _type: "Error", error: "NotFound" };
+		}
+
+		const user: User = { _type: "Anonymous" };
+		return { _type: "Ok", value: user };
+	};
+	void [getUser];
+}
+
 /*
  *
  * Returning `Result` values instead of throwing.
