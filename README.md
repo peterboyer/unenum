@@ -48,7 +48,7 @@
  *
  */
 
-import { type Enum } from "unenum";
+import { Enum } from "unenum";
 
 /*
  *
@@ -68,13 +68,31 @@ type User = Enum<{
 // | { _type: "Anonymous" }
 // | { _type: "Authenticated", userId: string }
 
+/**
+ *
+ * Optional, creating a runtime value constructor.
+ *
+ */
+
+const User = Enum({} as User);
+// ^
+// & { Anonymous: () => { _type: "Anonymous" } }
+// & { Authenticated: (data: { userId: string }) => { _type: "Authenticated", userId: string } }
+
 /*
  *
  * Instantiating an Enum value.
  *
- * - Enum values are simple objects.
+ * - Enum values are plain objects (no classes).
  *
  */
+
+{
+  const userAnonymous = User.Anonymous();
+  const userAuthenticated = User.Authenticated({ userId: "1" });
+
+  void [userAnonymous, userAuthenticated];
+}
 
 {
   const userAnonymous: User = { _type: "Anonymous" };
@@ -237,13 +255,13 @@ export type FileType = Enum.Keys<File, "mime">;
  *
  */
 
-export type UserInferred = Enum.Infer<User>;
+export type UserInferred = Enum.Root<User>;
 // {
 //   Anonymous: true;
 //   Authenticated: { userId: string };
 // }
 
-export type FileInferred = Enum.Infer<File, "mime">;
+export type FileInferred = Enum.Root<File, "mime">;
 // {
 //   "text/plain": { data: string };
 //   "image/jpeg": { data: unknown; compression?: number };
@@ -289,7 +307,7 @@ export type Merged = Enum.Merge<SetA | SetB>;
  *
  */
 
-import { type Result } from "unenum";
+import { Result } from "unenum";
 
 export type ExampleResult = Result;
 // ^
@@ -310,28 +328,28 @@ export type ExampleUserResult = Result<User, "NotFound">;
  *
  */
 
-import { ResultOk, ResultError } from "unenum";
-
 {
   const getResult = (): Result => {
     if (Math.random()) {
-      return { _type: "Error" };
+      return Result.Error();
     }
 
-    return { _type: "Ok" };
+    return Result.Ok();
   };
+
   void [getResult];
 }
 
 {
   const getUser = (): Result<User, "NotFound"> => {
     if (Math.random()) {
-      return { _type: "Error", error: "NotFound" };
+      return Result.Error("NotFound");
     }
 
-    const user: User = { _type: "Anonymous" };
-    return { _type: "Ok", value: user };
+    const user = User.Anonymous();
+    return Result.Ok(user);
   };
+
   void [getUser];
 }
 
@@ -350,10 +368,10 @@ async function getUser(userId: number): Promise<Result<User, "NotFound">> {
   const user = (await db.query("...", [userId])) as User | undefined;
 
   if (!user) {
-    return ResultError("NotFound");
+    return Result.Error("NotFound");
   }
 
-  return ResultOk(user);
+  return Result.Ok(user);
 }
 
 /*
@@ -387,9 +405,9 @@ void (async () => {
 void (async () => {
   const $user = await getUser(1);
 
-  void match($user)({
+  void match($user, {
     Ok: ({ value: user }) => {
-      const message = match(user)({
+      const message = match(user, {
         Authenticated: ({ userId }) => `Hello, user ${userId}!`,
         _: () => "Hello, stranger!",
       });
@@ -407,7 +425,7 @@ void (async () => {
  *
  */
 
-import { type Async } from "unenum";
+import { Async } from "unenum";
 
 // Async<string>
 // | { _type: "Pending" }
@@ -431,23 +449,15 @@ import { type Async } from "unenum";
  *
  */
 
-import { AsyncPending, AsyncReady } from "unenum";
+{
+  const useResource = (): Async<Result<unknown, unknown>> => {
+    const [loading, data, error] = [] as unknown as [boolean, unknown, unknown];
 
-// raw
-void ((): Async => ({ _type: "Pending" }));
-void ((): Async => ({ _type: "Ready" }));
-void ((): Async<string> => ({ _type: "Pending" }));
-void ((): Async<string> => ({ _type: "Ready", value: "..." }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Pending" }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Ok", value: userAnonymous }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Error" }));
+    if (loading) return Async.Pending();
+    if (error) return Result.Error(error);
+    return Result.Ok(data);
+  };
 
-// with helper
-void ((): Async => AsyncPending());
-void ((): Async => AsyncReady());
-void ((): Async<string> => ({ _type: "Pending" }));
-void ((): Async<string> => ({ _type: "Ready", value: "..." }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Pending" }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Ok", value: userAnonymous }));
-void ((): Async.Enum<Result<User>> => ({ _type: "Error" }));
+  void [useResource];
+}
 ```

@@ -3,17 +3,12 @@
 rm -rf dist
 
 # ts
-tsc --project tsconfig.build.json \
-	--declaration true \
-	--emitDeclarationOnly true
+tsc --project tsconfig.build.json
+mkdir -p dist
 cp src/*.d.ts dist
 
-# mjs
-tsc --project tsconfig.build.json \
-	--outDir dist
-
 # package
-cp package.json LICENSE dist
+cp package.json LICENSE README.md dist
 dot-json dist/package.json scripts --delete
 dot-json dist/package.json devDependencies --delete
 

@@ -1,9 +1,11 @@
 {
 	"extends": ["./tsconfig.json"],
-	"exclude": ["src/*.*spec.ts", "src/testutils.ts", "README.ts"],
+	"exclude": ["src/*.*spec.ts", "src/shared/tests.ts", "README.ts"],
 	"compilerOptions": {
 		"outDir": "dist",
 		"noEmit": false,
-		"noEmitOnError": true
+		"noEmitOnError": true,
+		"declaration": true,
+		"paths": {}
 	}
 }
