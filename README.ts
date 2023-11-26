@@ -8,13 +8,13 @@
  * - produces simple and portable discriminated union types.
  * - all types can be compiled away, with zero-cost to bundle size.
  * - includes primitives like `Result` to improve function error-handling.
- * - includes general helpers to pick/omit/merge/extend/infer variants.
- * - *includes optional runtime helpers like `match` and `ResultTry`.
+ * - includes general helpers to inspect/pick/omit/merge/extend variants.
+ * - includes optional runtime helpers like `match` and `Result.try`.
  *
  * Read more:
- * - wikipedia.org/wiki/Tagged_union
- * - wikipedia.org/wiki/Algebraic_data_type
- * - wikipedia.org/wiki/Comparison_of_programming_languages_(algebraic_data_type)
+ * - https://wikipedia.org/wiki/Tagged_union
+ * - https://wikipedia.org/wiki/Algebraic_data_type
+ * - https://wikipedia.org/wiki/Comparison_of_programming_languages_(algebraic_data_type)
  *
  */
 
@@ -31,10 +31,10 @@
  *
  * Playground
  *
- * - This README is a valid TypeScript file!
+ * - This README.ts is a valid TypeScript file!
  *
  * 1. Clone this repo: `git clone git@github.com:peterboyer/unenum.git`.
- * 2. Install dependencies: `npm install` or `yarn install`.
+ * 2. Install development dependencies: `npm install` or `yarn install`.
  * 3. Jump in!
  *
  */
@@ -244,7 +244,7 @@ void ((): Async<Result<User, "NotFound">> => {
 // logic
 // (a) if statements
 void (async () => {
-	const $user = (() => ({} as Async<Result<User, unknown>>))();
+	const $user = (() => ({} as Async<Result<User, "E">>))();
 	if ($user._type === "Pending") {
 		return `<Loading />`;
 	}
