@@ -191,7 +191,7 @@ void ((): Result<User, "NotFound"> => {
 void (async (): Promise<User | undefined> => {
   const $user = await (async () => ({} as Promise<Result<User>>))();
   // handle error
-  if ($user.error) {
+  if ($user._type === "Error") {
     return undefined;
   }
   // continue with value
@@ -229,34 +229,43 @@ void ((): Async<boolean> => {
   return Async.Ready(true);
 });
 
-// type/value with enum type
+// type/value with enum type (extends with Pending variant)
 void ((): Async<Result<User, "NotFound">> => {
+  const loading = true as boolean;
   const user = {} as User | undefined;
-  if (!user) {
+  if (loading) {
     return Async.Pending();
+  }
+  if (!user) {
+    return Result.Error("NotFound");
   }
   return Result.Ok(user);
 });
 
 // logic
 // (a) if statements
-void (async (): Promise<User | undefined> => {
-  const $user = await (async () => ({} as Promise<Result<User>>))();
+void (async () => {
+  const $user = (() => ({} as Async<Result<User, unknown>>))();
+  if ($user._type === "Pending") {
+    return `<Loading />`;
+  }
   // handle error
-  if ($user.error) {
-    return undefined;
+  if ($user._type === "Error") {
+    const { error } = $user;
+    return `<Error error=${error} />`;
   }
   // continue with value
   const { value: user } = $user;
-  return user;
+  return `<Profile user=${user} />`;
 });
 
 // (b) match expression
-void (async (): Promise<User | undefined> => {
-  const $user = await (async () => ({} as Promise<Result<User>>))();
+void (async () => {
+  const $user = (() => ({} as Async<Result<User, unknown>>))();
   return match($user, {
-    Ok: ({ value: user }) => user,
-    Error: () => undefined,
+    Pending: () => `<Loading />`,
+    Error: ({ error }) => `<Error error=${error} />`,
+    Ok: ({ value: user }) => `<Profile user=${user} />`,
   });
 });
 ```
