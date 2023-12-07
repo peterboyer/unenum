@@ -52,7 +52,23 @@ describe("Result.try", () => {
 	});
 });
 
-test("Ok/Error", () => {
+describe("Ok/Error", () => {
+	test("Ok", () => {
+		expect(Result.Ok()).toStrictEqual({ _type: "Ok", value: undefined });
+		expect(Result.Ok("...") as Result<string>).toStrictEqual({
+			_type: "Ok",
+			value: "...",
+		});
+	});
+
+	test("Error", () => {
+		expect(Result.Error()).toStrictEqual({ _type: "Error", error: undefined });
+		expect(Result.Error("...") as Result<never, string>).toStrictEqual({
+			_type: "Error",
+			error: "...",
+		});
+	});
+
 	void function getFoo(): Result<string, "ParseError"> {
 		if (Math.random() === 1) {
 			// @ts-expect-error "1" is not assignable to "ParseError".

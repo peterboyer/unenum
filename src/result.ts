@@ -23,6 +23,6 @@ export const Result = {
 		...args: TResult extends { error: unknown } ? [TResult["error"]] : never
 	): [Extract<TResult, { _type: "Error" }>] extends [never]
 		? { _type: "Error" }
-		: TResult => ({ _type: "Error", value: args[0] } as any),
+		: TResult => ({ _type: "Error", error: args[0] } as any),
 	try: _try,
 };
