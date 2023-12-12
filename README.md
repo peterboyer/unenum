@@ -140,7 +140,7 @@ void ((): File => ({ mime: "image/jpeg", data: Buffer.from("...") }));
 void ((): File => ({ mime: "application/json", object: JSON.parse("{}") }));
 
 // (b) helper function
-export const File = Enum([{} as File, "mime" /* <-- */]);
+export const File = Enum({} as File, "mime");
 void (() => File["text/plain"]({ data: "..." }));
 void (() => File["image/jpeg"]({ data: Buffer.from("...") }));
 void (() => File["application/json"]({ object: JSON.parse("{}") }));
