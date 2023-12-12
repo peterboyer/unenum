@@ -120,4 +120,56 @@ describe("Enum.is", () => {
 			expect(Enum.is(event, ["Data", "Close"])).toEqual(false);
 		}
 	});
+
+	test("Default", () => {
+		type Event = Enum<
+			{
+				Open: true;
+				Data: { value: unknown };
+				Close: true;
+			},
+			"custom"
+		>;
+
+		const Event = Enum([{} as Event, "custom"]);
+		const event = {} as Event;
+
+		{
+			if (Enum.is(event, "custom", "Open")) {
+				({}) as [
+					Expect<Equal<typeof event, Enum.Pick<Event, "Open", "custom">>>
+				];
+			} else if (Enum.is(event, "custom", "Data")) {
+				({}) as [
+					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>
+				];
+			} else {
+				({}) as [
+					Expect<Equal<typeof event, Enum.Pick<Event, "Close", "custom">>>
+				];
+			}
+		}
+
+		{
+			if (Enum.is(event, "custom", ["Open", "Close"])) {
+				({}) as [
+					Expect<
+						Equal<typeof event, Enum.Pick<Event, "Open" | "Close", "custom">>
+					>
+				];
+			} else {
+				({}) as [
+					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>
+				];
+			}
+		}
+
+		{
+			const event = Event.Open() as Event;
+			expect(Enum.is(event, "custom", "Open")).toEqual(true);
+			expect(Enum.is(event, "custom", "Data")).toEqual(false);
+			expect(Enum.is(event, "custom", ["Open", "Close"])).toEqual(true);
+			expect(Enum.is(event, "custom", ["Data", "Close"])).toEqual(false);
+		}
+	});
 });
