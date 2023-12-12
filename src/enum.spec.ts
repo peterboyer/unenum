@@ -1,4 +1,5 @@
 import { Enum } from "./enum";
+import type { Equal, Expect } from "./shared/tests";
 
 describe("Enum", () => {
 	test("Default", () => {
@@ -76,6 +77,47 @@ describe("Enum", () => {
 			expect(eventClose).toStrictEqual({ custom: "Close" });
 
 			void [eventOpen, eventData, eventClose];
+		}
+	});
+});
+
+describe("Enum.is", () => {
+	test("Default", () => {
+		type Event = Enum<{
+			Open: true;
+			Data: { value: unknown };
+			Close: true;
+		}>;
+
+		const Event = Enum({} as Event);
+		const event = {} as Event;
+
+		{
+			if (Enum.is(event, "Open")) {
+				({}) as [Expect<Equal<typeof event, Enum.Pick<Event, "Open">>>];
+			} else if (Enum.is(event, "Data")) {
+				({}) as [Expect<Equal<typeof event, Enum.Pick<Event, "Data">>>];
+			} else {
+				({}) as [Expect<Equal<typeof event, Enum.Pick<Event, "Close">>>];
+			}
+		}
+
+		{
+			if (Enum.is(event, ["Open", "Close"])) {
+				({}) as [
+					Expect<Equal<typeof event, Enum.Pick<Event, "Open" | "Close">>>
+				];
+			} else {
+				({}) as [Expect<Equal<typeof event, Enum.Pick<Event, "Data">>>];
+			}
+		}
+
+		{
+			const event = Event.Open() as Event;
+			expect(Enum.is(event, "Open")).toEqual(true);
+			expect(Enum.is(event, "Data")).toEqual(false);
+			expect(Enum.is(event, ["Open", "Close"])).toEqual(true);
+			expect(Enum.is(event, ["Data", "Close"])).toEqual(false);
 		}
 	});
 });

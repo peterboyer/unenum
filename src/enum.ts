@@ -162,6 +162,25 @@ export const Enum = <
 		}
 	) as any;
 
+Enum.is = function <
+	TEnum extends Enum.Any<TDiscriminant>,
+	TKey extends Enum.Keys<TEnum, TDiscriminant>, // | Enum.Keys<TEnum, TDiscriminant>[]
+	TDiscriminant extends keyof TEnum & string = keyof TEnum &
+		Enum.Discriminant.Default
+>(
+	target: TEnum | [value: TEnum, discriminant: TDiscriminant],
+	match: TKey | TKey[]
+): target is Enum.Pick<TEnum, TKey, TDiscriminant> {
+	const [value, discriminant] = Array.isArray(target)
+		? target
+		: [target, "_type" as TDiscriminant];
+	const key = value[discriminant];
+	if (Array.isArray(match)) {
+		return match.includes(key as TKey);
+	}
+	return key === match;
+};
+
 type Fn<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends Enum.Discriminant
