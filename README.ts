@@ -158,7 +158,7 @@ void ((file: File): string => {
 
 // (b) match expression
 void ((file: File): string =>
-	match([file, "mime"], {
+	match(file, "mime", {
 		"text/plain": () => "Text",
 		"image/jpeg": () => "Image",
 		_: () => "Unsupported",
