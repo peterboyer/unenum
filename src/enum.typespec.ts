@@ -55,6 +55,7 @@ type EGeneric<T> = Enum<Generic<T>>;
 	Expect<Equal<Enum.Pick<EBoth, "Unit" | "Data">, EBoth>>,
 	Expect<Equal<Enum.Pick<EGeneric<number>, never>, never>>,
 	Expect<Equal<Enum.Pick<EGeneric<number>, "Generic">, EGeneric<number>>>,
+	Expect<Equal<Enum.Pick<Enum<{ A: true, B: true }, "custom">, "A", "custom">, Enum<{ A: true }, "custom">>>,
 
 	Expect<Equal<Enum.Omit<ENone, never>, never>>,
 	Expect<Equal<Enum.Omit<EUnit, never>, EUnit>>,
