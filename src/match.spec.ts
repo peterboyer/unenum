@@ -231,7 +231,7 @@ describe("match", () => {
 			// all cases and forbid fallback
 			{
 				const fn = (value: Value) =>
-					match([value, "custom"], {
+					match(value, "custom", {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 						_: undefined,
@@ -242,7 +242,7 @@ describe("match", () => {
 			// all cases, some using value properties
 			{
 				const fn = (value: Value) =>
-					match([value, "custom"], {
+					match(value, "custom", {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
@@ -257,7 +257,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					match([value, "custom"], {
+					match(value, "custom", {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 						_: undefined,
@@ -280,7 +280,7 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					match([value, "custom"], {
+					match(value, "custom", {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
