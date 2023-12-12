@@ -132,8 +132,8 @@ export const Enum = <
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default
 >(
-	_enum: TEnum | [TEnum, TDiscriminant],
-	mapper?: TMapper
+	_value: TEnum,
+	...args: [mapper?: TMapper] | [discriminant: TDiscriminant, mapper?: TMapper]
 ): Identity<
 	Intersect<
 		TEnum extends unknown
@@ -146,21 +146,24 @@ export const Enum = <
 			  }
 			: never
 	>
-> =>
-	new Proxy(
-		{},
-		{
-			get: (_, key: string) => {
-				type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
-				const dataFn = (mapper as unknown as LooseMapper)?.[key];
-				const discriminant = Array.isArray(_enum) ? _enum[1] : "_type";
-				return (...args: any[]) => {
-					const data = dataFn ? dataFn(...args) : args[0];
-					return { [discriminant]: key, ...data };
-				};
-			},
-		}
-	) as any;
+> => {
+	const discriminant =
+		args.length >= 1 && typeof args[0] === "string"
+			? args[0]
+			: ("_type" as TDiscriminant);
+	const mapper =
+		args.length >= 1 && typeof args[0] !== "string" ? args[0] : args[1];
+	return new Proxy({} as any, {
+		get: (_, key: string) => {
+			type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
+			const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
+			return (...args: any[]) => {
+				const data = dataFn ? dataFn(...args) : args[0];
+				return { [discriminant]: key, ...data };
+			};
+		},
+	});
+};
 
 type Fn<
 	TEnum extends Enum.Any<TDiscriminant>,
