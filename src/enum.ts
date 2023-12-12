@@ -116,7 +116,7 @@ export namespace Enum {
 
 export const Enum = <
 	TEnum extends Enum.Any<TDiscriminant>,
-	TMatcher extends Partial<
+	TMapper extends Partial<
 		Identity<
 			Intersect<
 				TEnum extends unknown
@@ -133,14 +133,14 @@ export const Enum = <
 		Enum.Discriminant.Default
 >(
 	_enum: TEnum | [TEnum, TDiscriminant],
-	mapper?: TMatcher
+	mapper?: TMapper
 ): Identity<
 	Intersect<
 		TEnum extends unknown
 			? {
-					[Key in TEnum[TDiscriminant]]: Key extends keyof TMatcher
-						? TMatcher[Key] extends (...args: any[]) => any
-							? (...args: Parameters<TMatcher[Key]>) => TEnum
+					[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
+						? TMapper[Key] extends (...args: any[]) => any
+							? (...args: Parameters<TMapper[Key]>) => TEnum
 							: Fn<TEnum, TDiscriminant>
 						: Fn<TEnum, TDiscriminant>;
 			  }
