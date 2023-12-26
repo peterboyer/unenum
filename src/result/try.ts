@@ -1,4 +1,4 @@
-import type { Result } from "../result";
+import type { Result } from "../result.js";
 
 const _try = <TReturnType>(fn: () => TReturnType): TryResult<TReturnType> => {
 	type TryReturn = TryResult<TReturnType>;

@@ -1,5 +1,5 @@
-import type { Expect, Equal } from "./shared/tests";
-import { Result } from "./result";
+import type { Expect, Equal } from "./shared/tests.js";
+import { Result } from "./result.js";
 
 describe("Result.try", () => {
 	it("should handle value", () => {

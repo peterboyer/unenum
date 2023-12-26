@@ -1,5 +1,5 @@
-import type { Expect, Equal } from "./shared/tests";
-import type { Result } from "./result";
+import type { Expect, Equal } from "./shared/tests.js";
+import type { Result } from "./result.js";
 
 ({}) as [
 	Expect<

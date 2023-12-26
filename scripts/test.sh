@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-jest $@
+node --experimental-vm-modules node_modules/jest/bin/jest.js $@
