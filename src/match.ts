@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Enum } from "./enum";
+import type { Enum } from "./enum.js";
 
 export const match = <
 	TEnum extends Enum.Any<TDiscriminant>,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Enum } from "./enum";
+import type { Enum } from "./enum.js";
 
 export type Result<TValue = never, TError = never> = Enum<{
 	Ok: [TValue] extends [never]
@@ -11,7 +11,7 @@ export type Result<TValue = never, TError = never> = Enum<{
 		: { value?: never; error: TError };
 }>;
 
-import { try as _try } from "./result/try";
+import { try as _try } from "./result/try.js";
 
 export const Result = {
 	Ok: <TResult>(

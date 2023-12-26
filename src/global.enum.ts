@@ -1,4 +1,4 @@
-import type { Enum as _Enum } from "./enum";
+import type { Enum as _Enum } from "./enum.js";
 
 declare global {
 	// @ts-expect-error Duplicates don't exist for consumer.

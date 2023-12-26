@@ -1,5 +1,5 @@
-import type { Expect, Equal } from "./shared/tests";
-import type { Enum } from "./enum";
+import type { Expect, Equal } from "./shared/tests.js";
+import type { Enum } from "./enum.js";
 
 type None = Record<never, never>;
 type Unit = { Unit: true };

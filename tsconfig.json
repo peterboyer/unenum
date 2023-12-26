@@ -5,7 +5,9 @@
 	"compilerOptions": {
 		"noEmit": true,
 		"skipLibCheck": false,
-		"moduleResolution": "node",
+		"target": "es6",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"paths": {
 			"unenum": ["./src/index.ts"]
 		}

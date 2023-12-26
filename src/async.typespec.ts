@@ -1,6 +1,6 @@
-import type { Expect, Equal } from "./shared/tests";
-import type { Async } from "./async";
-import type { Result } from "./result";
+import type { Expect, Equal } from "./shared/tests.js";
+import type { Async } from "./async.js";
+import type { Result } from "./result.js";
 
 ({}) as [
 	Expect<Equal<Async, { _type: "Pending" } | { _type: "Ready" }>>,
