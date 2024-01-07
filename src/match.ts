@@ -4,20 +4,22 @@ import type { Enum } from "./enum.js";
 
 export const match = <
 	TEnum extends Enum.Any<TDiscriminant>,
-	TEnumMatcher extends {
-		[Key in keyof Enum.Root<TEnum, TDiscriminant>]: Enum.Root<
-			TEnum,
-			TDiscriminant
-		>[Key] extends true
-			? () => unknown
-			: (value: Enum.Root<TEnum, TDiscriminant>[Key]) => unknown;
-	},
-	TMatcher extends TFallback extends () => unknown
-		? [ReturnType<TFallback>] extends [never]
-			? TEnumMatcher
-			: Partial<TEnumMatcher>
-		: TEnumMatcher,
-	TFallback extends (() => unknown) | (() => never) | undefined = () => never,
+	TEnumMatcher extends
+		| {
+				[Key in keyof Enum.Root<TEnum, TDiscriminant>]: Enum.Root<
+					TEnum,
+					TDiscriminant
+				>[Key] extends true
+					? () => unknown
+					: (value: Enum.Root<TEnum, TDiscriminant>[Key]) => unknown;
+		  }
+		| {
+				[Key in keyof Enum.Root<TEnum, TDiscriminant>]: unknown;
+		  },
+	TMatcher extends [TFallback] extends [never]
+		? TEnumMatcher
+		: Partial<TEnumMatcher>,
+	TFallback = never,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default,
 >(
@@ -34,11 +36,11 @@ export const match = <
 							...args: any[]
 						) => any
 							? ReturnType<TMatcher[Key]>
-							: never;
+							: TMatcher[Key];
 					}[keyof TMatcher])
 		| (TFallback extends (...args: any[]) => any
 				? ReturnType<TFallback>
-				: never);
+				: TFallback);
 	// debug
 	$: {
 		matcher: TMatcher;
@@ -52,11 +54,14 @@ export const match = <
 	const discriminant = args.length === 1 ? ("_type" as TDiscriminant) : args[0];
 	const matcher = args.length === 1 ? args[0] : args[1];
 	const key = value[discriminant];
-	const keyMatchFn =
+	const keyMatch =
 		matcher[key as unknown as keyof TMatcher & string] ??
 		matcher["_" as keyof TMatcher & string];
-	if (!keyMatchFn) {
+	if (!keyMatch) {
 		throw TypeError(`unhandled enum variant: ${JSON.stringify(value)}`);
 	}
-	return keyMatchFn(value as any) as any;
+	if (typeof keyMatch === "function") {
+		return keyMatch(value as any) as any;
+	}
+	return keyMatch as any;
 };

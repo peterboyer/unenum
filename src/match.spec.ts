@@ -17,6 +17,15 @@ describe("match", () => {
 			{
 				const fn = (value: Value) =>
 					match(value, {
+						One: "One" as const,
+					});
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
+			}
+
+			// all cases as fns
+			{
+				const fn = (value: Value) =>
+					match(value, {
 						One: () => "One" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -29,16 +38,6 @@ describe("match", () => {
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
-			}
-
-			// all cases and forbid fallback
-			{
-				const fn = (value: Value) =>
-					match(value, {
-						One: () => "One" as const,
-						_: undefined,
-					});
-				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
 			}
 		});
 
@@ -58,6 +57,16 @@ describe("match", () => {
 			{
 				const fn = (value: Value) =>
 					match(value, {
+						One: "One" as const,
+						Two: "Two" as const,
+					});
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Two">>;
+			}
+
+			// all cases as fns
+			{
+				const fn = (value: Value) =>
+					match(value, {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 					});
@@ -65,6 +74,15 @@ describe("match", () => {
 			}
 
 			// only fallback
+			{
+				const fn = (value: Value) =>
+					match(value, {
+						_: "Fallback" as const,
+					});
+				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
+			}
+
+			// only fn fallback
 			{
 				const fn = (value: Value) =>
 					match(value, {
@@ -78,20 +96,29 @@ describe("match", () => {
 				const fn = (value: Value) =>
 					match(value, {
 						One: () => "One" as const,
+						_: "Fallback" as const,
+					});
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Fallback">>;
+			}
+
+			// all cases and fn fallback
+			{
+				const fn = (value: Value) =>
+					match(value, {
+						One: () => "One" as const,
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Fallback">>;
 			}
 
-			// all cases and forbid fallback
+			// all cases and undefined as fallback
 			{
 				const fn = (value: Value) =>
 					match(value, {
 						One: () => "One" as const,
-						Two: () => "Two" as const,
 						_: undefined,
 					});
-				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Two">>;
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | undefined>>;
 			}
 
 			// all cases, some using value properties
@@ -183,7 +210,7 @@ describe("match", () => {
 						One: () => "One" as const,
 						_: undefined,
 					});
-				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | undefined>>;
 			}
 		});
 
@@ -228,7 +255,7 @@ describe("match", () => {
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Fallback">>;
 			}
 
-			// all cases and forbid fallback
+			// all cases and fallback
 			{
 				const fn = (value: Value) =>
 					match(value, "custom", {
@@ -236,7 +263,7 @@ describe("match", () => {
 						Two: () => "Two" as const,
 						_: undefined,
 					});
-				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Two">>;
+				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Two" | undefined>>;
 			}
 
 			// all cases, some using value properties
