@@ -36,8 +36,8 @@ yarn add unenum
 
 ### Requirements
 
-- `typescript@^5.0.0`
-- `tsconfig.json > "compilerOptions" > "strict": true`
+- `typescript@>=5.0.0`
+- `tsconfig.json > "compilerOptions" > { "strict": true }`
 
 ## Playground
 - This `README.ts` is a valid TypeScript file!
@@ -57,7 +57,10 @@ import { Enum } from "unenum";
 //<
 
 /*!
-### Defining an Enum `type`
+### Defining an Enum
+- The `_type` property is used as discriminant to distinguish between variants.
+- The underscore-prefixed name somewhat denotes this as an "internal" property
+  not intended to collide with general-use user-space named properties.
 !*/
 
 //>
@@ -71,7 +74,7 @@ export type User = Enum<{
 //<
 
 /*!
-### Instantiating an Enum `value`
+### Instantiating an Enum
 !*/
 
 /*!
@@ -91,7 +94,8 @@ export type User = Enum<{
 
 /*!
 #### (b) helper function
-- Acts as both an `type` and an `value` constructor.
+- Builds a `value` constructor using a given `type`.
+- You may use the same name for both `type` and `value`.
 !*/
 
 //>
@@ -107,7 +111,7 @@ export const User = Enum({} as User);
 //<
 
 /*!
-### Using an Enum `value`
+### Using an Enum
 !*/
 
 /*!
@@ -226,7 +230,7 @@ export const User = Enum({} as User);
 //<
 
 /*!
-### Manipulating Enum types
+### Manipulating an Enum
 !*/
 
 //>
@@ -308,7 +312,10 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 //<
 
 /*!
-### Define a custom constructor for an Enum variant's `value`
+### Define a custom constructor for Enum variants
+- Custom helper functions may be defined per Enum variant to streamline
+  construction of Enum variants with all required properties, instead of the
+	default object notation.
 !*/
 
 //>
