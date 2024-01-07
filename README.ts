@@ -14,7 +14,7 @@
 - all types can be compiled away, with zero-cost to bundle size.
 - includes `Result` to improve error-handling ergonomics.
 - includes `Enum` helpers to inspect/pick/omit/merge/extend variants.
-- includes optional runtime helpers like `match` and `Result.try`.
+- includes optional runtime helpers like `Enum.match` and `Result.try`.
 
 Read more:
 - [Tagged union](https://wikipedia.org/wiki/Tagged_union)
