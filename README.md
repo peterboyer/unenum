@@ -35,8 +35,8 @@ yarn add unenum
 
 ### Requirements
 
-- `typescript@^5.0.0`
-- `tsconfig.json > "compilerOptions" > "strict": true`
+- `typescript@>=5.0.0`
+- `tsconfig.json > "compilerOptions" > { "strict": true }`
 
 ## Playground
 - This `README.ts` is a valid TypeScript file!
@@ -52,7 +52,10 @@ yarn add unenum
 import { Enum } from "unenum";
 ```
 
-### Defining an Enum `type`
+### Defining an Enum
+- The `_type` property is used as discriminant to distinguish between variants.
+- The underscore-prefixed name somewhat denotes this as an "internal" property
+  not intended to collide with general-use user-space named properties.
 
 ```ts
 export type User = Enum<{
@@ -64,7 +67,7 @@ export type User = Enum<{
 // | { _type: "Authenticated", userId: string }
 ```
 
-### Instantiating an Enum `value`
+### Instantiating an Enum
 
 #### (a) object expression
 - If you definitely want don't want to create runtime helpers.
@@ -80,7 +83,8 @@ export type User = Enum<{
 ```
 
 #### (b) helper function
-- Acts as both an `type` and an `value` constructor.
+- Builds a `value` constructor using a given `type`.
+- You may use the same name for both `type` and `value`.
 
 ```ts
 export const User = Enum({} as User);
@@ -94,7 +98,7 @@ export const User = Enum({} as User);
 }
 ```
 
-### Using an Enum `value`
+### Using an Enum
 
 #### (a.1) if statements, property access
 
@@ -199,7 +203,7 @@ export const User = Enum({} as User);
 }
 ```
 
-### Manipulating Enum types
+### Manipulating an Enum
 
 ```ts
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
@@ -267,7 +271,10 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 // *Left | *Right
 ```
 
-### Define a custom constructor for an Enum variant's `value`
+### Define a custom constructor for Enum variants
+- Custom helper functions may be defined per Enum variant to streamline
+  construction of Enum variants with all required properties, instead of the
+  default object notation.
 
 ```ts
 type Colour = Enum<{
