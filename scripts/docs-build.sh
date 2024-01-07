@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-echo "\`\`\`ts" > README.md
-sed "s/\t/  /g" ./README.ts >> README.md
-echo "\`\`\`" >> README.md
+cat ./README.ts \
+| sed "s!\t!  !g" \
+| sed "s!//>!\`\`\`ts!g" \
+| sed "s!//<!\`\`\`!g" \
+| grep -v '/\*!' \
+| grep -v '!\*/' \
+> README.md
