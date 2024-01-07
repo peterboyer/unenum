@@ -25,16 +25,21 @@ Read more:
 [![Version](https://img.shields.io/npm/v/unenum?label=npm)](https://www.npmjs.com/package/unenum/)
 [![License](https://img.shields.io/npm/l/unenum)](./LICENSE)
 
-```
-yarn add unenum
-```
-
-```
+```shell
 npm install unenum
 ```
 
+```shell
+yarn add unenum
+```
+
+### Requirements
+
+- `typescript@^5.0.0`
+- `tsconfig.json > "compilerOptions" > "strict": true`
+
 ## Playground
-- This README.ts is a valid TypeScript file!
+- This `README.ts` is a valid TypeScript file!
 
 1. Clone this repo: `git clone git@github.com:peterboyer/unenum.git`.
 2. Install development dependencies: `npm install` or `yarn install`.
