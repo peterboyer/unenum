@@ -42,10 +42,10 @@ function app() {
 	const result = useAsyncResult();
 	if (result._type === "Pending") {
 		return;
-	} else if (result._type === "Ok") {
+	} else if (Enum.is(result, "Ok")) {
 		console.log(result.value);
 		return;
-	} else if (result._type === "Error") {
+	} else if (Enum.is(result, "Error")) {
 		console.log(result.error);
 		return;
 	}
