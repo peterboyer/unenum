@@ -22,5 +22,5 @@ import type { Result } from "./result.js";
 			| { _type: "Ok"; value: unknown; error?: never }
 			| { _type: "Error"; value?: never; error: unknown }
 		>
-	>
+	>,
 ];

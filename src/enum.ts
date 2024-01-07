@@ -4,13 +4,13 @@ import type { Intersect } from "./shared/intersect.js";
 
 export type Enum<
 	TVariants extends Enum.Variants,
-	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
+	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default,
 > = {
 	[TKey in keyof TVariants]-?: TVariants[TKey] extends Enum.Variants.UnitValueAny
 		? Enum.Variants.Unit<TKey & string, TDiscriminant>
 		: TVariants[TKey] extends Enum.Variants.DataValueAny
-		? Enum.Variants.Data<TKey & string, TVariants[TKey], TDiscriminant>
-		: never;
+			? Enum.Variants.Data<TKey & string, TVariants[TKey], TDiscriminant>
+			: never;
 }[keyof TVariants];
 
 export namespace Enum {
@@ -37,63 +37,63 @@ export namespace Enum {
 
 		export type Unit<
 			TKey extends KeyAny,
-			TDiscriminant extends Discriminant
+			TDiscriminant extends Discriminant,
 		> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey }>;
 
 		export type Data<
 			TKey extends KeyAny,
 			TData extends DataValueAny,
-			TDiscriminant extends Discriminant
+			TDiscriminant extends Discriminant,
 		> = Identity<{ [TDiscriminantKey in TDiscriminant]: TKey } & TData>;
 	}
 
 	export type Root<
 		TEnum extends Any<TDiscriminant>,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = Identity<
 		Intersect<
 			TEnum extends unknown
 				? {
 						[Key in TEnum[TDiscriminant]]: [
-							Exclude<keyof TEnum, TDiscriminant>
+							Exclude<keyof TEnum, TDiscriminant>,
 						] extends [never]
 							? true
 							: {
 									[Key in keyof TEnum as Key extends TDiscriminant
 										? never
 										: Key]: TEnum[Key];
-							  };
-				  }
+								};
+					}
 				: never
 		>
 	>;
 
 	export type Keys<
 		TEnum extends Any<TDiscriminant>,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = TEnum[TDiscriminant];
 
 	export type Pick<
 		TEnum extends Any<TDiscriminant>,
 		TKeys extends Keys<TEnum, TDiscriminant>,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = Extract<TEnum, Record<TDiscriminant, TKeys>>;
 
 	export type Omit<
 		TEnum extends Any<TDiscriminant>,
 		TKeys extends Keys<TEnum, TDiscriminant>,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = Exclude<TEnum, Record<TDiscriminant, TKeys>>;
 
 	export type Extend<
 		TEnum extends Any<TDiscriminant>,
 		TVariants extends Variants,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = Merge<TEnum | Enum<TVariants, TDiscriminant>, TDiscriminant>;
 
 	export type Merge<
 		TEnums extends Any<TDiscriminant>,
-		TDiscriminant extends Discriminant = Discriminant.Default
+		TDiscriminant extends Discriminant = Discriminant.Default,
 	> = Enum<
 		TrueOrObj<
 			Intersect<
@@ -124,13 +124,13 @@ export const Enum = <
 							[Key in TEnum[TDiscriminant]]: (
 								...args: any[]
 							) => Omit<TEnum, TDiscriminant>;
-					  }
+						}
 					: never
 			>
 		>
 	>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default
+		Enum.Discriminant.Default,
 >(
 	_value: TEnum,
 	...args: [mapper?: TMapper] | [discriminant: TDiscriminant, mapper?: TMapper]
@@ -143,7 +143,7 @@ export const Enum = <
 							? (...args: Parameters<TMapper[Key]>) => TEnum
 							: Fn<TEnum, TDiscriminant>
 						: Fn<TEnum, TDiscriminant>;
-			  }
+				}
 			: never
 	>
 > => {
@@ -167,13 +167,13 @@ export const Enum = <
 
 type Fn<
 	TEnum extends Enum.Any<TDiscriminant>,
-	TDiscriminant extends Enum.Discriminant
+	TDiscriminant extends Enum.Discriminant,
 > = TEnum extends unknown
 	? [Exclude<keyof TEnum, TDiscriminant>] extends [never]
 		? () => TEnum
 		: [keyof PickRequired<Omit<TEnum, TDiscriminant>>] extends [never]
-		? (data?: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
-		: (data: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
+			? (data?: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
+			: (data: Identity<Omit<TEnum, TDiscriminant>>) => TEnum
 	: never;
 
 type PickRequired<T> = {
@@ -184,7 +184,7 @@ Enum.is = function <
 	TEnum extends Enum.Any<TDiscriminant>,
 	TKey extends Enum.Keys<TEnum, TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default
+		Enum.Discriminant.Default,
 >(
 	value: TEnum,
 	...args:
