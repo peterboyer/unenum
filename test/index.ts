@@ -1,4 +1,4 @@
-import { Enum, match, Async, Result } from "unenum";
+import { Enum, Async, Result } from "unenum";
 
 type WebEvent = Enum<{
 	PageLoad: true;
@@ -27,7 +27,7 @@ function inspect(event: WebEvent): string | undefined {
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return match(event, {
+	return Enum.match(event, {
 		PageLoad: () => "load" as const,
 		PageUnload: () => "unload" as const,
 		_: () => undefined,
