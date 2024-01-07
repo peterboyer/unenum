@@ -449,11 +449,44 @@ import { Result } from "unenum";
 });
 ```
 
+### `Result.try`
+- Instead of wrapping code that could `throw` in `try`/`catch` blocks,
+  `Result.try` can execute a given callback and return a `Result` wrapped value
+  without interrupting a function's control flow or scoping of variables.
+- If the function throws then the `Error` Result variant is returned, otherwise
+  the `Ok` Result variant is returned.
+- The `error` property will always be typed as `unknown` because
+  (unfortunately) in JavaScript, anything from anywhere can be thrown as an
+  error.
+
+```ts
+const getValueOrThrow = (): string => {
+  if (Math.random()) {
+    throw new Error("Failure");
+  }
+  return "Success";
+};
+
+(function () {
+  const result = Result.try(() => getValueOrThrow());
+  // Result<string, unknown>
+
+  if (Enum.is(result, "Error")) {
+    // handle error
+    console.error(result.error);
+    return;
+  }
+
+  // (safely) continue with value
+  console.info(result.value);
+});
+```
+
 ## `Async`
 - Represents an asynchronous `value` that is either loading (`Pending`) or
 resolved (`Ready`). If defined with an `Enum` type, `Async` will omit its
 `Ready` variant in favour of the "non-pending" `Enum`'s variants.
-- Useful for representating states e.g. `use*` hooks.
+- Useful for representing states e.g. `use*` hooks.
 
 ```ts
 import { Async } from "unenum";
