@@ -258,22 +258,30 @@ describe("match", () => {
 			// all cases and fallback
 			{
 				const fn = (value: Value) =>
-					match(value, "custom", {
-						One: () => "One" as const,
-						Two: () => "Two" as const,
-						_: undefined,
-					});
+					match(
+						value,
+						{
+							One: () => "One" as const,
+							Two: () => "Two" as const,
+							_: undefined,
+						},
+						"custom",
+					);
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One" | "Two" | undefined>>;
 			}
 
 			// all cases, some using value properties
 			{
 				const fn = (value: Value) =>
-					match(value, "custom", {
-						One: () => 0,
-						Two: ({ value }) => value,
-						_: () => "Unknown",
-					});
+					match(
+						value,
+						{
+							One: () => 0,
+							Two: ({ value }) => value,
+							_: () => "Unknown",
+						},
+						"custom",
+					);
 				!0 as Expect<Equal<ReturnType<typeof fn>, number | string>>;
 			}
 		});
@@ -284,11 +292,15 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					match(value, "custom", {
-						One: () => "One" as const,
-						Two: () => "Two" as const,
-						_: undefined,
-					});
+					match(
+						value,
+						{
+							One: () => "One" as const,
+							Two: () => "Two" as const,
+							_: undefined,
+						},
+						"custom",
+					);
 				expect(fn({ custom: "One" })).toEqual("One");
 				expect(fn({ custom: "Two", value: "..." })).toEqual("Two");
 				expect(() => fn({} as Value)).toThrow();
@@ -307,11 +319,15 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					match(value, "custom", {
-						One: () => 0,
-						Two: ({ value }) => value,
-						_: () => "Unknown",
-					});
+					match(
+						value,
+						{
+							One: () => 0,
+							Two: ({ value }) => value,
+							_: () => "Unknown",
+						},
+						"custom",
+					);
 
 				expect(fn({ custom: "One" })).toEqual(0);
 				expect(fn({ custom: "Two", value: "..." })).toEqual("...");

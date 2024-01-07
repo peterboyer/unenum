@@ -181,24 +181,23 @@ type PickRequired<T> = {
 	[K in keyof T as T[K] extends Required<T>[K] ? K : never]: T[K];
 };
 
-Enum.is = function <
+function is<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TKey extends Enum.Keys<TEnum, TDiscriminant>,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
 		Enum.Discriminant.Default,
 >(
 	value: TEnum,
-	...args:
-		| [matcher: TKey | TKey[]]
-		| [discriminant: TDiscriminant, matcher: TKey | TKey[]]
+	matcher: TKey | TKey[],
+	discriminant?: TDiscriminant,
 ): value is Enum.Pick<TEnum, TKey, TDiscriminant> {
-	const discriminant = args.length === 1 ? ("_type" as TDiscriminant) : args[0];
-	const matcher = args.length === 1 ? args[0] : args[1];
-	const key = value[discriminant];
+	const key = value[discriminant ?? ("_type" as TDiscriminant)];
 	if (Array.isArray(matcher)) {
 		return matcher.includes(key as TKey);
 	}
 	return key === matcher;
-};
+}
+
+Enum.is = is;
 
 Enum.match = match;

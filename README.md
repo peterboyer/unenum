@@ -135,6 +135,30 @@ export const User = Enum({} as User);
 });
 ```
 
+### `Enum.is`
+- Returns `true` and narrows the given Enum `value`'s possible variants if the
+  `value` matches any of the specified variants by key.
+
+```ts
+{
+  const value = {} as Enum<{ A: true; B: { value: string } }>;
+
+  void (() => Enum.is(value, "A"));
+  void (() => Enum.is(value, "B"));
+  void (() => Enum.is(value, ["A"]));
+  void (() => Enum.is(value, ["A", "B"]));
+}
+
+{
+  const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
+
+  void (() => Enum.is(value, "A", "custom"));
+  void (() => Enum.is(value, "B", "custom"));
+  void (() => Enum.is(value, ["A"], "custom"));
+  void (() => Enum.is(value, ["A", "B"], "custom"));
+}
+```
+
 ### `Enum.match`
 - The `matcher` object is keyed with all possible variants of the Enum and an
   optional `_` fallback case.
@@ -158,6 +182,15 @@ export const User = Enum({} as User);
   void (() => Enum.match(value, { A: undefined, B: ({ value }) => value }));
   void (() => Enum.match(value, { B: ({ value }) => value, _: "Fallback" }));
   void (() => Enum.match(value, { A: true, B: false, _: undefined }));
+}
+
+{
+  const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
+
+  void (() => Enum.match(value, { _: "Fallback" }, "custom"));
+  void (() => Enum.match(value, { A: "A", B: "B" }, "custom"));
+  void (() => Enum.match(value, { A: "A", _: "Fallback" }, "custom"));
+  // ...
 }
 ```
 
@@ -317,10 +350,10 @@ export const File = Enum({} as File, "mime" /* <-- */);
 
 ```ts
 (function (file: File): string {
-  if (Enum.is(file, "mime" /* <-- */, "text/plain")) {
+  if (Enum.is(file, "text/plain", "mime" /* <-- */)) {
     return `Text`;
   }
-  if (Enum.is(file, "mime" /* <-- */, "image/jpeg")) {
+  if (Enum.is(file, "image/jpeg", "mime" /* <-- */)) {
     return "Image";
   }
   return "Unsupported";
@@ -331,11 +364,15 @@ export const File = Enum({} as File, "mime" /* <-- */);
 
 ```ts
 (function (file: File): string {
-  return Enum.match(file, "mime" /* <-- */, {
-    "text/plain": () => "Text",
-    "image/jpeg": () => "Image",
-    _: () => "Unsupported",
-  });
+  return Enum.match(
+    file,
+    {
+      "text/plain": () => "Text",
+      "image/jpeg": () => "Image",
+      _: () => "Unsupported",
+    },
+    "mime" /* <-- */,
+  );
 });
 ```
 
