@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { match } from "./match.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
@@ -199,3 +200,5 @@ Enum.is = function <
 	}
 	return key === matcher;
 };
+
+Enum.match = match;

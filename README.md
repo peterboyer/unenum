@@ -4,9 +4,9 @@
 
 **Universal ADT utilities for TypeScript.**
 
-[Installation](#installation) • [`Enum`](#enum)
-• [`Result`](#result) •
-[`Async`](#async) • [`match`](#match---)
+[Installation](#installation) • [`Enum`](#enum) • [`Enum.is`](#enumis) •
+[`Enum.match`](#enummatch) • [`Result`](#result) • [`Result.try`](#resulttry)
+• [`Async`](#async)
 </div>
 
 - produces simple and portable discriminated union types.
@@ -116,12 +116,8 @@ export const User = Enum({} as User);
 #### (b.1) match expression, handling all cases
 
 ```ts
-import { match } from "unenum";
-```
-
-```ts
 (function (user: User): string {
-  return match(user, {
+  return Enum.match(user, {
     Authenticated: ({ userId }) => `Logged in as ${userId}.`,
     Anonymous: () => "Not logged in.",
   });
@@ -132,11 +128,37 @@ import { match } from "unenum";
 
 ```ts
 (function (user: User): string {
-  return match(user, {
+  return Enum.match(user, {
     Authenticated: ({ userId }) => `Logged in as ${userId}.`,
     _: () => "Not logged in.",
   });
 });
+```
+
+### `Enum.match`
+- The `matcher` object is keyed with all possible variants of the Enum and an
+  optional `_` fallback case.
+- If the `_` fallback case is not given, _all_ variants must be specified.
+- `matcher` cases can be a value or a callback.
+- If a variant's case is a callback, that variants `value`'s properties are
+  available for access.
+
+```ts
+{
+  const value = {} as Enum<{ A: true; B: { value: string } }>;
+
+  void (() => Enum.match(value, { _: "Fallback" }));
+  void (() => Enum.match(value, { _: () => "Fallback" }));
+  void (() => Enum.match(value, { A: "A", _: "Fallback" }));
+  void (() => Enum.match(value, { A: () => "A", _: "Fallback" }));
+  void (() => Enum.match(value, { A: "A", B: "B" }));
+  void (() => Enum.match(value, { A: "A", B: () => "B" }));
+  void (() => Enum.match(value, { A: () => "A", B: () => "B" }));
+  void (() => Enum.match(value, { A: () => "A", B: () => "B", _: "Fallback" }));
+  void (() => Enum.match(value, { A: undefined, B: ({ value }) => value }));
+  void (() => Enum.match(value, { B: ({ value }) => value, _: "Fallback" }));
+  void (() => Enum.match(value, { A: true, B: false, _: undefined }));
+}
 ```
 
 ### Manipulating Enum types
@@ -309,7 +331,7 @@ export const File = Enum({} as File, "mime" /* <-- */);
 
 ```ts
 (function (file: File): string {
-  return match(file, "mime" /* <-- */, {
+  return Enum.match(file, "mime" /* <-- */, {
     "text/plain": () => "Text",
     "image/jpeg": () => "Image",
     _: () => "Unsupported",
@@ -370,7 +392,7 @@ import { Result } from "unenum";
 ```ts
 (async function (): Promise<User | undefined> {
   const $user = await (async () => ({}) as Promise<Result<User>>)();
-  return match($user, {
+  return Enum.match($user, {
     Ok: ({ value: user }) => user,
     Error: () => undefined,
   });
@@ -472,7 +494,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 ```ts
 (function Component() {
   const $user = (() => ({}) as Async<Result<User, unknown>>)();
-  return match($user, {
+  return Enum.match($user, {
     Pending: () => `<Loading />`,
     Error: ({ error }) => `<Error error=${error} />`,
     Ok: ({ value: user }) => `<Profile user=${user} />`,
