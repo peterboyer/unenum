@@ -105,7 +105,7 @@ describe("Enum.is", () => {
 		{
 			if (Enum.is(event, ["Open", "Close"])) {
 				({}) as [
-					Expect<Equal<typeof event, Enum.Pick<Event, "Open" | "Close">>>
+					Expect<Equal<typeof event, Enum.Pick<Event, "Open" | "Close">>>,
 				];
 			} else {
 				({}) as [Expect<Equal<typeof event, Enum.Pick<Event, "Data">>>];
@@ -137,15 +137,15 @@ describe("Enum.is", () => {
 		{
 			if (Enum.is(event, "custom", "Open")) {
 				({}) as [
-					Expect<Equal<typeof event, Enum.Pick<Event, "Open", "custom">>>
+					Expect<Equal<typeof event, Enum.Pick<Event, "Open", "custom">>>,
 				];
 			} else if (Enum.is(event, "custom", "Data")) {
 				({}) as [
-					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>
+					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>,
 				];
 			} else {
 				({}) as [
-					Expect<Equal<typeof event, Enum.Pick<Event, "Close", "custom">>>
+					Expect<Equal<typeof event, Enum.Pick<Event, "Close", "custom">>>,
 				];
 			}
 		}
@@ -155,11 +155,11 @@ describe("Enum.is", () => {
 				({}) as [
 					Expect<
 						Equal<typeof event, Enum.Pick<Event, "Open" | "Close", "custom">>
-					>
+					>,
 				];
 			} else {
 				({}) as [
-					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>
+					Expect<Equal<typeof event, Enum.Pick<Event, "Data", "custom">>>,
 				];
 			}
 		}

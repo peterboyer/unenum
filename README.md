@@ -106,7 +106,7 @@ void ({} as [
   Enum.Extend<Signal, { Flashing: true }>, // Red | Yellow | Green | Flashing
 
   // Root definition of variants
-  Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>> // Left | Right
+  Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>, // Left | Right
 ]);
 
 // value with mapper
@@ -189,7 +189,7 @@ void ((): Result<User, "NotFound"> => {
 // logic
 // (a) if statements
 void (async (): Promise<User | undefined> => {
-  const $user = await (async () => ({} as Promise<Result<User>>))();
+  const $user = await (async () => ({}) as Promise<Result<User>>)();
   // handle error
   if ($user._type === "Error") {
     return undefined;
@@ -201,7 +201,7 @@ void (async (): Promise<User | undefined> => {
 
 // (b) match expression
 void (async (): Promise<User | undefined> => {
-  const $user = await (async () => ({} as Promise<Result<User>>))();
+  const $user = await (async () => ({}) as Promise<Result<User>>)();
   return match($user, {
     Ok: ({ value: user }) => user,
     Error: () => undefined,
@@ -245,7 +245,7 @@ void ((): Async<Result<User, "NotFound">> => {
 // logic
 // (a) if statements
 void (async () => {
-  const $user = (() => ({} as Async<Result<User, "E">>))();
+  const $user = (() => ({}) as Async<Result<User, "E">>)();
   if ($user._type === "Pending") {
     return `<Loading />`;
   }
@@ -261,7 +261,7 @@ void (async () => {
 
 // (b) match expression
 void (async () => {
-  const $user = (() => ({} as Async<Result<User, unknown>>))();
+  const $user = (() => ({}) as Async<Result<User, unknown>>)();
   return match($user, {
     Pending: () => `<Loading />`,
     Error: ({ error }) => `<Error error=${error} />`,

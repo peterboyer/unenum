@@ -2,27 +2,35 @@
 
 import type { Enum } from "./enum.js";
 
-export type Async<
-	T = never,
-	TDiscriminant extends Enum.Discriminant = Enum.Discriminant.Default
-> = [T] extends [never]
-	? Enum<{ Pending: true; Ready: true }>
-	: [T] extends [Enum.Any<TDiscriminant>]
-	? Enum.Extend<T, { Pending: true }, TDiscriminant>
-	: Enum<{
-			Pending: [T] extends [never] ? true : { value?: never };
-			Ready: [T] extends [never] ? true : { value: T };
-	  }>;
+export type Async<T = never> = [T] extends [never]
+	? AsyncValue<T>
+	: [T] extends [Enum.Any]
+		? AsyncEnum<T>
+		: AsyncValue<T>;
+
+type AsyncValue<T> = Async.Pending<T> | Async.Ready<T>;
+type AsyncEnum<TEnum> = Async.Pending | TEnum;
+
+export namespace Async {
+	export type Ready<TValue = never> = Enum<{
+		Ready: [TValue] extends [never] ? true : { value: TValue };
+	}>;
+	export type Pending<TValue = never> = Enum<{
+		Pending: [TValue] extends [never] ? true : { value?: never };
+	}>;
+}
 
 export const Async = {
-	Pending: <TAsync>(): [Extract<TAsync, { _type: "Pending" }>] extends [never]
-		? { _type: "Pending" }
-		: TAsync => ({ _type: "Pending" } as any),
-	Ready: <TAsync>(
-		...args: TAsync extends { value: unknown }
-			? [value: TAsync["value"]]
-			: never
-	): [Extract<TAsync, { _type: "Ready" }>] extends [never]
-		? { _type: "Ready" }
-		: TAsync => ({ _type: "Ready", value: args[0] } as any),
+	Ready,
+	Pending,
 };
+
+function Ready<T = Async.Ready>(
+	...args: Extract<T, { _type: "Ready" }> extends { value: infer U } ? [U] : []
+): Extract<T, { _type: "Ready" }> {
+	return { _type: "Ready", value: args[0] } as any;
+}
+
+function Pending<T = Async.Pending>(): Extract<T, { _type: "Pending" }> {
+	return { _type: "Pending" } as any;
+}

@@ -21,7 +21,7 @@ export { _try as try };
 type TryResult<TReturnType> = [TReturnType] extends [never]
 	? Result // when never
 	: 0 extends 1 & TReturnType
-	? Result<unknown, unknown> // when any
-	: [TReturnType] extends [Promise<unknown>]
-	? Promise<Result<Awaited<TReturnType>, unknown>> // when promise
-	: Result<TReturnType, unknown>;
+		? Result<unknown, unknown> // when any
+		: [TReturnType] extends [Promise<unknown>]
+			? Promise<Result<Awaited<TReturnType>, unknown>> // when promise
+			: Result<TReturnType, unknown>;

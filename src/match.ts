@@ -19,7 +19,7 @@ export const match = <
 		: TEnumMatcher,
 	TFallback extends (() => unknown) | (() => never) | undefined = () => never,
 	TDiscriminant extends keyof TEnum & string = keyof TEnum &
-		Enum.Discriminant.Default
+		Enum.Discriminant.Default,
 >(
 	value: TEnum,
 	...args:
@@ -35,7 +35,7 @@ export const match = <
 						) => any
 							? ReturnType<TMatcher[Key]>
 							: never;
-				  }[keyof TMatcher])
+					}[keyof TMatcher])
 		| (TFallback extends (...args: any[]) => any
 				? ReturnType<TFallback>
 				: never);
