@@ -387,7 +387,7 @@ export type File = Enum<
 !*/
 
 //>
-export const File = Enum({} as File, "mime" /* <-- */);
+export const File = Enum({} as File, {}, "mime" /* <-- */);
 
 {
 	const file: File = File["text/plain"]({ data: "..." });

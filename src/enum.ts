@@ -134,7 +134,8 @@ export const Enum = <
 		Enum.Discriminant.Default,
 >(
 	_value: TEnum,
-	...args: [mapper?: TMapper] | [discriminant: TDiscriminant, mapper?: TMapper]
+	mapper?: TMapper,
+	discriminant?: TDiscriminant,
 ): Identity<
 	Intersect<
 		TEnum extends unknown
@@ -148,19 +149,13 @@ export const Enum = <
 			: never
 	>
 > => {
-	const discriminant =
-		args.length >= 1 && typeof args[0] === "string"
-			? args[0]
-			: ("_type" as TDiscriminant);
-	const mapper =
-		args.length >= 1 && typeof args[0] !== "string" ? args[0] : args[1];
 	return new Proxy({} as any, {
 		get: (_, key: string) => {
 			type LooseMapper = Partial<Record<string, (...args: any[]) => any>>;
 			const dataFn = (mapper as unknown as LooseMapper | undefined)?.[key];
 			return (...args: any[]) => {
 				const data = dataFn ? dataFn(...args) : args[0];
-				return { [discriminant]: key, ...data };
+				return { [discriminant ?? "_type"]: key, ...data };
 			};
 		},
 	});

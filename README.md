@@ -335,7 +335,7 @@ export type File = Enum<
 ##### (b) helper function
 
 ```ts
-export const File = Enum({} as File, "mime" /* <-- */);
+export const File = Enum({} as File, {}, "mime" /* <-- */);
 
 {
   const file: File = File["text/plain"]({ data: "..." });
