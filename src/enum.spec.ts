@@ -56,9 +56,13 @@ describe("Enum", () => {
 			"custom"
 		>;
 
-		const Event = Enum({} as Event, "custom", {
-			Data: (value: unknown) => ({ value }),
-		});
+		const Event = Enum(
+			{} as Event,
+			{
+				Data: (value: unknown) => ({ value }),
+			},
+			"custom",
+		);
 
 		{
 			const eventOpen: Event = { custom: "Open" };
@@ -131,7 +135,7 @@ describe("Enum.is", () => {
 			"custom"
 		>;
 
-		const Event = Enum({} as Event, "custom");
+		const Event = Enum({} as Event, {}, "custom");
 		const event = {} as Event;
 
 		{
