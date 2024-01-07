@@ -12,9 +12,10 @@
 
 - produces simple and portable discriminated union types.
 - all types can be compiled away, with zero-cost to bundle size.
+- supports custom discriminants for type utilities and runtime helpers.
 - includes `Result` to improve error-handling ergonomics.
 - includes `Enum` helpers to inspect/pick/omit/merge/extend variants.
-- includes optional runtime helpers like `Enum.match` and `Result.try`.
+- includes optional runtime helpers, `Enum.is`, `Enum.match` and `Result.try`.
 
 Read more:
 - [Tagged union](https://wikipedia.org/wiki/Tagged_union)
@@ -79,7 +80,7 @@ export type User = Enum<{
 
 /*!
 #### (a) object expression
-- If you definitely want don't want to create runtime helpers.
+- Only if you want to completely avoid any runtime helpers.
 !*/
 
 //>
@@ -94,7 +95,7 @@ export type User = Enum<{
 
 /*!
 #### (b) helper function
-- Builds a `value` constructor using a given `type`.
+- Builds a Enum `value` constructor using a given Enum `type`.
 - You may use the same name for both `type` and `value`.
 !*/
 
@@ -116,6 +117,7 @@ export const User = Enum({} as User);
 
 /*!
 #### (a.1) if statements, property access
+- Only if you want to completely avoid any runtime helpers.
 !*/
 
 //>
@@ -129,6 +131,7 @@ export const User = Enum({} as User);
 
 /*!
 #### (a.2) if statements, type-guard helper
+- `Enum.is` also allows for matching using an array of multiple variants' keys.
 !*/
 
 //>
@@ -148,7 +151,7 @@ export const User = Enum({} as User);
 (function (user: User): string {
 	return Enum.match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
-		Anonymous: () => "Not logged in.",
+		Anonymous: "Not logged in.",
 	});
 });
 //<
@@ -161,7 +164,7 @@ export const User = Enum({} as User);
 (function (user: User): string {
 	return Enum.match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
-		_: () => "Not logged in.",
+		_: "Not logged in.",
 	});
 });
 //<
@@ -197,9 +200,9 @@ export const User = Enum({} as User);
 - The `matcher` object is keyed with all possible variants of the Enum and an
   optional `_` fallback case.
 - If the `_` fallback case is not given, _all_ variants must be specified.
-- `matcher` cases can be a value or a callback.
-- If a variant's case is a callback, that variants `value`'s properties are
-  available for access.
+- All `matcher` cases (including `_`) can be a value or a callback.
+- If a variant's case is a callback, the matching variants `value`'s properties
+  are available for access.
 !*/
 
 //>
@@ -231,6 +234,8 @@ export const User = Enum({} as User);
 
 /*!
 ### Manipulating an Enum
+- All of these Enum `type` utilities support a custom discriminant as the last
+  type parameter, e.g. `Enum.Root<Signal, "custom">`.
 !*/
 
 //>
