@@ -5,7 +5,6 @@ rm -rf dist
 # ts
 tsc --project tsconfig.build.json
 mkdir -p dist
-cp src/*.d.ts dist
 
 # package
 cp package.json LICENSE README.md dist
