@@ -130,7 +130,22 @@ describe("Ok/Error", () => {
 	};
 
 	void function getAnything(): string {
-		// @ts-expect-error Not assignable to return type.
-		return Result.Ok();
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Result.Ok();
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Result.Ok("...");
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Result.Error();
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Result.Error("...");
+		}
+		return "...";
 	};
 });

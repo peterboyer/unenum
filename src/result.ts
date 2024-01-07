@@ -27,16 +27,31 @@ export const Result = {
 	try: _try,
 };
 
-function Ok<T = Result.Ok>(
-	...args: Extract<T, { _type: "Ok" }> extends { value: infer U } ? [U] : []
-): NeverFallback<Extract<T, { _type: "Ok" }>, Result.Ok> {
+function Ok<T = Result.Ok>(...args: OkArgs<T>): OkReturnType<T> {
 	return { _type: "Ok", value: args[0] } as any;
 }
 
-function Error<T = Result.Error>(
-	...args: Extract<T, { _type: "Error" }> extends { error: infer U } ? [U] : []
-): Extract<T, { _type: "Error" }> {
+function Error<T = Result.Error>(...args: ErrorArgs<T>): ErrorReturnType<T> {
 	return { _type: "Error", error: args[0] } as any;
 }
+
+type OkArgs<T> = [Extract<T, { _type: "Ok" }>] extends [never]
+	? []
+	: Extract<T, { _type: "Ok" }> extends { value: infer U }
+		? [U]
+		: [];
+
+type OkReturnType<T> = NeverFallback<Extract<T, { _type: "Ok" }>, Result.Ok>;
+
+type ErrorArgs<T> = [Extract<T, { _type: "Error" }>] extends [never]
+	? []
+	: Extract<T, { _type: "Error" }> extends { error: infer U }
+		? [U]
+		: [];
+
+type ErrorReturnType<T> = NeverFallback<
+	Extract<T, { _type: "Error" }>,
+	Result.Error
+>;
 
 type NeverFallback<T, TFallback> = [T] extends [never] ? TFallback : T;
