@@ -57,7 +57,22 @@ describe("Ready/Pending", () => {
 	};
 
 	void function getAnything(): string {
-		// @ts-expect-error Not assignable to return type.
-		return Async.Ready();
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Async.Pending();
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Async.Pending("...");
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Async.Ready();
+		}
+		if (branch()) {
+			// @ts-expect-error Not assignable to return type.
+			return Async.Ready("...");
+		}
+		return "...";
 	};
 });
