@@ -1,6 +1,6 @@
 import { Enum } from "../enum.js";
 
-describe("Enum", () => {
+describe("Enum.builder", () => {
 	test("Default", () => {
 		type Event = Enum<{
 			Open: true;
@@ -8,7 +8,7 @@ describe("Enum", () => {
 			Close: true;
 		}>;
 
-		const Event = Enum({} as Event);
+		const Event = Enum.builder({} as Event);
 
 		{
 			const eventOpen = Event.Open();
@@ -29,7 +29,7 @@ describe("Enum", () => {
 			Close: true;
 		}>;
 
-		const Event = Enum({} as Event, {
+		const Event = Enum.builder({} as Event, {
 			Data: (value: unknown) => ({ value }),
 		});
 
@@ -44,7 +44,9 @@ describe("Enum", () => {
 			void [eventOpen, eventData, eventClose];
 		}
 	});
+});
 
+describe("Enum.builder_", () => {
 	test("Custom", () => {
 		type Event = Enum<
 			{
@@ -55,13 +57,9 @@ describe("Enum", () => {
 			"custom"
 		>;
 
-		const Event = Enum(
-			{} as Event,
-			{
-				Data: (value: unknown) => ({ value }),
-			},
-			"custom",
-		);
+		const Event = Enum.builder_({} as Event, "custom", {
+			Data: (value: unknown) => ({ value }),
+		});
 
 		{
 			const eventOpen: Event = { custom: "Open" };

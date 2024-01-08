@@ -88,7 +88,7 @@ export type User = Enum<{
 - You may use the same name for both `type` and `value`.
 
 ```ts
-export const User = Enum({} as User);
+export const User = Enum.builder({} as User);
 
 {
   const user: User = User.Anonymous();
@@ -164,10 +164,10 @@ export const User = Enum({} as User);
 {
   const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
 
-  void (() => Enum.is(value, "A", "custom"));
-  void (() => Enum.is(value, "B", "custom"));
-  void (() => Enum.is(value, ["A"], "custom"));
-  void (() => Enum.is(value, ["A", "B"], "custom"));
+  void (() => Enum.is_(value, "custom", "A"));
+  void (() => Enum.is_(value, "custom", "B"));
+  void (() => Enum.is_(value, "custom", ["A"]));
+  void (() => Enum.is_(value, "custom", ["A", "B"]));
 }
 ```
 
@@ -199,9 +199,9 @@ export const User = Enum({} as User);
 {
   const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
 
-  void (() => Enum.match(value, { _: "Fallback" }, "custom"));
-  void (() => Enum.match(value, { A: "A", B: "B" }, "custom"));
-  void (() => Enum.match(value, { A: "A", _: "Fallback" }, "custom"));
+  void (() => Enum.match_(value, "custom", { _: "Fallback" }));
+  void (() => Enum.match_(value, "custom", { A: "A", B: "B" }));
+  void (() => Enum.match_(value, "custom", { A: "A", _: "Fallback" }));
   // ...
 }
 ```
@@ -287,7 +287,7 @@ type Colour = Enum<{
   RGB: Record<"r" | "g" | "b", number>;
 }>;
 
-export const Colour = Enum({} as Colour, {
+export const Colour = Enum.builder({} as Colour, {
   RGB: (r: number, g: number, b: number) => ({ r, g, b }),
 });
 
@@ -335,7 +335,7 @@ export type File = Enum<
 ##### (b) helper function
 
 ```ts
-export const File = Enum({} as File, {}, "mime" /* <-- */);
+export const File = Enum.builder_({} as File, "mime" /* <-- */);
 
 {
   const file: File = File["text/plain"]({ data: "..." });
@@ -367,10 +367,10 @@ export const File = Enum({} as File, {}, "mime" /* <-- */);
 
 ```ts
 (function (file: File): string {
-  if (Enum.is(file, "text/plain", "mime" /* <-- */)) {
+  if (Enum.is_(file, "mime" /* <-- */, "text/plain")) {
     return `Text`;
   }
-  if (Enum.is(file, "image/jpeg", "mime" /* <-- */)) {
+  if (Enum.is_(file, "mime" /* <-- */, "image/jpeg")) {
     return "Image";
   }
   return "Unsupported";
@@ -381,15 +381,11 @@ export const File = Enum({} as File, {}, "mime" /* <-- */);
 
 ```ts
 (function (file: File): string {
-  return Enum.match(
-    file,
-    {
-      "text/plain": () => "Text",
-      "image/jpeg": () => "Image",
-      _: () => "Unsupported",
-    },
-    "mime" /* <-- */,
-  );
+  return Enum.match_(file, "mime" /* <-- */, {
+    "text/plain": () => "Text",
+    "image/jpeg": () => "Image",
+    _: () => "Unsupported",
+  });
 });
 ```
 
