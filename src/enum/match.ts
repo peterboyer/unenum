@@ -26,30 +26,17 @@ export const match = <
 	value: TEnum,
 	matcher: TMatcher & { _?: TFallback },
 	discriminant?: TDiscriminant,
-): {
-	_:
-		| (undefined extends TMatcher[Exclude<keyof TMatcher, "_">]
-				? never
-				: {
-						[Key in keyof TMatcher]: TMatcher[Key] extends (
-							...args: any[]
-						) => any
-							? ReturnType<TMatcher[Key]>
-							: TMatcher[Key];
-					}[keyof TMatcher])
-		| (TFallback extends (...args: any[]) => any
-				? ReturnType<TFallback>
-				: TFallback);
-	// debug
-	$: {
-		matcher: TMatcher;
-		fallback: TFallback;
-		discriminant: TDiscriminant;
-		keyofTEnum: keyof TEnum;
-		keyofTEnumMatcher: keyof TEnumMatcher;
-		keyofTMatcher: keyof TMatcher;
-	};
-}["_"] => {
+):
+	| (undefined extends TMatcher[Exclude<keyof TMatcher, "_">]
+			? never
+			: {
+					[Key in keyof TMatcher]: TMatcher[Key] extends (...args: any[]) => any
+						? ReturnType<TMatcher[Key]>
+						: TMatcher[Key];
+				}[keyof TMatcher])
+	| (TFallback extends (...args: any[]) => any
+			? ReturnType<TFallback>
+			: TFallback) => {
 	const key = value[discriminant ?? ("_type" as TDiscriminant)];
 	const keyMatch =
 		matcher[key as unknown as keyof TMatcher & string] ??
