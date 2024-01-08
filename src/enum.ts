@@ -1,6 +1,3 @@
-import { is, is_ } from "./enum/is.js";
-import { match, match_ } from "./enum/match.js";
-import { builder, builder_ } from "./enum/builder.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
@@ -15,7 +12,18 @@ export type Enum<
 			: never;
 }[keyof TVariants];
 
+import * as $is from "./enum/is.js";
+import * as $match from "./enum/match.js";
+import * as $builder from "./enum/builder.js";
+
 export namespace Enum {
+	export const is = $is.is;
+	export const is_ = $is.is_;
+	export const match = $match.match;
+	export const match_ = $match.match_;
+	export const builder = $builder.builder;
+	export const builder_ = $builder.builder_;
+
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
 		Record<TDiscriminant, string>;
 
@@ -115,15 +123,3 @@ export namespace Enum {
 		[K in keyof T]: T[K] extends true ? Record<never, never> : T[K];
 	};
 }
-
-export const Enum = Object.assign(
-	{},
-	{
-		is,
-		match,
-		builder,
-		is_,
-		match_,
-		builder_,
-	},
-);

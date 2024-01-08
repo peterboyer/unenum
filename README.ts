@@ -6,7 +6,7 @@
 **Universal ADT utilities for TypeScript.**
 
 [Installation](#installation) • [`Enum`](#enum) • [`Enum.is`](#enumis) •
-[`Enum.match`](#enummatch) • [`Result`](#result) • [`Result.try`](#resulttry)
+[`Enum.match`](#enummatch) • [`Result`](#result) • [`Result.from`](#resultfrom)
 • [`Async`](#async)
 </div>
 
@@ -15,7 +15,7 @@
 - supports custom discriminants for type utilities and runtime helpers.
 - includes `Result` to improve error-handling ergonomics.
 - includes `Enum` helpers to inspect/pick/omit/merge/extend variants.
-- includes optional runtime helpers, `Enum.is`, `Enum.match` and `Result.try`.
+- includes optional runtime helpers, `Enum.is`, `Enum.match` and `Result.from`.
 
 Read more:
 - [Tagged union](https://wikipedia.org/wiki/Tagged_union)
@@ -537,9 +537,9 @@ import { Result } from "unenum";
 //<
 
 /*!
-### `Result.try`
+### `Result.from`
 - Instead of wrapping code that could `throw` in `try`/`catch` blocks,
-	`Result.try` can execute a given callback and return a `Result` wrapped value
+	`Result.from` can execute a given callback and return a `Result` wrapped value
 	without interrupting a function's control flow or scoping of variables.
 - If the function throws then the `Error` Result variant is returned, otherwise
 	the `Ok` Result variant is returned.
@@ -557,7 +557,7 @@ const getValueOrThrow = (): string => {
 };
 
 (function () {
-	const result = Result.try(() => getValueOrThrow());
+	const result = Result.from(() => getValueOrThrow());
 	// Result<string, unknown>
 
 	if (Enum.is(result, "Error")) {
