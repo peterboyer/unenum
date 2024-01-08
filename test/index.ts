@@ -8,7 +8,7 @@ type WebEvent = Enum<{
 	Click: { x: number; y: number };
 }>;
 
-const WebEvent = Enum({} as WebEvent, {
+const WebEvent = Enum.builder({} as WebEvent, {
 	KeyPress: (key: string) => ({ key }),
 	Paste: (content: string) => ({ content }),
 });

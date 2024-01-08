@@ -1,6 +1,6 @@
-import { is } from "./enum/is.js";
-import { match } from "./enum/match.js";
-import { constructor } from "./enum/constructor.js";
+import { is, is_ } from "./enum/is.js";
+import { match, match_ } from "./enum/match.js";
+import { builder, builder_ } from "./enum/builder.js";
 import type { Identity } from "./shared/identity.js";
 import type { Intersect } from "./shared/intersect.js";
 
@@ -116,7 +116,14 @@ export namespace Enum {
 	};
 }
 
-export const Enum = Object.assign(constructor, {
-	is,
-	match,
-});
+export const Enum = Object.assign(
+	{},
+	{
+		is,
+		match,
+		builder,
+		is_,
+		match_,
+		builder_,
+	},
+);
