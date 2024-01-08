@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { Enum } from "./enum.js";
 
 export type Async<T = never> = [T] extends [never]
