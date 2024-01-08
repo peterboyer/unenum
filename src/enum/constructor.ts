@@ -30,8 +30,8 @@ export const constructor = <
 					[Key in TEnum[TDiscriminant]]: Key extends keyof TMapper
 						? TMapper[Key] extends (...args: any[]) => any
 							? (...args: Parameters<TMapper[Key]>) => TEnum
-							: Fn<TEnum, TDiscriminant>
-						: Fn<TEnum, TDiscriminant>;
+							: EnumVariantConstructor<TEnum, TDiscriminant>
+						: EnumVariantConstructor<TEnum, TDiscriminant>;
 				}
 			: never
 	>
@@ -48,7 +48,7 @@ export const constructor = <
 	});
 };
 
-type Fn<
+type EnumVariantConstructor<
 	TEnum extends Enum.Any<TDiscriminant>,
 	TDiscriminant extends Enum.Discriminant,
 > = TEnum extends unknown
