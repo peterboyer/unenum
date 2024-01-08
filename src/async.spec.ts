@@ -1,7 +1,7 @@
-import { branch } from "./shared/branch.js";
 import { Async } from "./async.js";
+import { branch } from "./shared/branch.js";
 
-describe("Ready/Pending", () => {
+describe("Async", () => {
 	test("Ready", () => {
 		expect(Async.Ready()).toStrictEqual({
 			_type: "Ready",
