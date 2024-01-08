@@ -59,7 +59,7 @@ function app() {
 	const eventPageType = getEventPageType(event);
 	console.log(eventPageType);
 
-	const $inspect = Result.try(() => inspect(event));
+	const $inspect = Result.from(() => inspect(event));
 	if (Enum.is($inspect, "Error")) {
 		return console.log($inspect.error);
 	}

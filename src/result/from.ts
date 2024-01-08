@@ -1,7 +1,9 @@
 import type { Result } from "../result.js";
 
-const _try = <TReturnType>(fn: () => TReturnType): TryResult<TReturnType> => {
-	type TryReturn = TryResult<TReturnType>;
+export function from<TReturnType>(
+	fn: () => TReturnType,
+): FromResult<TReturnType> {
+	type TryReturn = FromResult<TReturnType>;
 
 	try {
 		const value = fn();
@@ -14,11 +16,9 @@ const _try = <TReturnType>(fn: () => TReturnType): TryResult<TReturnType> => {
 	} catch (error) {
 		return { _type: "Error", error } as unknown as TryReturn;
 	}
-};
+}
 
-export { _try as try };
-
-type TryResult<TReturnType> = [TReturnType] extends [never]
+type FromResult<TReturnType> = [TReturnType] extends [never]
 	? Result // when never
 	: 0 extends 1 & TReturnType
 		? Result<unknown, unknown> // when any
