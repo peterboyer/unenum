@@ -40,6 +40,8 @@ function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
 }
 
 function useAsyncResult(): Async<Result<string, "FooError">> {
+	if ("".toString()) return Result.Ok("...");
+	if ("".toString()) return Result.Error("FooError");
 	return Async.Pending();
 }
 
@@ -66,4 +68,4 @@ function app() {
 	return console.log(event);
 }
 
-() => app();
+void app();
