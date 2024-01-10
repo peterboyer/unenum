@@ -1,10 +1,10 @@
 {
-	"extends": "@tsconfig/recommended",
+	"extends": [
+		"@tsconfig/recommended/tsconfig.json",
+		"@tsconfig/esm/tsconfig.json"
+	],
 	"include": ["index.ts"],
 	"compilerOptions": {
-		"noEmit": true,
-		"module": "esnext",
-		"moduleResolution": "node",
-		"verbatimModuleSyntax": true
+		"noEmit": true
 	}
 }
