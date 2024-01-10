@@ -1,11 +1,13 @@
 {
-	"extends": ["@tsconfig/strictest", "@tsconfig/esm"],
+	"extends": [
+		"@tsconfig/strictest/tsconfig.json",
+		"@tsconfig/esm/tsconfig.json"
+	],
 	"include": ["src", "README.ts"],
-	"exclude": ["src/global.*"],
 	"compilerOptions": {
 		"noEmit": true,
 		"skipLibCheck": false,
-		"target": "es6",
+		"target": "esnext",
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"paths": {
