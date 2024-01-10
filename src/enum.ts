@@ -12,18 +12,20 @@ export type Enum<
 			: never;
 }[keyof TVariants];
 
-import * as $is from "./enum/is.js";
-import * as $match from "./enum/match.js";
-import * as $builder from "./enum/builder.js";
+import { is, is_ } from "./enum.is.js";
+import { match, match_ } from "./enum.match.js";
+import { builder, builder_ } from "./enum.builder.js";
+
+export const Enum = {
+	is,
+	is_,
+	match,
+	match_,
+	builder,
+	builder_,
+};
 
 export namespace Enum {
-	export const is = $is.is;
-	export const is_ = $is.is_;
-	export const match = $match.match;
-	export const match_ = $match.match_;
-	export const builder = $builder.builder;
-	export const builder_ = $builder.builder_;
-
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
 		Record<TDiscriminant, string>;
 

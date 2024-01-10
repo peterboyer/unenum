@@ -1,6 +1,6 @@
-import type { Enum } from "../enum.js";
-import type { Identity } from "../shared/identity.js";
-import type { Intersect } from "../shared/intersect.js";
+import type { Enum } from "./enum.js";
+import type { Identity } from "./shared/identity.js";
+import type { Intersect } from "./shared/intersect.js";
 
 export function builder<TEnum extends Enum.Any, TMapper extends Mapper<TEnum>>(
 	_value: TEnum,

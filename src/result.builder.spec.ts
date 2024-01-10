@@ -1,5 +1,5 @@
+import { branch } from "./testing.js";
 import { Result } from "./result.js";
-import { branch } from "./shared/branch.js";
 
 describe("Result", () => {
 	test("Ok", () => {

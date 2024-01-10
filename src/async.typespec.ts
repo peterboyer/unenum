@@ -1,4 +1,4 @@
-import type { Expect, Equal } from "./shared/tests.js";
+import type { Expect, Equal } from "./testing.js";
 import type { Async } from "./async.js";
 import type { Result } from "./result.js";
 

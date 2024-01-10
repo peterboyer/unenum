@@ -1,5 +1,5 @@
-import type { Equal, Expect } from "../shared/tests.js";
-import { Enum } from "../enum.js";
+import type { Equal, Expect } from "./testing.js";
+import { Enum } from "./enum.js";
 
 describe("Enum.is", () => {
 	test("Default", () => {

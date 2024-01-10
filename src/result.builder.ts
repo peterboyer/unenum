@@ -1,4 +1,4 @@
-import type { Result } from "../result.js";
+import type { Result } from "./result.js";
 
 export function Ok<T = Result.Ok>(...args: OkArgs<T>): OkReturnType<T> {
 	return { _type: "Ok", value: args[0] } as any;

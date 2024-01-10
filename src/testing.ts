@@ -8,3 +8,7 @@ export type Equal<A, B> = (
 	: false;
 
 export type NotEqual<A, B> = Equal<A, B> extends true ? false : true;
+
+export function branch(): boolean {
+	return Math.random() === 1;
+}

@@ -1,4 +1,4 @@
-import { Enum } from "../enum.js";
+import { Enum } from "./enum.js";
 
 describe("Enum.builder", () => {
 	test("Default", () => {

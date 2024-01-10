@@ -1,4 +1,4 @@
-import type { Enum } from "../enum.js";
+import type { Enum } from "./enum.js";
 
 export function is<TEnum extends Enum.Any, TKey extends Enum.Keys<TEnum>>(
 	value: TEnum,

@@ -4,14 +4,16 @@ export type Result<TValue = never, TError = never> =
 	| Result.Ok<TValue>
 	| Result.Error<TError>;
 
-import * as $OkError from "./result/ok-error.js";
-import * as $from from "./result/from.js";
+import { Ok, Error } from "./result.builder.js";
+import { from } from "./result.from.js";
+
+export const Result = {
+	Ok,
+	Error,
+	from,
+};
 
 export namespace Result {
-	export const Ok = $OkError.Ok;
-	export const Error = $OkError.Error;
-	export const from = $from.from;
-
 	export type Ok<TValue = never> = Enum<{
 		Ok: [TValue] extends [never]
 			? { value?: never; error?: never }

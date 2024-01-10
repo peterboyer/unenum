@@ -1,5 +1,5 @@
+import { branch } from "./testing.js";
 import { Async } from "./async.js";
-import { branch } from "./shared/branch.js";
 
 describe("Async", () => {
 	test("Ready", () => {
