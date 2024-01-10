@@ -5,6 +5,11 @@
 	"author": "Peter Boyer <https://github.com/peterboyer>",
 	"repository": "github:peterboyer/unenum",
 	"description": "Universal ADT utilities for TypeScript.",
+	"type": "module",
+	"main": "./index.js",
+	"types": "./index.d.ts",
+	"exports": "./index.js",
+	"sideEffects": false,
 	"scripts": {
 		"test": "./scripts/test.sh",
 		"test:e2e": "./scripts/test-e2e.sh",
@@ -16,10 +21,6 @@
 		"docs:build": "./scripts/docs-build.sh",
 		"docs:watch": "chokidar README.ts -c \"yarn docs:build\""
 	},
-	"type": "module",
-	"main": "./index.js",
-	"types": "./index.d.ts",
-	"exports": "./index.js",
 	"devDependencies": {
 		"@tsconfig/esm": "^1.0.5",
 		"@tsconfig/strictest": "^2.0.2",
