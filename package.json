@@ -16,7 +16,8 @@
 		"lint": "./scripts/lint.sh",
 		"lint:ts": "./scripts/lint-ts.sh",
 		"build": "./scripts/build.sh",
-		"all": "yarn lint && yarn lint:ts && yarn test && yarn docs:build && yarn build && yarn test:e2e",
+		"build:link": "./scripts/build-link.sh",
+		"all": "yarn lint && yarn lint:ts && yarn test && yarn docs:build && yarn build && yarn build:link && yarn test:e2e",
 		"docs": "concurrently \"npx markserv README.md\" \"yarn docs:watch\"",
 		"docs:build": "./scripts/docs-build.sh",
 		"docs:watch": "chokidar README.ts -c \"yarn docs:build\""
