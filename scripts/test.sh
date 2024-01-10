@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-node --experimental-vm-modules node_modules/jest/bin/jest.js $@
+NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js $@
