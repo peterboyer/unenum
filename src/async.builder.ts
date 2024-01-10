@@ -1,4 +1,4 @@
-import type { Async } from "../async.js";
+import type { Async } from "./async.js";
 
 export function Pending<T = Async.Pending>(): PendingReturnType<T> {
 	return { _type: "Pending" } as any;

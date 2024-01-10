@@ -1,4 +1,4 @@
-import type { Enum } from "../enum.js";
+import type { Enum } from "./enum.js";
 
 export function match<
 	TEnum extends Enum.Any,

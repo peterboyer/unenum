@@ -9,12 +9,14 @@ export type Async<T = never> = [T] extends [never]
 type AsyncValue<T> = Async.Pending<T> | Async.Ready<T>;
 type AsyncEnum<TEnum> = Async.Pending | TEnum;
 
-import * as $PendingReady from "./async/pending-ready.js";
+import { Pending, Ready } from "./async.builder.js";
+
+export const Async = {
+	Pending,
+	Ready,
+};
 
 export namespace Async {
-	export const Pending = $PendingReady.Pending;
-	export const Ready = $PendingReady.Ready;
-
 	export type Pending<TValue = never> = Enum<{
 		Pending: [TValue] extends [never] ? true : { value?: never };
 	}>;
