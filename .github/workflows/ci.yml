@@ -21,15 +21,13 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
       - run: |
-          yarn concurrently \
-            --names "lint,lint:ts,test,build" \
-            "yarn lint" \
-            "yarn lint:ts" \
-            "yarn test" \
-            "yarn build"
-      - run: yarn test:e2e
+          yarn install --frozen-lockfile
+          cd test && yarn install --frozen-lockfile
+      - run: yarn all
       - uses: actions/upload-artifact@v3
         with:
           name: dist
@@ -51,7 +49,7 @@ jobs:
           path: dist
       - uses: actions/setup-node@v3
         with:
-          node-version: "20.x"
+          node-version: 20
           registry-url: "https://registry.npmjs.org"
       - name: Publish
         run: |
