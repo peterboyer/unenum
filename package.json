@@ -1,10 +1,13 @@
 {
 	"name": "unenum",
 	"version": "2.0.0",
+	"description": "Universal ADT utilities for TypeScript.",
 	"license": "MIT",
 	"author": "Peter Boyer <https://github.com/peterboyer>",
-	"repository": "github:peterboyer/unenum",
-	"description": "Universal ADT utilities for TypeScript.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/peterboyer/unenum.git"
+	},
 	"type": "module",
 	"main": "./index.js",
 	"types": "./index.d.ts",
