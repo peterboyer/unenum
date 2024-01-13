@@ -5,17 +5,17 @@
 
 **Universal ADT utilities for TypeScript.**
 
-[Installation](#installation) • [`Enum`](#enum) • [`Enum.is`](#enumis) •
-[`Enum.match`](#enummatch) • [`Result`](#result) • [`Result.from`](#resultfrom)
-• [`Async`](#async)
+[Installation](#installation) • [`Enum`](#enum) • [`builder`](#builder) •
+[`is`](#is) • [`match`](#match) • [`Result`](#result) •
+[`Result.from`](#resultfrom) • [`Async`](#async)
 </div>
 
 - produces simple and portable discriminated union types.
 - all types can be compiled away, with zero-cost to bundle size.
 - supports custom discriminants for type utilities and runtime helpers.
 - includes `Result` to improve error-handling ergonomics.
-- includes `Enum` helpers to inspect/pick/omit/merge/extend variants.
-- includes optional runtime helpers, `Enum.is`, `Enum.match` and `Result.from`.
+- includes helpers to inspect/pick/omit/merge/extend Enums and variants.
+- includes optional runtime helpers, `is`, `match` and `Result.from`.
 
 Read more:
 - [Tagged union](https://wikipedia.org/wiki/Tagged_union)
@@ -45,7 +45,7 @@ yarn add unenum
 
 1. Clone this repo: `git clone git@github.com:peterboyer/unenum.git`.
 2. Install development dependencies: `npm install` or `yarn install`.
-3. Jump in!
+3. Jump in and experiment!
 
 !*/
 
@@ -54,14 +54,14 @@ yarn add unenum
 !*/
 
 //>
-import { Enum } from "unenum";
+import { type Enum } from "unenum";
 //<
 
 /*!
 ### Defining an Enum
 - The `_type` property is used as discriminant to distinguish between variants.
-- The underscore-prefixed name somewhat denotes this as an "internal" property
-  not intended to collide with general-use user-space named properties.
+- The underscore-prefixed name somewhat denotes this as a special property not
+  intended to collide with general-use user-space named properties.
 !*/
 
 //>
@@ -79,8 +79,28 @@ export type User = Enum<{
 !*/
 
 /*!
-#### (a) object expression
-- Only if you want to completely avoid any runtime helpers.
+#### (a) builder function
+- [`builder`](#builder) creates an Enum value "constructor" typed with a given
+  Enum type.
+- You may define and export the builder with the same name
+as your Enum's type.
+!*/
+
+//>
+export const User = builder({} as User);
+
+{
+	const user: User = User.Anonymous();
+	void user;
+
+	void (() => User.Anonymous());
+	void (() => User.Authenticated({ userId: "..." }));
+}
+//<
+
+/*!
+#### (b) object expression
+- Alternatively, you may chose to not use a builder.
 !*/
 
 //>
@@ -94,30 +114,26 @@ export type User = Enum<{
 //<
 
 /*!
-#### (b) helper function
-- Builds a Enum `value` constructor using a given Enum `type`.
-- You may use the same name for both `type` and `value`.
-!*/
-
-//>
-export const User = Enum.builder({} as User);
-
-{
-	const user: User = User.Anonymous();
-	void user;
-
-	void (() => User.Anonymous());
-	void (() => User.Authenticated({ userId: "..." }));
-}
-//<
-
-/*!
 ### Using an Enum
 !*/
 
 /*!
-#### (a.1) if statements, property access
-- Only if you want to completely avoid any runtime helpers.
+#### (a.1) if statements, type-guard helper
+- [`is`](#is) also allows for matching using an array of multiple variants' keys.
+!*/
+
+//>
+(function (user: User): string {
+	if (is(user, "Authenticated")) {
+		return `Logged in as ${user.userId}.`;
+	}
+	return "Not logged in.";
+});
+//<
+
+/*!
+#### (a.2) if statements, property access
+- Alternatively, you may chose to not use a matcher.
 !*/
 
 //>
@@ -130,26 +146,14 @@ export const User = Enum.builder({} as User);
 //<
 
 /*!
-#### (a.2) if statements, type-guard helper
-- `Enum.is` also allows for matching using an array of multiple variants' keys.
+#### (b.1) match helper, handling all cases
+- [`match`](#match) allows easy type safe mapping of variants and variants'
+	values to another returned value.
 !*/
 
 //>
 (function (user: User): string {
-	if (Enum.is(user, "Authenticated")) {
-		return `Logged in as ${user.userId}.`;
-	}
-	return "Not logged in.";
-});
-//<
-
-/*!
-#### (b.1) match expression, handling all cases
-!*/
-
-//>
-(function (user: User): string {
-	return Enum.match(user, {
+	return match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
 		Anonymous: "Not logged in.",
 	});
@@ -157,88 +161,140 @@ export const User = Enum.builder({} as User);
 //<
 
 /*!
-#### (b.2) match expression, with catch-all
+#### (b.2) match helper, with catch-all
 !*/
 
 //>
 (function (user: User): string {
-	return Enum.match(user, {
+	return match(user, {
 		Authenticated: ({ userId }) => `Logged in as ${userId}.`,
-		_: "Not logged in.",
+		_: "Unhandled case.",
 	});
 });
 //<
 
 /*!
-### `Enum.is`
-- Returns `true` and narrows the given Enum `value`'s possible variants if the
-  `value` matches any of the specified variants by key.
+### `builder`
+- Returns a constructor based on the given Enum type to easily create variant
+  object values.
+- A custom "mapper" can be used to define functions per Enum variant to
+  streamline construction of Enum variants based on your use-cases.
 !*/
 
 //>
-{
-	const value = {} as Enum<{ A: true; B: { value: string } }>;
+type Colour = Enum<{
+	Transparent: true;
+	Named: { name: string };
+	RGB: Record<"r" | "g" | "b", number>;
+}>;
 
-	void (() => Enum.is(value, "A"));
-	void (() => Enum.is(value, "B"));
-	void (() => Enum.is(value, ["A"]));
-	void (() => Enum.is(value, ["A", "B"]));
+export const Colour = builder({} as Colour, {
+	RGB: (r: number, g: number, b: number) => ({ r, g, b }),
+});
+
+{
+	const color: Colour = Colour.RGB(4, 2, 0);
+	void color;
+
+	// variant with no properties
+	void ((): Colour => Colour.Transparent());
+	// variant with properties
+	void ((): Colour => Colour.Named({ name: "Red" }));
+	// variant with mapper function
+	void ((): Colour => Colour.RGB(0, 0, 0));
 }
+//<
+
+//>
+import { builder } from "unenum";
+//<
+
+/*!
+### `is`
+- Returns `true` and narrows the given Enum value's possible variants if the
+  value matches any of the specified variants by key.
+!*/
+
+//>
+import { is } from "unenum";
 
 {
-	const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
+	type Value = Enum<{ A: true; B: { value: string } }>;
+	const value = {} as Value;
 
-	void (() => Enum.is_(value, "custom", "A"));
-	void (() => Enum.is_(value, "custom", "B"));
-	void (() => Enum.is_(value, "custom", ["A"]));
-	void (() => Enum.is_(value, "custom", ["A", "B"]));
+	void (() => is(value, "A"));
+	void (() => is(value, "B"));
+	void (() => is(value, ["A"]));
+	void (() => is(value, ["A", "B"]));
+}
+//<
+
+//>
+import { is_ } from "unenum";
+
+{
+	type Value = Enum<{ A: true; B: { value: string } }, "custom">;
+	const value = {} as Value;
+
+	void (() => is_(value, "custom", "A"));
+	void (() => is_(value, "custom", "B"));
+	void (() => is_(value, "custom", ["A"]));
+	void (() => is_(value, "custom", ["A", "B"]));
 }
 //<
 
 /*!
-### `Enum.match`
+### `match`
 - The `matcher` object is keyed with all possible variants of the Enum and an
   optional `_` fallback case.
 - If the `_` fallback case is not given, _all_ variants must be specified.
 - All `matcher` cases (including `_`) can be a value or a callback.
-- If a variant's case is a callback, the matching variants `value`'s properties
+- If a variant's case is a callback, the matching variants value's properties
   are available for access.
 !*/
 
 //>
+import { match } from "unenum";
+
 {
 	const value = {} as Enum<{ A: true; B: { value: string } }>;
 
-	void (() => Enum.match(value, { _: "Fallback" }));
-	void (() => Enum.match(value, { _: () => "Fallback" }));
-	void (() => Enum.match(value, { A: "A", _: "Fallback" }));
-	void (() => Enum.match(value, { A: () => "A", _: "Fallback" }));
-	void (() => Enum.match(value, { A: "A", B: "B" }));
-	void (() => Enum.match(value, { A: "A", B: () => "B" }));
-	void (() => Enum.match(value, { A: () => "A", B: () => "B" }));
-	void (() => Enum.match(value, { A: () => "A", B: () => "B", _: "Fallback" }));
-	void (() => Enum.match(value, { A: undefined, B: ({ value }) => value }));
-	void (() => Enum.match(value, { B: ({ value }) => value, _: "Fallback" }));
-	void (() => Enum.match(value, { A: true, B: false, _: undefined }));
+	void (() => match(value, { _: "Fallback" }));
+	void (() => match(value, { _: () => "Fallback" }));
+	void (() => match(value, { A: "A", _: "Fallback" }));
+	void (() => match(value, { A: () => "A", _: "Fallback" }));
+	void (() => match(value, { A: "A", B: "B" }));
+	void (() => match(value, { A: "A", B: () => "B" }));
+	void (() => match(value, { A: () => "A", B: () => "B" }));
+	void (() => match(value, { A: () => "A", B: () => "B", _: "Fallback" }));
+	void (() => match(value, { A: undefined, B: ({ value }) => value }));
+	void (() => match(value, { B: ({ value }) => value, _: "Fallback" }));
+	void (() => match(value, { A: true, B: false, _: undefined }));
 }
+//<
+
+//>
+import { match_ } from "unenum";
 
 {
 	const value = {} as Enum<{ A: true; B: { value: string } }, "custom">;
 
-	void (() => Enum.match_(value, "custom", { _: "Fallback" }));
-	void (() => Enum.match_(value, "custom", { A: "A", B: "B" }));
-	void (() => Enum.match_(value, "custom", { A: "A", _: "Fallback" }));
+	void (() => match_(value, "custom", { _: "Fallback" }));
+	void (() => match_(value, "custom", { A: "A", B: "B" }));
+	void (() => match_(value, "custom", { A: "A", _: "Fallback" }));
 	// ...
 }
 //<
 
 /*!
 ### Manipulating an Enum
-- All of these Enum `type` utilities support a custom discriminant as the last
+- These utilities as available as part of the `Enum` type import's namespace.
+- All of these Enum type utilities support a custom discriminant as the last
   type parameter, e.g. `Enum.Root<Signal, "custom">`.
 !*/
 
 //>
+// example
 type Signal = Enum<{ Red: true; Yellow: true; Green: true }>;
 //<
 
@@ -317,33 +373,7 @@ export type Merge = Enum.Merge<Enum<{ Left: true }> | Enum<{ Right: true }>>;
 //<
 
 /*!
-### Define a custom constructor for Enum variants
-- Custom helper functions may be defined per Enum variant to streamline
-  construction of Enum variants with all required properties, instead of the
-	default object notation.
-!*/
-
-//>
-type Colour = Enum<{
-	Transparent: true;
-	RGB: Record<"r" | "g" | "b", number>;
-}>;
-
-export const Colour = Enum.builder({} as Colour, {
-	RGB: (r: number, g: number, b: number) => ({ r, g, b }),
-});
-
-{
-	const color: Colour = Colour.RGB(4, 2, 0);
-	void color;
-
-	void ((): Colour => Colour.RGB(0, 0, 0));
-	void ((): Colour => Colour.Transparent());
-}
-//<
-
-/*!
-### Enums with arbitrary discriminants
+### Enums with custom discriminants
 - Instead of using the default discriminant, all types and utilities can
   specify a custom discriminant as an optional argument.
 !*/
@@ -368,7 +398,27 @@ export type File = Enum<
 !*/
 
 /*!
-##### (a) object expression
+##### (a) builder function
+- Use `builder_` which requires the discriminant to be passed as an argument.
+!*/
+
+//>
+import { builder_ } from "unenum";
+
+export const File = builder_({} as File, "mime" /* <-- */);
+
+{
+	const file: File = File["text/plain"]({ data: "..." });
+	void file;
+
+	void (() => File["text/plain"]({ data: "..." }));
+	void (() => File["image/jpeg"]({ data: Buffer.from("...") }));
+	void (() => File["application/json"]({ data: JSON.parse("{}") }));
+}
+//<
+
+/*!
+##### (b) object expression
 !*/
 
 //>
@@ -383,28 +433,28 @@ export type File = Enum<
 //<
 
 /*!
-##### (b) helper function
-!*/
-
-//>
-export const File = Enum.builder_({} as File, "mime" /* <-- */);
-
-{
-	const file: File = File["text/plain"]({ data: "..." });
-	void file;
-
-	void (() => File["text/plain"]({ data: "..." }));
-	void (() => File["image/jpeg"]({ data: Buffer.from("...") }));
-	void (() => File["application/json"]({ data: JSON.parse("{}") }));
-}
-//<
-
-/*!
 #### Using
 !*/
 
 /*!
-#### (a.1) if statements, property access
+#### (a.1) if statements, type-guard helper
+- Use `is_` which requires the discriminant to be passed as an argument.
+!*/
+
+//>
+(function (file: File): string {
+	if (is_(file, "mime" /* <-- */, "text/plain")) {
+		return `Text`;
+	}
+	if (is_(file, "mime" /* <-- */, "image/jpeg")) {
+		return "Image";
+	}
+	return "Unsupported";
+});
+//<
+
+/*!
+#### (a.2) if statements, property access
 !*/
 
 //>
@@ -420,28 +470,13 @@ export const File = Enum.builder_({} as File, "mime" /* <-- */);
 //<
 
 /*!
-#### (a.2) if statements, type-guard helper
+#### (b) match helper
+- Use `match_` which requires the discriminant to be passed as an argument.
 !*/
 
 //>
 (function (file: File): string {
-	if (Enum.is_(file, "mime" /* <-- */, "text/plain")) {
-		return `Text`;
-	}
-	if (Enum.is_(file, "mime" /* <-- */, "image/jpeg")) {
-		return "Image";
-	}
-	return "Unsupported";
-});
-//<
-
-/*!
-#### (b) match expression
-!*/
-
-//>
-(function (file: File): string {
-	return Enum.match_(file, "mime" /* <-- */, {
+	return match_(file, "mime" /* <-- */, {
 		"text/plain": () => "Text",
 		"image/jpeg": () => "Image",
 		_: () => "Unsupported",
@@ -451,7 +486,8 @@ export const File = Enum.builder_({} as File, "mime" /* <-- */);
 
 /*!
 ## `Result`
-- Represents either a success `value` (`Ok`) or a failure `error` (`Error`).
+- Represents either a success "value" (`Result.Ok`) or a failure "error"
+  (`Result.Error`).
 !*/
 
 //>
@@ -459,7 +495,7 @@ import { Result } from "unenum";
 //<
 
 /*!
-### Result without a `value` or `error`
+### Result without a value or error.
 !*/
 
 //>
@@ -472,8 +508,9 @@ import { Result } from "unenum";
 //<
 
 /*!
-### Result with a `value` and/or `error`
-- `never` is a valid type for `value` and `error`.
+### Result with a "value" and/or "error"
+- `never` may be used for either `Value` or `Error` parameters if only the base
+variant is needed without any value.
 !*/
 
 //>
@@ -487,7 +524,7 @@ import { Result } from "unenum";
 //<
 
 /*!
-### Using a Result `value`
+### Using a Result value
 !*/
 
 /*!
@@ -498,7 +535,7 @@ import { Result } from "unenum";
 (async function (): Promise<User | undefined> {
 	const $user = await (async () => ({}) as Promise<Result<User>>)();
 	// handle error
-	if (Enum.is($user, "Error")) {
+	if (is($user, "Error")) {
 		return undefined;
 	}
 	// continue with value
@@ -514,15 +551,20 @@ import { Result } from "unenum";
 //>
 (async function (): Promise<User | undefined> {
 	const $user = await (async () => ({}) as Promise<Result<User>>)();
-	return Enum.match($user, {
+	return match($user, {
 		Ok: ({ value: user }) => user,
-		Error: () => undefined,
+		Error: undefined,
 	});
 });
 //<
 
 /*!
-#### (c) value or undefined property access
+#### (c) value or `undefined` by property access
+- The `Result` type defines both `value` and `error` properties in both
+  `Result.Ok` and `Result.Error` variants, however either variant sets the value
+  of the other as an falsy optional `never` property.
+- This allows some cases where if your value is always truthy, you can skip
+  type narrowing by accepting `undefined` as the properties possible states.
 !*/
 
 //>
@@ -560,7 +602,7 @@ const getValueOrThrow = (): string => {
 	const result = Result.from(() => getValueOrThrow());
 	// Result<string, unknown>
 
-	if (Enum.is(result, "Error")) {
+	if (is(result, "Error")) {
 		// handle error
 		console.error(result.error);
 		return;
@@ -573,7 +615,7 @@ const getValueOrThrow = (): string => {
 
 /*!
 ## `Async`
-- Represents an asynchronous `value` that is either loading (`Pending`) or
+- Represents an asynchronous value that is either loading (`Pending`) or
 resolved (`Ready`). If defined with an `Enum` type, `Async` will omit its
 `Ready` variant in favour of the "non-pending" `Enum`'s variants.
 - Useful for representing states e.g. `use*` hooks.
@@ -584,7 +626,7 @@ import { Async } from "unenum";
 //<
 
 /*!
-### Async without a `value`
+### Async without a value
 !*/
 
 //>
@@ -597,7 +639,7 @@ import { Async } from "unenum";
 //<
 
 /*!
-### Async with a non-Enum `value`
+### Async with a non-Enum value
 !*/
 
 //>
@@ -613,8 +655,8 @@ const useDeferredName = (): string | undefined => undefined;
 //<
 
 /*!
-### Async with a Enum `value`
-- Which extends the given Enum `value` type with Async's `Pending` variant.
+### Async with a Enum value
+- Which extends the given Enum value type with Async's `Pending` variant.
 - You can use both `Async` and `Result` helpers together.
 !*/
 
@@ -634,7 +676,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //<
 
 /*!
-### Using a Async `value`
+### Using a Async value
 !*/
 
 /*!
@@ -644,12 +686,12 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component(): string {
 	const $user = (() => ({}) as Async<Result<User, "E">>)();
-	if (Enum.is($user, "Pending")) {
+	if (is($user, "Pending")) {
 		return `<Loading />`;
 	}
 
 	// handle error
-	if (Enum.is($user, "Error")) {
+	if (is($user, "Error")) {
 		const { error } = $user;
 		return `<Error error=${error} />`;
 	}
@@ -667,7 +709,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component() {
 	const $user = (() => ({}) as Async<Result<User, unknown>>)();
-	return Enum.match($user, {
+	return match($user, {
 		Pending: () => `<Loading />`,
 		Error: ({ error }) => `<Error error=${error} />`,
 		Ok: ({ value: user }) => `<Profile user=${user} />`,
@@ -682,7 +724,7 @@ const useResource = <T>() => [{} as T | undefined, { loading: false }] as const;
 //>
 (function Component() {
 	const $user = (() => ({}) as Async<Result<User, "E">>)();
-	if (Enum.is($user, "Pending")) {
+	if (is($user, "Pending")) {
 		return `<Loading />`;
 	}
 

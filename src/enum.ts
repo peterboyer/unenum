@@ -12,18 +12,9 @@ export type Enum<
 			: never;
 }[keyof TVariants];
 
-import { is, is_ } from "./enum.is.js";
-import { match, match_ } from "./enum.match.js";
-import { builder, builder_ } from "./enum.builder.js";
-
-export const Enum = {
-	is,
-	is_,
-	match,
-	match_,
-	builder,
-	builder_,
-};
+export { is, is_ } from "./enum.is.js";
+export { match, match_ } from "./enum.match.js";
+export { builder, builder_ } from "./enum.builder.js";
 
 export namespace Enum {
 	export type Any<TDiscriminant extends Discriminant = Discriminant.Default> =
