@@ -1,4 +1,13 @@
-import { Enum, Async, Result } from "unenum";
+import {
+	type Enum,
+	Async,
+	Result,
+	is,
+	match,
+	builder,
+	is_,
+	match_,
+} from "unenum";
 
 type WebEvent = Enum<{
 	PageLoad: true;
@@ -8,7 +17,7 @@ type WebEvent = Enum<{
 	Click: { x: number; y: number };
 }>;
 
-const WebEvent = Enum.builder({} as WebEvent, {
+const WebEvent = builder({} as WebEvent, {
 	KeyPress: (key: string) => ({ key }),
 	Paste: (content: string) => ({ content }),
 });
@@ -23,16 +32,16 @@ function getWebEvent(): WebEvent | Enum<{ None: true }> {
 }
 
 function inspect(event: WebEvent): string | undefined {
-	if (Enum.is(event, "PageLoad")) console.log(event);
-	else if (Enum.is(event, "PageUnload")) console.log(event);
-	else if (Enum.is(event, "KeyPress")) console.log(event, event.key);
-	else if (Enum.is(event, "Paste")) console.log(event, event.content);
-	else if (Enum.is(event, "Click")) console.log(event, event.x, event.y);
+	if (is(event, "PageLoad")) console.log(event);
+	else if (is(event, "PageUnload")) console.log(event);
+	else if (is(event, "KeyPress")) console.log(event, event.key);
+	else if (is(event, "Paste")) console.log(event, event.content);
+	else if (is(event, "Click")) console.log(event, event.x, event.y);
 	return "foo";
 }
 
 function getEventPageType(event: WebEvent): "load" | "unload" | undefined {
-	return Enum.match(event, {
+	return match(event, {
 		PageLoad: "load" as const,
 		PageUnload: "unload" as const,
 		_: undefined,
@@ -47,14 +56,14 @@ function useAsyncResult(): Async<Result<string, "FooError">> {
 
 function app() {
 	const result = useAsyncResult();
-	Enum.match(result, {
+	match_(result, "_type", {
 		Pending: () => console.log("..."),
 		Ok: ({ value }) => console.log(value),
 		Error: ({ error }) => console.error(error),
 	});
 
 	const event = getWebEvent();
-	if (Enum.is(event, "None")) {
+	if (is_(event, "_type", "None")) {
 		return;
 	}
 
@@ -62,7 +71,7 @@ function app() {
 	console.log(eventPageType);
 
 	const $inspect = Result.from(() => inspect(event));
-	if (Enum.is($inspect, "Error")) {
+	if (is($inspect, "Error")) {
 		return console.log($inspect.error);
 	}
 	return console.log(event);

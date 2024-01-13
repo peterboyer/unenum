@@ -1,5 +1,5 @@
 import type { Expect, Equal } from "./testing.js";
-import { Enum } from "./enum.js";
+import { type Enum, match, match_ } from "./enum.js";
 
 describe("match", () => {
 	describe("default discriminant", () => {
@@ -15,7 +15,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: "One" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -24,7 +24,7 @@ describe("match", () => {
 			// all cases as fns
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -33,7 +33,7 @@ describe("match", () => {
 			// only fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -55,7 +55,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: "One" as const,
 						Two: "Two" as const,
 					});
@@ -65,7 +65,7 @@ describe("match", () => {
 			// all cases as fns
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 					});
@@ -75,7 +75,7 @@ describe("match", () => {
 			// only fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						_: "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -84,7 +84,7 @@ describe("match", () => {
 			// only fn fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -93,7 +93,7 @@ describe("match", () => {
 			// one case and fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 						_: "Fallback" as const,
 					});
@@ -103,7 +103,7 @@ describe("match", () => {
 			// all cases and fn fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 						_: () => "Fallback" as const,
 					});
@@ -113,7 +113,7 @@ describe("match", () => {
 			// all cases and undefined as fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 						_: undefined,
 					});
@@ -123,7 +123,7 @@ describe("match", () => {
 			// all cases, some using value properties
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
@@ -138,7 +138,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 						_: undefined,
@@ -150,7 +150,7 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						_: () => "Unknown",
 					});
 
@@ -161,7 +161,7 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					Enum.match(value, {
+					match(value, {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
@@ -187,7 +187,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "One">>;
@@ -196,7 +196,7 @@ describe("match", () => {
 			// only fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -205,7 +205,7 @@ describe("match", () => {
 			// all cases and forbid fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 						_: undefined,
 					});
@@ -228,7 +228,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 					});
@@ -238,7 +238,7 @@ describe("match", () => {
 			// only fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						_: () => "Fallback" as const,
 					});
 				!0 as Expect<Equal<ReturnType<typeof fn>, "Fallback">>;
@@ -247,7 +247,7 @@ describe("match", () => {
 			// one case and fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 						_: () => "Fallback" as const,
 					});
@@ -257,7 +257,7 @@ describe("match", () => {
 			// all cases and fallback
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 						_: undefined,
@@ -268,7 +268,7 @@ describe("match", () => {
 			// all cases, some using value properties
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
@@ -283,7 +283,7 @@ describe("match", () => {
 			// all cases
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => "One" as const,
 						Two: () => "Two" as const,
 						_: undefined,
@@ -295,7 +295,7 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						_: () => "Unknown",
 					});
 
@@ -306,7 +306,7 @@ describe("match", () => {
 
 			{
 				const fn = (value: Value) =>
-					Enum.match_(value, "custom", {
+					match_(value, "custom", {
 						One: () => 0,
 						Two: ({ value }) => value,
 						_: () => "Unknown",
